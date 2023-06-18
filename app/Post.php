@@ -32,4 +32,8 @@ class Post extends Model
     public function getCreatedAtAttribute($value) {
         return (new Carbon($value))->diffForHumans();
     }
+
+    public function likes() {
+        return $this->belongsToMany(User::class, 'likes', 'post_id', 'user_id');
+    }
 }

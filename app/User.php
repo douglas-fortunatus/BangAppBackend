@@ -112,4 +112,8 @@ class User extends Authenticatable implements JWTSubject
     public function getCreatedAtAttribute($value) {
         return (new Carbon($value))->diffForHumans();
     }
+
+    public function likedPosts(){
+        return $this->belongsToMany(Post::class, 'likes', 'user_id', 'post_id');
+    }
 }

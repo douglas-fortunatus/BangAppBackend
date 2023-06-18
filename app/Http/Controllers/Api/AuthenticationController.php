@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\User;
+use App\Post;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Http\Request;
@@ -40,8 +41,7 @@ class AuthenticationController extends Controller
 
         $token = JWTAuth::attempt(['email' => $request->email, 'password' => $request->password]);
 
-        return response(['user' => $user, 'access_token' => $token]);
-
+        return response(['name'=>$user->name,'token'=>$token,'id'=>$user->id,'email'=>$user->email,'image'=>env('APP_URL').$user->image]);
     }
 
     public function login(Request $request)
@@ -69,7 +69,7 @@ class AuthenticationController extends Controller
         return response()->json([
             'token' => $token,
             'user_id' => $user->id,
-            'user_image' => baseUrl().$user->image,
+            'user_image' => env('APP_URL').$user->image,
             'name' => $user->name,
         ]);
     }
@@ -87,6 +87,7 @@ class AuthenticationController extends Controller
             'followed',
             'created_at',
         ]);
+
         return response(['data' => $user, 'message' => 'success'], 200);
     }
 
