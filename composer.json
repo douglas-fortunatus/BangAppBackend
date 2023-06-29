@@ -20,6 +20,7 @@
         "laravel/legacy-factories": "^1.1",
         "laravel/passport": "^10.0",
         "laravel/tinker": "^2.0",
+        "laravel/ui": "^4.2",
         "php-ffmpeg/php-ffmpeg": "^1.1",
         "tymon/jwt-auth": "^1.0@dev"
     },

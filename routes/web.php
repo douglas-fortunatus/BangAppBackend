@@ -20,3 +20,10 @@ Route::get('/', function () {
     $posts = Post::all();
     return view('welcome')->with(['categories' => $categories, 'posts' => $posts]);
 })->name('welcome');
+
+Route::post('/post/bang/updates', [App\Http\Controllers\HomeController::class, 'postBangUpdates'])->name('postBangUpdates');
+
+
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

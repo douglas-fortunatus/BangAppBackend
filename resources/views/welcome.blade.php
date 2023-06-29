@@ -1,140 +1,187 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Bang App</title>
 
-    <title>Laravel</title>
+    <!-- Global stylesheets -->
+    <link href="{{asset('assets/css/inter.css')}}" rel="stylesheet" type="text/css">
+    <link href="{{asset('assets/css/styles.min.css')}}" rel="stylesheet" type="text/css">
+    <link href="{{asset('assets/css/all.min.css')}}" id="stylesheet" rel="stylesheet" type="text/css">
+    <!-- /global stylesheets -->
 
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css?family=Nunito:200,600" rel="stylesheet">
+    <!-- Core JS files -->
+    <script src="{{asset('assets/js/demo_configurator.js')}}"></script>
+    <script src="{{asset('assets/js/bootstrap.bundle.min.js')}}"></script>
+    <!-- /core JS files -->
 
-    <!-- Styles -->
-    <style>
-        html,
-        body {
-            background-color: #fff;
-            color: #636b6f;
-            font-family: 'Nunito', sans-serif;
-            font-weight: 200;
-            height: 100vh;
-            margin: 0;
-        }
+    <!-- Theme JS files -->
+    <script src="{{asset('assets/js/app.js')}}"></script>
+    <!-- /theme JS files -->
 
-        .full-height {
-            height: 100vh;
-        }
-
-        .flex-center {
-            align-items: center;
-            display: flex;
-            justify-content: center;
-        }
-
-        .position-ref {
-            position: relative;
-        }
-
-        .top-right {
-            position: absolute;
-            right: 10px;
-            top: 18px;
-        }
-
-        .content {
-            text-align: center;
-        }
-
-        .title {
-            font-size: 84px;
-        }
-
-        .links>a {
-            color: #636b6f;
-            padding: 0 25px;
-            font-size: 13px;
-            font-weight: 600;
-            letter-spacing: .1rem;
-            text-decoration: none;
-            text-transform: uppercase;
-        }
-
-        .m-b-md {
-            margin-bottom: 30px;
-        }
-
-    </style>
 </head>
+
 <body>
-    <div class="flex-center position-ref full-height">
-        @if(count($errors) > 0)
-        @foreach($errors->all() as $error)
-        <div class="lg:mx-12 mx-4 m-2 m-0 px-4 md:px-12 py-5 rounded bg-red-200 text-red-600">
-            <li>{!! $error !!}</li>
-        </div>
-        @endforeach
-        @endif
 
-        @if (Session::has('success'))
-        <div class="lg:mx-12 mx-4 m-2 m-0 px-4 md:px-12 py-5 rounded bg-green-200 text-green-600">
-            {{ Session::get('success') }}
-        </div>
-        @endif
-        @if (Session::has('error'))
-        <div class="lg:mx-12 mx-4 m-2 m-0 px-4 md:px-12 py-5 rounded bg-red-200 text-red-600">
-            <strong>Errors:</strong>
-            {{ Session::get('error') }}
-        </div>
-        @endif
-
-        @if (Route::has('login'))
-        <div class="top-right links">
-            @auth
-            <a href="{{ url('/home') }}">Home</a>
-            @else
-            <a href="{{ route('login') }}">Login</a>
-
-            @if (Route::has('register'))
-            <a href="{{ route('register') }}">Register</a>
-            @endif
-            @endauth
-        </div>
-        @endif
-
-        <div class="content">
-            <div class="title m-b-md">
-                Laravel
+    <!-- Main navbar -->
+    <div class="navbar navbar-dark navbar-static py-2">
+        <div class="container-fluid">
+            <div class="navbar-brand">
+                <a href="index.html" class="d-inline-flex align-items-center">
+                    <img src="../../../assets/images/logo_icon.svg" alt="">
+                    <img src="../../../assets/images/logo_text_light.svg" class="d-none d-sm-inline-block h-16px ms-3" alt="">
+                </a>
             </div>
 
-            <div>
-                <form action="{{ route('store') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <select name="category_id">
-                        @foreach ($categories as $category)
-                        <option value="{{ $category->id }}">{{$category->name}}</option>
-                        @endforeach
-                    </select>
-                    <input type="text" name="body">
-                    <input type="file" name="image">
-                    <button type="submit">submit</button>
-                </form>
+            <div class="d-flex justify-content-end align-items-center ms-auto">
+                <ul class="navbar-nav flex-row">
+                    <li class="nav-item">
+                        <a href="#" class="navbar-nav-link navbar-nav-link-icon rounded ms-1">
+                            <div class="d-flex align-items-center mx-md-1">
+                            <i class="ph-lifebuoy"></i>
+                            <span class="d-none d-md-inline-block ms-2">Support</span>
+                        </div>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="navbar-nav-link navbar-nav-link-icon rounded ms-1">
+                            <div class="d-flex align-items-center mx-md-1">
+                            <i class="ph-user-circle-plus"></i>
+                            <span class="d-none d-md-inline-block ms-2">Register</span>
+                        </div>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="navbar-nav-link navbar-nav-link-icon rounded ms-1">
+                            <div class="d-flex align-items-center mx-md-1">
+                            <i class="ph-user-circle"></i>
+                            <span class="d-none d-md-inline-block ms-2">Login</span>
+                        </div>
+                        </a>
+                    </li>
+                </ul>
             </div>
-            @foreach ($posts as $post)
-            <div>
-                @if ($post->image)
-                <a href="{{ route('posts.show', $post->id) }}"><img src="{{ $post->image }}" alt=""></a>
-                @endif
-                @if ($post->body)
-                <a href="{{ route('posts.show', $post->id) }}">{{ $post->body }}</a>
-                @endif
-                <form action="{{ route('destroy', $post->id) }}" method="POST">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit">delete</button>
-                </form>
-            </div>
-            @endforeach
         </div>
     </div>
+    <!-- /main navbar -->
+
+
+    <!-- Page content -->
+    <div class="page-content">
+
+        <!-- Main content -->
+        <div class="content-wrapper">
+
+            <!-- Inner content -->
+            <div class="content-inner">
+
+                <!-- Content area -->
+                <div class="content d-flex justify-content-center align-items-center">
+
+                    <!-- Login form -->
+                    <form class="login-form" action="{{ route('login') }}">
+                        <div class="card mb-0">
+                            <div class="card-body">
+                                <div class="text-center mb-3">
+                                    <div class="d-inline-flex align-items-center justify-content-center mb-4 mt-2">
+                                        <img src="../../../assets/images/logo_icon.svg" class="h-48px" alt="">
+                                    </div>
+                                    <h5 class="mb-0">Login to your account</h5>
+                                    <span class="d-block text-muted">Enter your credentials below</span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Email</label>
+                                    <div class="form-control-feedback form-control-feedback-start">
+                                        <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus>
+                                        <div class="form-control-feedback-icon">
+                                            <i class="ph-user-circle text-muted"></i>
+                                        </div>
+                                    </div>
+                                    @error('email')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Password</label>
+                                    <div class="form-control-feedback form-control-feedback-start">
+                                        <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="current-password">
+                                        <div class="form-control-feedback-icon">
+                                            <i class="ph-lock text-muted"></i>
+                                        </div>
+                                        @error('password')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <button type="submit" class="btn btn-primary w-100">Sign in</button>
+                                </div>
+
+                                <div class="text-center">
+                                    <a href="login_password_recover.html">Forgot password?</a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <!-- /login form -->
+
+                </div>
+                <!-- /content area -->
+
+
+                <!-- Footer -->
+                <div class="navbar navbar-sm navbar-footer border-top">
+                    <div class="container-fluid">
+                        <span>&copy; 2023 <a href="https://themeforest.net/item/limitless-responsive-web-application-kit/13080328">Bang App</a></span>
+
+                        <ul class="nav">
+                            <li class="nav-item">
+                                <a href="https://kopyov.ticksy.com/" class="navbar-nav-link navbar-nav-link-icon rounded" target="_blank">
+                                    <div class="d-flex align-items-center mx-md-1">
+                                        <i class="ph-lifebuoy"></i>
+                                        <span class="d-none d-md-inline-block ms-2">Support</span>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="nav-item ms-md-1">
+                                <a href="https://demo.interface.club/limitless/demo/Documentation/index.html" class="navbar-nav-link navbar-nav-link-icon rounded" target="_blank">
+                                    <div class="d-flex align-items-center mx-md-1">
+                                        <i class="ph-file-text"></i>
+                                        <span class="d-none d-md-inline-block ms-2">Docs</span>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="nav-item ms-md-1">
+                                <a href="https://themeforest.net/item/limitless-responsive-web-application-kit/13080328?ref=kopyov" class="navbar-nav-link navbar-nav-link-icon text-primary bg-primary bg-opacity-10 fw-semibold rounded" target="_blank">
+                                    <div class="d-flex align-items-center mx-md-1">
+                                        <i class="ph-shopping-cart"></i>
+                                        <span class="d-none d-md-inline-block ms-2">Purchase</span>
+                                    </div>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- /footer -->
+
+            </div>
+            <!-- /inner content -->
+
+        </div>
+        <!-- /main content -->
+
+    </div>
+    <!-- /page content -->
+
+
 </body>
 </html>

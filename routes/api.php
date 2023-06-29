@@ -11,10 +11,23 @@ use App\User;
 use FFMpeg\FFMpeg;
 use getID3\getID3;
 use FFMpeg\Coordinate\Dimension;
+use App\BangUpdate;
 
 global $appUrl;
-$appUrl = "http://192.168.137.66/social-backend-laravel/";
+$appUrl = "http://192.168.148.229/social-backend-laravel/";
 
+
+Route::get('/bang-updates', function () {
+
+    $appUrl = "http://192.168.148.229/social-backend-laravel/";
+    $bangUpdates = BangUpdate::all();
+    $formattedUpdates = $bangUpdates->map(function ($update) use ($appUrl) {
+        $update->filename = $appUrl .'storage/app/bangUpdates/'. $update->filename;
+        return $update;
+    });
+
+    return response()->json($formattedUpdates);
+});
 
 Route::post('imageadd', function(Request $request){
     $image = new Post;
@@ -61,99 +74,9 @@ Route::get('/comments', function(Post $post){
     return response(['data' => $comments, 'message' => 'success'], 200);
 });
 
-// Route::get('/getPosts', function() {
-//     $posts = Post::latest()
-//         ->with([
-//             'category' => function($query) {
-//                 $query->select('id', 'name');
-//             },
-//             'likes' => function($query) {
-//                 $query->select('post_id', DB::raw('count(*) as like_count'))
-//                     ->groupBy('post_id');
-//             }
-//         ])
-//         ->paginate(10);
-
-//     $posts->getCollection()->transform(function($post) {
-//         $post->image = env('APP_URL').'storage/app/'.$post->image;
-//         $post->challenge_img ? $post->challenge_img = env('APP_URL').'storage/app/'.$post->challenge_img : $post->challenge_img = null;
-        
-//         // Check if the media file is an image
-//         $imageData = file_get_contents($post->image);
-//         $imageInfo = getimagesizefromstring($imageData);
-        
-//         if ($imageInfo !== false) {
-//             // Image file
-//             $width = $imageInfo[0];
-//             $height = $imageInfo[1];
-//             $post->mediaType = 'image';
-//             $post->width = $width;
-//             $post->height = $height;
-//         } else {
-//             // Video file
-//             $ffmpeg = \FFMpeg\FFMpeg::create([
-//                 'ffmpeg.binaries'  => '/usr/local/bin/ffmpeg',
-//                 'ffprobe.binaries' => '/usr/local/bin/ffprobe'
-//             ]);
-//             $video = $ffmpeg->open($post->image);
-//             $dimensions = $video->getStreams()->first()->getDimensions();
-//             $width = $dimensions->getWidth();
-//             $height = $dimensions->getHeight();
-//             $post->mediaType = 'video';
-//             $post->width = $width;
-//             $post->height = $height;
-//             // $post->video
-//         }
-
-//         // Retrieve the like count
-//         $likeCount = 0;
-//         if ($post->likes->isNotEmpty()) {
-//             $likeCount = $post->likes[0]->like_count;
-//         }
-//         $post->likeCount = $likeCount;
-
-//         return $post;
-//     });
-
-//     return response(['data' => $posts, 'message' => 'success'], 200);
-// });
-
-// Route::get('/getPosts', function() {
-//     $posts = Post::latest()
-//         ->with([
-//             'category' => function($query) {
-//                 $query->select('id', 'name');
-//             },
-//             'likes' => function($query) {
-//                 $query->select('post_id', DB::raw('count(*) as like_count'))
-//                     ->groupBy('post_id');
-//             }
-//         ])->paginate(10);
-//     $posts->getCollection()->transform(function($post) {
-//         global $appUrl;
-//         $post->image = $appUrl.'storage/app/'.$post->image;
-//         $post->challenge_img ? $post->challenge_img = $appUrl.'storage/app/'.$post->challenge_img : $post->challenge_img = null;
-//         $post->video ? $post->video = $appUrl.'storage/app/'.$post->video : $post->video = null;
-
-//         if($post->image){
-//             list($post->width, $post->height) = getimagesize($post->image);
-//         }
-//         // Retrieve the like count
-//         $likeCount = 0;
-//         if ($post->likes->isNotEmpty()) {
-//             $likeCount = $post->likes[0]->like_count;
-//         }
-//         $post->likeCount = $likeCount;
-//         // $post->video = getVideo($post->video);
-
-//         return $post;
-//     });
-
-//     return response(['data' => $posts, 'message' => 'success'], 200);
-// });
 
 Route::get('/getPosts', function() {
-    $appUrl = "http://192.168.137.66/social-backend-laravel/";
+    $appUrl = "http://192.168.148.229/social-backend-laravel/";
     $posts = Post::latest()
         ->with([
             'category' => function($query) {
