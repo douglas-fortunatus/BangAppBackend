@@ -23,6 +23,14 @@ Route::get('/', function () {
 
 Route::post('/post/bang/updates', [App\Http\Controllers\HomeController::class, 'postBangUpdates'])->name('postBangUpdates');
 
+Route::post('/post/bang/inspiration', [App\Http\Controllers\HomeController::class, 'postBangInspiration'])->name('postBangInspiration');
+
+Route::post('/post/bang/thumbnail', [App\Http\Controllers\HomeController::class, 'postBangThumbnail'])->name('postBangThumbnail');
+
+
+Route::get('/bang/inspiration', [App\Http\Controllers\HomeController::class, 'bangInspiration'])->name('bangInspiration');
+
+
 
 Auth::routes();
 

@@ -12,14 +12,16 @@ use FFMpeg\FFMpeg;
 use getID3\getID3;
 use FFMpeg\Coordinate\Dimension;
 use App\BangUpdate;
+use App\bangInspiration;
+
 
 global $appUrl;
-$appUrl = "http://192.168.148.229/social-backend-laravel/";
+$appUrl = "http://192.168.164.229/social-backend-laravel/";
 
 
 Route::get('/bang-updates', function () {
 
-    $appUrl = "http://192.168.148.229/social-backend-laravel/";
+    $appUrl = "http://192.168.164.229/social-backend-laravel/";
     $bangUpdates = BangUpdate::all();
     $formattedUpdates = $bangUpdates->map(function ($update) use ($appUrl) {
         $update->filename = $appUrl .'storage/app/bangUpdates/'. $update->filename;
@@ -75,8 +77,22 @@ Route::get('/comments', function(Post $post){
 });
 
 
+Route::get('/get/bangInspirations',function(){
+    $appUrl = "http://192.168.164.229/social-backend-laravel/";
+    $bangInspirations = bangInspiration::all();
+    $formattedInspirations = $bangInspirations->map(function ($update) use ($appUrl) {
+        $update->profile_url = $appUrl . 'storage/app/bangInspiration/' . $update->profile_url;
+        $update->video_url = $appUrl .'storage/app/bangInspiration/'. $update->video_url;
+        $update->thumbnail = $appUrl . 'storage/app/bangInspiration/'. $update->thumbnail;
+        return $update;
+    });
+
+    return response()->json($formattedInspirations);
+});
+
+
 Route::get('/getPosts', function() {
-    $appUrl = "http://192.168.148.229/social-backend-laravel/";
+    $appUrl = "http://192.168.164.229/social-backend-laravel/";
     $posts = Post::latest()
         ->with([
             'category' => function($query) {
