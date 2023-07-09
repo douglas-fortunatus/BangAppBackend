@@ -87,7 +87,6 @@ class PostsController extends Controller
         ])->findOrFail($id);
         return response(['data' => $post, 'message' => 'success'], 200);
     }
-
     /**
      * Update the specified resource in storage.
      *
