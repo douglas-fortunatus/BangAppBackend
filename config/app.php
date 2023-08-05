@@ -39,7 +39,7 @@ return [
     |
     */
 
-    'debug' => (bool) env('APP_DEBUG', false),
+    'debug' => (bool) env('APP_DEBUG', true),
 
     /*
     |--------------------------------------------------------------------------
@@ -162,7 +162,8 @@ return [
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
         JD\Cloudder\CloudderServiceProvider::class,
-
+        Kreait\Laravel\Firebase\ServiceProvider::class,
+        
         /*
          * Package Service Providers...
          */

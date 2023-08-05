@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateNotificationsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -13,15 +13,17 @@ class CreateNotificationsTable extends Migration
      */
     public function up()
     {
-        Schema::create('notifications', function (Blueprint $table) {
+        Schema::create('challenges', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('post_id');
             $table->unsignedBigInteger('user_id');
-            $table->text('message');
-            $table->string('type', 50);
-            $table->unsignedBigInteger('reference_id')->nullable();
-            $table->tinyInteger('is_read')->default(0);
+            $table->string('challenge_img', 191);
+            $table->text('body')->nullable();
+            $table->string('public_id')->nullable();
+            $table->enum('type', ['image', 'video']);            
+            $table->boolean('confirmed')->default(false);
             $table->timestamps();
-            // Add foreign key constraint to link user_id with the users table
+            $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
@@ -33,6 +35,6 @@ class CreateNotificationsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('notifications');
+        Schema::dropIfExists('challenges');
     }
-}
+};

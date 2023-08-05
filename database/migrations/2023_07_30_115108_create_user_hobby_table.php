@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateNotificationsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -13,16 +13,16 @@ class CreateNotificationsTable extends Migration
      */
     public function up()
     {
-        Schema::create('notifications', function (Blueprint $table) {
+        Schema::create('user_hobby', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->text('message');
-            $table->string('type', 50);
-            $table->unsignedBigInteger('reference_id')->nullable();
-            $table->tinyInteger('is_read')->default(0);
+            $table->unsignedBigInteger('hobby_id');
             $table->timestamps();
-            // Add foreign key constraint to link user_id with the users table
+            // Define foreign keys
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('hobby_id')->references('id')->on('hobbies')->onDelete('cascade');
+            // Define a unique constraint to ensure each user can have a hobby only once
+            $table->unique(['user_id', 'hobby_id']);
         });
     }
 
@@ -33,6 +33,6 @@ class CreateNotificationsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('notifications');
+        Schema::dropIfExists('user_hobby');
     }
-}
+};

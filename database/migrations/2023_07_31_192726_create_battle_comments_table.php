@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePostsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,11 @@ class CreatePostsTable extends Migration
      */
     public function up()
     {
-        Schema::create('posts', function (Blueprint $table) {
+        Schema::create('battle_comments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users');
-            $table->text('body')->nullable();
-            $table->enum('type', ['image', 'video']);
-            $table->string('image')->nullable();
-            $table->string('challenge_img')->nullable();
-            $table->string('public_id')->nullable();
+            $table->foreignId('post_id')->constrained('bang_battles');
+            $table->text('body');
             $table->timestamps();
         });
     }
@@ -32,6 +29,6 @@ class CreatePostsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('posts');
+        Schema::dropIfExists('battle_comments');
     }
-}
+};

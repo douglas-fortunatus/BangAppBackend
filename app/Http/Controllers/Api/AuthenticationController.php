@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\User;
 use App\Post;
+use App\UserHobby;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Http\Request;
@@ -27,6 +28,8 @@ class AuthenticationController extends Controller
             'password' => ['required', 'string', 'min:6', 'max:30'],
             'phone_number' => ['required', 'regex:/^[0-9]{10}$/'],
             'date_of_birth' => ['required', 'date', 'before:-18 years'],
+            'occupation' => ['required'],
+
         ]);
 
         if ($validator->fails()) {
@@ -38,33 +41,33 @@ class AuthenticationController extends Controller
         $validatedData['password'] = bcrypt($request->password);
 
         $user = User::create($validatedData);
+        if(json_decode($request->hobbies) > 0){
+            foreach (json_decode($request->hobbies) as $key => $value) {
+                UserHobby::create(['user_id'=>$user->id,'hobby_id'=>$value]);
+            }
+        }
 
         $token = JWTAuth::attempt(['email' => $request->email, 'password' => $request->password]);
 
-        return response(['name'=>$user->name,'token'=>$token,'id'=>$user->id,'email'=>$user->email,'image'=>env('APP_URL').$user->image]);
+        return response(['name'=>$user->name,'access_token'=>$token,'id'=>$user->id,'email'=>$user->email,'image'=>env('APP_URL').$user->image]);
     }
 
     public function login(Request $request)
-    {
-            
+    {    
        $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required',
         ]);
-
         if ($validator->fails()) {
             return response()->json(['error' => 'invalid_credentials'], 401);
         }
-
         $credentials = $request->only('email', 'password');
 
         if (! $token = JWTAuth::attempt($credentials)) {
             return response()->json(['error' => 'invalid_credentials'], 401);
         }
-
         // Get the authenticated user from the JWT token
         $user = JWTAuth::user();
-
         // Return the token and user ID in the response
         return response()->json([
             'token' => $token,

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateNotificationsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -13,16 +13,14 @@ class CreateNotificationsTable extends Migration
      */
     public function up()
     {
-        Schema::create('notifications', function (Blueprint $table) {
+        Schema::create('battle_likes', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->text('message');
-            $table->string('type', 50);
-            $table->unsignedBigInteger('reference_id')->nullable();
-            $table->tinyInteger('is_read')->default(0);
-            $table->timestamps();
-            // Add foreign key constraint to link user_id with the users table
+            $table->unsignedBigInteger('battle_id');
+            $table->enum('like_type', ['A', 'B']);
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('battle_id')->references('id')->on('bang_battles')->onDelete('cascade');
+            $table->timestamps();
         });
     }
 
@@ -33,6 +31,6 @@ class CreateNotificationsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('notifications');
+        Schema::dropIfExists('battle_likes');
     }
-}
+};
