@@ -163,7 +163,8 @@ return [
         Illuminate\View\ViewServiceProvider::class,
         JD\Cloudder\CloudderServiceProvider::class,
         Kreait\Laravel\Firebase\ServiceProvider::class,
-        
+        App\Providers\EventServiceProvider::class,
+        BeyondCode\LaravelWebSockets\WebSocketsServiceProvider::class,
         /*
          * Package Service Providers...
          */

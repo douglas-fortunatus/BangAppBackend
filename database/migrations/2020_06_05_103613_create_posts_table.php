@@ -21,6 +21,7 @@ class CreatePostsTable extends Migration
             $table->string('image')->nullable();
             $table->string('challenge_img')->nullable();
             $table->string('public_id')->nullable();
+            $table->decimal('video_height', $precision = 8, $scale = 2)->nullable();
             $table->timestamps();
         });
     }

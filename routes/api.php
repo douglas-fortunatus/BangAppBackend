@@ -19,22 +19,46 @@ use App\DeletedPost;
 use App\Hobby;
 use App\BattleComment;
 use App\BangBattle;
+use App\bangUpdateComment;
 use Illuminate\Validation\Rule;
 use App\Http\Controllers\PushNotificationService;
 use Illuminate\Support\Facades\DB;
 
 global $appUrl;
-$appUrl = "http://192.168.165.229/social-backend-laravel/";
+$appUrl = "https://alitaafrica.com/social-backend-laravel/";
 
 Route::get('/users/search', 'App\Http\Controllers\UserController@search');
 
+Route::get('/bang-updatesnew', function (\Illuminate\Http\Request $request) {
+    $appUrl = "https://alitaafrica.com/social-backend-laravel/";
+    
+    $page = $request->query('_page', 1);
+    $limit = $request->query('_limit', 4);
+    
+    $bangUpdates = BangUpdate::all();
+    
+    $formattedUpdates = $bangUpdates->getCollection()->map(function ($update) use ($appUrl) {
+        $update->filename = $appUrl .'storage/app/bangUpdates/'. $update->filename;
+        return $update;
+    });
+    
+    $paginatedResponse = [
+        'data' => $formattedUpdates,
+        'meta' => [
+            'currentPage' => $bangUpdates->currentPage(),
+            'perPage' => $bangUpdates->perPage(),
+            'totalPages' => $bangUpdates->lastPage(),
+            'totalItems' => $bangUpdates->total(),
+        ],
+    ];
+
+    return response()->json($paginatedResponse);
+});
+
 Route::get('/bang-updates', function () {
-    $appUrl = "http://192.168.165.229/social-backend-laravel/";
-    $bangUpdates = BangUpdate::with([
-        'bang_update_likes' => function($query) {
-            $query->select('post_id', DB::raw('count(*) as like_count'))
-                ->groupBy('post_id');
-        }])->paginate(10);
+
+    $appUrl = "https://alitaafrica.com/social-backend-laravel/";
+    $bangUpdates = BangUpdate::orderBy('created_at', 'desc')->get();
     $formattedUpdates = $bangUpdates->map(function ($update) use ($appUrl) {
         $update->filename = $appUrl .'storage/app/bangUpdates/'. $update->filename;
         return $update;
@@ -43,18 +67,21 @@ Route::get('/bang-updates', function () {
     return response()->json($formattedUpdates);
 });
 
+
 Route::post('imageadd', function(Request $request){
     $image = new Post;
-    $image->body = $request->caption;
+    $image->body = $request->body;
     $image->user_id = $request->user_id;
-        if ($request->hasFile('image')) {
-        
+    if($request->type){
+        $image->type = $request->type;
+        $image->video_height = $request->videoHeight;
+    }
+    if ($request->hasFile('image')) {
         $path = $request->file('image')->store('images');
         $image->image = $path;
-       }
+    }
     $image->save();
     return response()->json(['url' => asset($image->url)], 201);
-
 });
 
 Route::post('imagechallengadd', function(Request $request){
@@ -87,7 +114,7 @@ Route::post('/addChallenge', function(Request $request){
 });
 
 Route::get('/getChallenge/{challengeId}', function($challengeId) {
-    $appUrl = "http://192.168.165.229/social-backend-laravel/";
+    $appUrl = "https://alitaafrica.com/social-backend-laravel/";
     // Retrieve the Challenge model instance by its ID
     $challenge = Challenge::where('id',$challengeId)->with([
         'user' => function ($query) {
@@ -146,12 +173,10 @@ Route::get('/editPost', function(Request $request){
 });
 
 Route::get('/getPosts', function(Request $request) {
-    $appUrl = "http://192.168.165.229/social-backend-laravel/";
-
+    $appUrl = "https://alitaafrica.com/social-backend-laravel/";
     // Get the _page and _limit parameters from the request query
     $pageNumber = $request->query('_page', 1);
     $numberOfPostsPerRequest = $request->query('_limit', 10);
-
     $posts = Post::latest()
         ->with([
             'category' => function($query) {
@@ -206,7 +231,7 @@ Route::delete('/deletePost/{id}', function ($id) {
     unset($deletedPostData['id']);
     DeletedPost::create(['user_id'=>$deletedPostData['user_id'],'body'=>$deletedPostData['user_id'],'type'=>$deletedPostData['type'],'image'=>$deletedPostData['image'],'challenge_img'=>$deletedPostData['challenge_img'],'pinned'=>$deletedPostData['pinned']]);
     // Move associated media files to the recycle bin in the storage folder
-    $appUrl = "http://192.168.165.229/social-backend-laravel/";
+    $appUrl = "https://alitaafrica.com/social-backend-laravel/";
     $deletedFolder = 'recycle_bin';
     $deletedPath = storage_path('app/' . $deletedFolder);
     if($post->type == 'image'){
@@ -317,7 +342,7 @@ Route::post('/sendNotification', function(Request $request)
 
 Route::get('/getMyPosts/{id}', function($id) 
 {
-    $appUrl = "http://192.168.165.229/social-backend-laravel/";
+    $appUrl = "https://alitaafrica.com/social-backend-laravel/";
     $posts = Post::where('user_id', $id)->with([
         'user' => function ($query) {
             $query->select('id', 'name', 'image');
@@ -357,6 +382,24 @@ Route::get('/getComments/{id}', function($id){
     return response()->json(['comments' => $comments]);
 });
 
+Route::get('/bangUpdateComment/{id}', function($id){
+    $comments = bangUpdateComment::where('post_id', $id)->with([
+            'user' => function($query) {
+                $query->select('id', 'name', 'image');
+            },
+        ])->get();
+    return response()->json(['comments' => $comments]);
+});
+
+Route::get('/bangBattleComment/{id}', function($id){
+    $comments = BattleComment::where('battles_id', $id)->with([
+            'user' => function($query) {
+                $query->select('id', 'name', 'image');
+            },
+        ])->get();
+    return response()->json(['comments' => $comments]);
+});
+
 Route::post('/postComment', function(request $request,Post $post){
     $request->validate([
         'body' => 'string|min:3|max:6000',
@@ -374,6 +417,46 @@ Route::post('/postComment', function(request $request,Post $post){
     // $post->user->notify(new CommentedOnYourPost($post, auth()->user()));
     return response(['data' => $comment, 'message' => 'success'], 200);
 });
+
+
+Route::post('/postUpdateComment', function(request $request,Post $post){
+    $request->validate([
+        'body' => 'string|min:3|max:6000',
+    ]);
+    $comment = bangUpdateComment::create([
+        'user_id' => $request->user_id,
+        'post_id' => $request->post_id,
+        'body' => $request->body,
+    ]);
+    $comment = bangUpdateComment::with([
+        'user' => function($query) {
+            $query->select('id', 'name', 'image');
+        },
+    ])->findOrFail($comment->id);
+    // $post->user->notify(new CommentedOnYourPost($post, auth()->user()));
+    return response(['data' => $comment, 'message' => 'success'], 200);
+});
+
+
+Route::post('/postBattleComment', function(request $request,Post $post){
+    $request->validate([
+        'body' => 'string|min:3|max:6000',
+    ]);
+    $comment = BattleComment::create([
+        'user_id' => $request->user_id,
+        'battles_id' => $request->post_id,
+        'body' => $request->body,
+    ]);
+    $comment = BattleComment::with([
+        'user' => function($query) {
+            $query->select('id', 'name', 'image');
+        },
+    ])->findOrFail($comment->id);
+    // $post->user->notify(new CommentedOnYourPost($post, auth()->user()));
+    return response(['data' => $comment, 'message' => 'success'], 200);
+});
+
+
 
 Route::post('/acceptChallenge', function(request $request){
     $challenge = Challenge::find($request->post_id);
@@ -426,7 +509,7 @@ Route::post('/posBattleComment', function(Request $request)
 });
 
 Route::get('/getBangBattle', function (Request $request) {
-    $appUrl = "http://192.168.165.229/social-backend-laravel/";
+    $appUrl = "https://alitaafrica.com/social-backend-laravel/";
     $battles = BangBattle::withCount('likes')->get();
 
     $battles->transform(function ($battle) use ($appUrl) {

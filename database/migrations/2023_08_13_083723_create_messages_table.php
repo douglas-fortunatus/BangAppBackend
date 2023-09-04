@@ -13,12 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('bang_battles', function (Blueprint $table) {
+        Schema::create('messages', function (Blueprint $table) {
             $table->id();
-            $table->text('body')->nullable();
-            $table->enum('type', ['image', 'video']);
-            $table->string('battle1')->nullable();
-            $table->string('battle2')->nullable();
+            $table->foreignId('sender_id')->constrained('users');
+            $table->foreignId('receiver_id')->constrained('users');
+            $table->text('message');
             $table->timestamps();
         });
     }
@@ -30,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('bang_battles');
+        Schema::dropIfExists('messages');
     }
 };

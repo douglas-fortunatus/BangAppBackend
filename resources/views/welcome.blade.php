@@ -81,7 +81,8 @@
                 <div class="content d-flex justify-content-center align-items-center">
 
                     <!-- Login form -->
-                    <form class="login-form" action="{{ route('login') }}">
+                    <form class="login-form" action="{{ route('login') }}" method="post">
+                        @csrf
                         <div class="card mb-0">
                             <div class="card-body">
                                 <div class="text-center mb-3">
@@ -89,7 +90,7 @@
                                         <img src="../../../assets/images/logo_icon.svg" class="h-48px" alt="">
                                     </div>
                                     <h5 class="mb-0">Login to your account</h5>
-                                    <span class="d-block text-muted">Enter your credentials below</span>
+                                    <span class="d-block text-muted">Enter your credentials belowww</span>
                                 </div>
 
                                 <div class="mb-3">

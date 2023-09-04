@@ -10,6 +10,7 @@
     "require": {
         "php": "^8.0",
         "andreaselia/laravel-api-to-postman": "^1.8",
+        "beyondcode/laravel-websockets": "^1.5",
         "fideloper/proxy": "^4.2",
         "fruitcake/laravel-cors": "^3.0",
         "fzaninotto/faker": "^1.9.1",
@@ -25,6 +26,7 @@
         "laravel/tinker": "^2.0",
         "laravel/ui": "^4.2",
         "php-ffmpeg/php-ffmpeg": "^1.1",
+        "pusher/pusher-php-server": "^7.2",
         "tymon/jwt-auth": "^1.0@dev"
     },
     "require-dev": {

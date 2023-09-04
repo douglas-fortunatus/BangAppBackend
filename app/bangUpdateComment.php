@@ -5,13 +5,12 @@ namespace App;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class BattleComment extends Model
+class bangUpdateComment extends Model
 {
     use HasFactory;
-
     protected $fillable = [
         'user_id',
-        'battles_id',
+        'post_id',
         'body',
     ];
     public function user() {
