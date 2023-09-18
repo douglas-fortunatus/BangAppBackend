@@ -116,6 +116,7 @@ Route::post('imageadd', function(Request $request){
     $image = new Post;
     $image->body = $request->body;
     $image->user_id = $request->user_id;
+    $image->pinned = $request->pinned;
     if($request->type){
         $image->type = $request->type;
         // $image->video_height = $request->videoHeight;
