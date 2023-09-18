@@ -18,8 +18,9 @@ use App\Comment;
 use App\DeletedPost;
 use App\Hobby;
 use App\BattleComment;
-use App\BangBattle;
 use App\bangUpdateComment;
+use App\BangBattle;
+use App\Notification;
 use Illuminate\Validation\Rule;
 use App\Http\Controllers\PushNotificationService;
 use Illuminate\Support\Facades\DB;
@@ -35,7 +36,7 @@ Route::get('/bang-updatesnew', function (\Illuminate\Http\Request $request) {
     $page = $request->query('_page', 1);
     $limit = $request->query('_limit', 4);
     
-    $bangUpdates = BangUpdate::all();
+      $bangUpdates = BangUpdate::all();
     
     $formattedUpdates = $bangUpdates->getCollection()->map(function ($update) use ($appUrl) {
         $update->filename = $appUrl .'storage/app/bangUpdates/'. $update->filename;
@@ -58,9 +59,52 @@ Route::get('/bang-updatesnew', function (\Illuminate\Http\Request $request) {
 Route::get('/bang-updates', function () {
 
     $appUrl = "https://alitaafrica.com/social-backend-laravel/";
-    $bangUpdates = BangUpdate::orderBy('created_at', 'desc')->get();
+    $bangUpdates = BangUpdate::orderBy('created_at', 'desc')
+        ->with([
+            'bang_update_likes' => function($query) {
+                $query->select('post_id', DB::raw('count(*) as like_count'))
+                    ->groupBy('post_id');
+            },
+            'bang_update_comments' => function($query) {
+                $query->select('post_id', DB::raw('count(*) as comment_count'))
+                    ->groupBy('post_id');
+            },])->get();
     $formattedUpdates = $bangUpdates->map(function ($update) use ($appUrl) {
         $update->filename = $appUrl .'storage/app/bangUpdates/'. $update->filename;
+        return $update;
+    });
+
+    return response()->json($formattedUpdates);
+});
+
+Route::get('/bang-updates/{userId}', function ($userId) {
+
+    $appUrl = "https://alitaafrica.com/social-backend-laravel/";
+    
+    // Get the bang updates and include like information for the given user
+    $bangUpdates = BangUpdate::orderBy('created_at', 'desc')
+        ->with([
+            'bang_update_likes' => function ($query) use ($userId) {
+                $query->select('post_id')->where('user_id', $userId); // Filter likes by user ID
+            },
+            'bang_update_like_count' => function($query) {
+                $query->select('post_id', DB::raw('count(*) as like_count'))
+                    ->groupBy('post_id');
+            },
+            'bang_update_comments' => function ($query) {
+                $query->select('post_id', DB::raw('count(*) as comment_count'))
+                    ->groupBy('post_id');
+            },
+        ])
+        ->get();
+
+    // Format the updates and add the isLiked variable
+    $formattedUpdates = $bangUpdates->map(function ($update) use ($appUrl, $userId) {
+        $update->filename = $appUrl .'storage/app/bangUpdates/'. $update->filename;
+      
+        $update->isLiked = $update->bang_update_likes->isNotEmpty(); // Check if there are likes
+        
+            
         return $update;
     });
 
@@ -174,9 +218,11 @@ Route::get('/editPost', function(Request $request){
 
 Route::get('/getPosts', function(Request $request) {
     $appUrl = "https://alitaafrica.com/social-backend-laravel/";
+
     // Get the _page and _limit parameters from the request query
     $pageNumber = $request->query('_page', 1);
     $numberOfPostsPerRequest = $request->query('_limit', 10);
+
     $posts = Post::latest()
         ->with([
             'category' => function($query) {
@@ -223,6 +269,81 @@ Route::get('/getPosts', function(Request $request) {
 
     return response(['data' => $posts, 'message' => 'success'], 200);
 });
+
+Route::get('/getPost', function(Request $request) {
+    $appUrl = "https://alitaafrica.com/social-backend-laravel/";
+
+    // Get the _page and _limit parameters from the request query
+    $pageNumber = $request->query('_page', 1);
+    $numberOfPostsPerRequest = $request->query('_limit', 10);
+
+    // Get the user's ID if available (you can adjust how you get the user's ID based on your authentication system)
+    $user_id = $request->input('user_id'); 
+
+    $posts = Post::latest()
+        ->with([
+            'category' => function($query) {
+                $query->select('id', 'name');
+            },
+            'likes' => function($query) {
+                $query->select('post_id', 'like_type', DB::raw('count(*) as like_count'))
+                    ->groupBy('post_id', 'like_type');
+            },
+            'challenges' => function($query) {
+                $query->select('*')->where('confirmed', 1);
+            }
+        ])->paginate($numberOfPostsPerRequest, ['*'], '_page', $pageNumber);
+
+    $posts->getCollection()->transform(function($post) use ($appUrl, $user_id) {
+        $post->image ? $post->image = $appUrl.'storage/app/'.$post->image : $post->image = null;
+        $post->challenge_img ? $post->challenge_img = $appUrl.'storage/app/'.$post->challenge_img : $post->challenge_img = null;
+        $post->video ? $post->video = $appUrl.'storage/app/'.$post->video : $post->video = null;
+        if ($post->type === 'image' && isset($post->media)) {
+            list($post->width, $post->height) = getimagesize($post->media);
+        } else {
+            list($post->width, $post->height) = [300, 300];
+        }
+        foreach ($post->challenges as $challenge) {
+            $challenge->challenge_img ? $challenge->challenge_img = $appUrl . 'storage/app/' . $challenge->challenge_img : $challenge->challenge_img = null;
+        }
+        
+        // Initialize isLikedA and isLikedB as false
+        $post->isLikedA = false;
+        $post->isLikedB = false;
+
+        // Retrieve the like counts for both A and B challenge images
+        if ($post->likes->isNotEmpty()) {
+            foreach ($post->likes as $like) {
+                if ($like->like_type === 'A') {
+                    $post->isLikedA = true;
+                } elseif ($like->like_type === 'B') {
+                    $post->isLikedB = true;
+                }
+            }
+        }
+        
+          // Retrieve the like counts for both A and B challenge images
+        $likeCountA = 0;
+        $likeCountB = 0;
+        if ($post->likes->isNotEmpty()) {
+            foreach ($post->likes as $like) {
+                if ($like->like_type === 'A') {
+                    $likeCountA = $like->like_count;
+                } elseif ($like->like_type === 'B') {
+                    $likeCountB = $like->like_count;
+                }
+            }
+        }
+        $post->like_count_A = $likeCountA;
+        $post->like_count_B = $likeCountB;
+         $post->isLiked = ($likeCountA > 0 || $likeCountB > 0);
+        
+        return $post;
+    });
+
+    return response(['data' => $posts, 'message' => 'success'], 200);
+});
+
 
 Route::delete('/deletePost/{id}', function ($id) {
     // Find the post by ID
@@ -375,24 +496,15 @@ Route::get('/getMyPosts/{id}', function($id)
 
 Route::get('/getComments/{id}', function($id){
     $comments = Comment::where('post_id', $id)->with([
-            'user' => function($query) {
-                $query->select('id', 'name', 'image');
-            },
-        ])->get();
+        'user' => function($query) {
+            $query->select('id', 'name', 'image');
+        },
+    ])->orderBy('created_at', 'desc')->get(); // Corrected 'orderBy' here
     return response()->json(['comments' => $comments]);
 });
 
 Route::get('/bangUpdateComment/{id}', function($id){
     $comments = bangUpdateComment::where('post_id', $id)->with([
-            'user' => function($query) {
-                $query->select('id', 'name', 'image');
-            },
-        ])->get();
-    return response()->json(['comments' => $comments]);
-});
-
-Route::get('/bangBattleComment/{id}', function($id){
-    $comments = BattleComment::where('battles_id', $id)->with([
             'user' => function($query) {
                 $query->select('id', 'name', 'image');
             },
@@ -418,7 +530,6 @@ Route::post('/postComment', function(request $request,Post $post){
     return response(['data' => $comment, 'message' => 'success'], 200);
 });
 
-
 Route::post('/postUpdateComment', function(request $request,Post $post){
     $request->validate([
         'body' => 'string|min:3|max:6000',
@@ -436,27 +547,6 @@ Route::post('/postUpdateComment', function(request $request,Post $post){
     // $post->user->notify(new CommentedOnYourPost($post, auth()->user()));
     return response(['data' => $comment, 'message' => 'success'], 200);
 });
-
-
-Route::post('/postBattleComment', function(request $request,Post $post){
-    $request->validate([
-        'body' => 'string|min:3|max:6000',
-    ]);
-    $comment = BattleComment::create([
-        'user_id' => $request->user_id,
-        'battles_id' => $request->post_id,
-        'body' => $request->body,
-    ]);
-    $comment = BattleComment::with([
-        'user' => function($query) {
-            $query->select('id', 'name', 'image');
-        },
-    ])->findOrFail($comment->id);
-    // $post->user->notify(new CommentedOnYourPost($post, auth()->user()));
-    return response(['data' => $comment, 'message' => 'success'], 200);
-});
-
-
 
 Route::post('/acceptChallenge', function(request $request){
     $challenge = Challenge::find($request->post_id);
@@ -508,6 +598,35 @@ Route::post('/posBattleComment', function(Request $request)
     return response()->json(['message' => 'Comment added successfully', 'data' => $comment], 201);
 });
 
+Route::post('/postBattleComment', function(request $request,Post $post){
+    $request->validate([
+        'body' => 'string|min:3|max:6000',
+    ]);
+    $comment = BattleComment::create([
+        'user_id' => $request->user_id,
+        'battles_id' => $request->post_id,
+        'body' => $request->body,
+    ]);
+    $comment = BattleComment::with([
+        'user' => function($query) {
+            $query->select('id', 'name', 'image');
+        },
+    ])->findOrFail($comment->id);
+    // $post->user->notify(new CommentedOnYourPost($post, auth()->user()));
+    return response(['data' => $comment, 'message' => 'success'], 200);
+});
+
+
+Route::get('/bangBattleComment/{id}', function($id){
+    $comments = BattleComment::where('battles_id', $id)->with([
+            'user' => function($query) {
+                $query->select('id', 'name', 'image');
+            },
+        ])->get();
+    return response()->json(['comments' => $comments]);
+});
+
+
 Route::get('/getBangBattle', function (Request $request) {
     $appUrl = "https://alitaafrica.com/social-backend-laravel/";
     $battles = BangBattle::withCount('likes')->get();
@@ -519,6 +638,13 @@ Route::get('/getBangBattle', function (Request $request) {
     });
 
     return response()->json(['data' => $battles]);
+});
+
+Route::get('/getNotifications/{user_id}', function($user_id){
+    // Fetch notifications for the user
+    $notifications = Notification::where('user_id', $user_id)->orderByDesc('created_at')->get();
+
+    return response()->json(['notifications' => $notifications]);
 });
 
 Route::group(['prefix' => 'v1'], function () {
