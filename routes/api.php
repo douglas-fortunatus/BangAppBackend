@@ -26,12 +26,12 @@ use App\Http\Controllers\PushNotificationService;
 use Illuminate\Support\Facades\DB;
 
 global $appUrl;
-$appUrl = "http://137.184.33.100/BangAppBackend/";
+$appUrl = "https://bangapp.pro/BangAppBackend/";
 
 Route::get('/users/search', 'App\Http\Controllers\UserController@search');
 
 Route::get('/bang-updatesnew', function (\Illuminate\Http\Request $request) {
-    $appUrl = "http://137.184.33.100/BangAppBackend/";
+    $appUrl = "https://bangapp.pro/BangAppBackend/";
     
     $page = $request->query('_page', 1);
     $limit = $request->query('_limit', 4);
@@ -58,7 +58,7 @@ Route::get('/bang-updatesnew', function (\Illuminate\Http\Request $request) {
 
 Route::get('/bang-updates', function () {
 
-    $appUrl = "http://137.184.33.100/BangAppBackend/";
+    $appUrl = "https://bangapp.pro/BangAppBackend/";
     $bangUpdates = BangUpdate::orderBy('created_at', 'desc')
         ->with([
             'bang_update_likes' => function($query) {
@@ -79,7 +79,7 @@ Route::get('/bang-updates', function () {
 
 Route::get('/bang-updates/{userId}', function ($userId) {
 
-    $appUrl = "http://137.184.33.100/BangAppBackend/";
+    $appUrl = "https://bangapp.pro/BangAppBackend/";
     
     // Get the bang updates and include like information for the given user
     $bangUpdates = BangUpdate::orderBy('created_at', 'desc')
@@ -158,7 +158,7 @@ Route::post('/addChallenge', function(Request $request){
 });
 
 Route::get('/getChallenge/{challengeId}', function($challengeId) {
-    $appUrl = "http://137.184.33.100/BangAppBackend/";
+    $appUrl = "https://bangapp.pro/BangAppBackend/";
     // Retrieve the Challenge model instance by its ID
     $challenge = Challenge::where('id',$challengeId)->with([
         'user' => function ($query) {
@@ -217,7 +217,7 @@ Route::get('/editPost', function(Request $request){
 });
 
 Route::get('/getPosts', function(Request $request) {
-    $appUrl = "http://137.184.33.100/BangAppBackend/";
+    $appUrl = "https://bangapp.pro/BangAppBackend/";
 
     // Get the _page and _limit parameters from the request query
     $pageNumber = $request->query('_page', 1);
@@ -271,7 +271,7 @@ Route::get('/getPosts', function(Request $request) {
 });
 
 Route::get('/getPost', function(Request $request) {
-    $appUrl = "http://137.184.33.100/BangAppBackend/";
+    $appUrl = "https://bangapp.pro/BangAppBackend/";
 
     // Get the _page and _limit parameters from the request query
     $pageNumber = $request->query('_page', 1);
@@ -352,7 +352,7 @@ Route::delete('/deletePost/{id}', function ($id) {
     unset($deletedPostData['id']);
     DeletedPost::create(['user_id'=>$deletedPostData['user_id'],'body'=>$deletedPostData['user_id'],'type'=>$deletedPostData['type'],'image'=>$deletedPostData['image'],'challenge_img'=>$deletedPostData['challenge_img'],'pinned'=>$deletedPostData['pinned']]);
     // Move associated media files to the recycle bin in the storage folder
-    $appUrl = "http://137.184.33.100/BangAppBackend/";
+    $appUrl = "https://bangapp.pro/BangAppBackend/";
     $deletedFolder = 'recycle_bin';
     $deletedPath = storage_path('app/' . $deletedFolder);
     if($post->type == 'image'){
@@ -463,7 +463,7 @@ Route::post('/sendNotification', function(Request $request)
 
 Route::get('/getMyPosts/{id}', function($id) 
 {
-    $appUrl = "http://137.184.33.100/BangAppBackend/";
+    $appUrl = "https://bangapp.pro/BangAppBackend/";
     $posts = Post::where('user_id', $id)->with([
         'user' => function ($query) {
             $query->select('id', 'name', 'image');
@@ -628,7 +628,7 @@ Route::get('/bangBattleComment/{id}', function($id){
 
 
 Route::get('/getBangBattle', function (Request $request) {
-    $appUrl = "http://137.184.33.100/BangAppBackend/";
+    $appUrl = "https://bangapp.pro/BangAppBackend/";
     $battles = BangBattle::withCount('likes')->get();
 
     $battles->transform(function ($battle) use ($appUrl) {
