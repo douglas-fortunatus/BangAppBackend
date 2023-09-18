@@ -118,7 +118,7 @@ Route::post('imageadd', function(Request $request){
     $image->user_id = $request->user_id;
     if($request->type){
         $image->type = $request->type;
-        $image->video_height = $request->videoHeight;
+        // $image->video_height = $request->videoHeight;
     }
     if ($request->hasFile('image')) {
         $path = $request->file('image')->store('images');
