@@ -112,6 +112,83 @@ Route::get('/bang-updates/{userId}', function ($userId) {
 });
 
 
+Route::get('/getPostnotNull', function(Request $request) {
+    $appUrl = "https://bangapp.pro/BangAppBackend/";
+
+    // Get the _page and _limit parameters from the request query
+    $pageNumber = $request->query('_page', 1);
+    $numberOfPostsPerRequest = $request->query('_limit', 10);
+
+    // Get the user's ID if available (you can adjust how you get the user's ID based on your authentication system)
+    $user_id = $request->input('user_id'); 
+
+    $posts = Post::latest()
+        ->with([
+            'category' => function($query) {
+                $query->select('id', 'name');
+            },
+            'likes' => function($query) {
+                $query->select('post_id', 'like_type', DB::raw('count(*) as like_count'))
+                    ->groupBy('post_id', 'like_type');
+            },
+            'challenges' => function($query) {
+                $query->select('*')->where('confirmed', 1);
+            }
+        ])->paginate($numberOfPostsPerRequest, ['*'], '_page', $pageNumber);
+
+    $filteredPosts = $posts->getCollection()->filter(function($post) use ($appUrl, $user_id) {
+        $post->image ? $post->image = $appUrl.'storage/app/'.$post->image : $post->image = null;
+        $post->challenge_img ? $post->challenge_img = $appUrl.'storage/app/'.$post->challenge_img : $post->challenge_img = null;
+        $post->video ? $post->video = $appUrl.'storage/app/'.$post->video : $post->video = null;
+        if ($post->type === 'image' && isset($post->media)) {
+            list($post->width, $post->height) = getimagesize($post->media);
+        } else {
+            list($post->width, $post->height) = [300, 300];
+        }
+        foreach ($post->challenges as $challenge) {
+            $challenge->challenge_img ? $challenge->challenge_img = $appUrl . 'storage/app/' . $challenge->challenge_img : $challenge->challenge_img = null;
+        }
+        
+        // Initialize isLikedA and isLikedB as false
+        $post->isLikedA = false;
+        $post->isLikedB = false;
+
+        // Retrieve the like counts for both A and B challenge images
+        if ($post->likes->isNotEmpty()) {
+            foreach ($post->likes as $like) {
+                if ($like->like_type === 'A') {
+                    $post->isLikedA = true;
+                } elseif ($like->like_type === 'B') {
+                    $post->isLikedB = true;
+                }
+            }
+        }
+        
+        // Retrieve the like counts for both A and B challenge images
+        $likeCountA = 0;
+        $likeCountB = 0;
+        if ($post->likes->isNotEmpty()) {
+            foreach ($post->likes as $like) {
+                if ($like->like_type === 'A') {
+                    $likeCountA = $like->like_count;
+                } elseif ($like->like_type === 'B') {
+                    $likeCountB = $like->like_count;
+                }
+            }
+        }
+        $post->like_count_A = $likeCountA;
+        $post->like_count_B = $likeCountB;
+        $post->isLiked = ($likeCountA > 0 || $likeCountB > 0);
+        
+        // Filter out posts with NULL images
+        return !is_null($post->image);
+    });
+
+    return response(['data' => $filteredPosts, 'message' => 'success'], 200);
+});
+
+
+
 Route::post('imageadd', function(Request $request){
     $image = new Post;
     $image->body = $request->body;
