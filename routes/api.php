@@ -423,6 +423,78 @@ Route::get('/getPost', function(Request $request) {
 });
 
 
+
+Route::post('imageaddWithResponse', function(Request $request){
+    // Save the image as you are currently doing
+    $image = new Post;
+    $image->body = $request->body;
+    $image->user_id = $request->user_id;
+    $image->pinned = $request->pinned;
+    if($request->type){
+        $image->type = $request->type;
+        // $image->video_height = $request->videoHeight;
+    }
+    if ($request->hasFile('image')) {
+        $path = $request->file('image')->store('images');
+        $image->image = $path;
+    }
+    $image->save();
+
+    // Transform the post object to match the structure you return in the first API function
+    $image->getCollection()->transform(function($post) use ($appUrl, $user_id) {
+        $post->image ? $post->image = $appUrl.'storage/app/'.$post->image : $post->image = null;
+        $post->challenge_img ? $post->challenge_img = $appUrl.'storage/app/'.$post->challenge_img : $post->challenge_img = null;
+        $post->video ? $post->video = $appUrl.'storage/app/'.$post->video : $post->video = null;
+        if ($post->type === 'image' && isset($post->media)) {
+            list($post->width, $post->height) = getimagesize($post->media);
+        } else {
+            list($post->width, $post->height) = [300, 300];
+        }
+        foreach ($post->challenges as $challenge) {
+            $challenge->challenge_img ? $challenge->challenge_img = $appUrl . 'storage/app/' . $challenge->challenge_img : $challenge->challenge_img = null;
+        }
+        
+        // Initialize isLikedA and isLikedB as false
+        $post->isLikedA = false;
+        $post->isLikedB = false;
+
+        // Retrieve the like counts for both A and B challenge images
+        if ($post->likes->isNotEmpty()) {
+            foreach ($post->likes as $like) {
+                if ($like->like_type === 'A') {
+                    $post->isLikedA = true;
+                } elseif ($like->like_type === 'B') {
+                    $post->isLikedB = true;
+                }
+            }
+        }
+        
+        // Retrieve the like counts for both A and B challenge images
+        $likeCountA = 0;
+        $likeCountB = 0;
+        if ($post->likes->isNotEmpty()) {
+            foreach ($post->likes as $like) {
+                if ($like->like_type === 'A') {
+                    $likeCountA = $like->like_count;
+                } elseif ($like->like_type === 'B') {
+                    $likeCountB = $like->like_count;
+                }
+            }
+        }
+        $post->like_count_A = $likeCountA;
+        $post->like_count_B = $likeCountB;
+        $post->isLiked = ($likeCountA > 0 || $likeCountB > 0);
+        
+        return $post;
+    });
+
+    // Return the transformed post object as the response
+    return response(['data' => $image, 'message' => 'success'], 201);
+});
+
+
+
+
 Route::delete('/deletePost/{id}', function ($id) {
     // Find the post by ID
     $post = Post::findOrFail($id);
