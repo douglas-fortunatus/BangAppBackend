@@ -209,7 +209,7 @@ Route::post('imageadd', function(Request $request){
 
 Route::post('imagechallengadd', function(Request $request){
     $image = new Post;
-    $image->body = $request->caption;    
+    $image->body = $request->body;    
     $image->user_id = $request->user_id;
         if ($request->hasFile('image') && $request->hasFile('image2')) {
         $path = $request->file('image')->store('images');
@@ -224,7 +224,7 @@ Route::post('imagechallengadd', function(Request $request){
 
 Route::post('/addChallenge', function(Request $request){
     $image = new Challenge;
-    $image->body = $request->caption;    
+    $image->body = $request->body;    
     $image->user_id = $request->user_id;
     $image->post_id = $request->post_id;
     if ($request->hasFile('image')) {
