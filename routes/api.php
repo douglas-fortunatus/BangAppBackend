@@ -123,6 +123,7 @@ Route::get('/getPostnotNull', function(Request $request) {
     $user_id = $request->input('user_id'); 
 
     $posts = Post::latest()
+	->whereNotNull('image')
         ->with([
             'category' => function($query) {
                 $query->select('id', 'name');
