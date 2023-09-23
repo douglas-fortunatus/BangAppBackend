@@ -4,6 +4,7 @@ namespace App;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use App\Like;
 
 class Post extends Model
 {
@@ -39,5 +40,18 @@ class Post extends Model
 
     public function challenges(){
         return $this->hasMany(Challenge::class, 'post_id');
+    }
+
+    public static function getLikeTypeForUser($userId, $postId)
+    {
+        $like = Like::where('user_id', $userId)
+            ->where('post_id', $postId)
+            ->first();
+
+        if ($like) {
+            return $like->like_type;
+        }
+
+        return null;
     }
 }

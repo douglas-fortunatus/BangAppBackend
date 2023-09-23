@@ -328,20 +328,6 @@ Route::get('/getPosts', function(Request $request) {
         foreach ($post->challenges as $challenge) {
             $challenge->challenge_img ? $challenge->challenge_img = $appUrl . 'storage/app/' . $challenge->challenge_img : $challenge->challenge_img = null;
         }
-        // Retrieve the like counts for both A and B challenge images
-        $likeCountA = 0;
-        $likeCountB = 0;
-        if ($post->likes->isNotEmpty()) {
-            foreach ($post->likes as $like) {
-                if ($like->like_type === 'A') {
-                    $likeCountA = $like->like_count;
-                } elseif ($like->like_type === 'B') {
-                    $likeCountB = $like->like_count;
-                }
-            }
-        }
-        $post->like_count_A = $likeCountA;
-        $post->like_count_B = $likeCountB;
 
         return $post;
     });
@@ -350,7 +336,7 @@ Route::get('/getPosts', function(Request $request) {
 });
 
 Route::get('/getPost', function(Request $request) {
-    $appUrl = "https://bangapp.pro/BangAppBackend/";
+    $appUrl = "http://192.168.70.229/social-backend-laravel/";
 
     // Get the _page and _limit parameters from the request query
     $pageNumber = $request->query('_page', 1);
@@ -385,30 +371,27 @@ Route::get('/getPost', function(Request $request) {
         foreach ($post->challenges as $challenge) {
             $challenge->challenge_img ? $challenge->challenge_img = $appUrl . 'storage/app/' . $challenge->challenge_img : $challenge->challenge_img = null;
         }
-        
-        // Initialize isLikedA and isLikedB as false
+
         $post->isLikedA = false;
         $post->isLikedB = false;
 
-        // Retrieve the like counts for both A and B challenge images
-        if ($post->likes->isNotEmpty()) {
-            foreach ($post->likes as $like) {
-                if ($like->like_type === 'A') {
-                    $post->isLikedA = true;
-                } elseif ($like->like_type === 'B') {
-                    $post->isLikedB = true;
-                }
-            }
+       // Check if the user has liked the post and update isLikedA and isLikedB accordingly
+        $likeType = Post::getLikeTypeForUser($user_id, $post->id);
+        if ($likeType == "A") {
+            $post->isLikedA = true;
+        } elseif ($likeType == "B") {
+            $post->isLikedB = true;
         }
         
-          // Retrieve the like counts for both A and B challenge images
+        
+        // Retrieve the like counts for both A and B challenge images
         $likeCountA = 0;
         $likeCountB = 0;
         if ($post->likes->isNotEmpty()) {
             foreach ($post->likes as $like) {
                 if ($like->like_type === 'A') {
                     $likeCountA = $like->like_count;
-                } elseif ($like->like_type === 'B') {
+                } elseif ($like->like_type === 'B' ) {
                     $likeCountB = $like->like_count;
                 }
             }
@@ -442,7 +425,7 @@ Route::post('imageaddWithResponse', function(Request $request){
     $image->save();
 
     // Transform the post object to match the structure you return in the first API function
-    $image->getCollection()->transform(function($post) use ($appUrl, $user_id) {
+    $image->transform(function($post) use ($appUrl, $user_id) {
         $post->image ? $post->image = $appUrl.'storage/app/'.$post->image : $post->image = null;
         $post->challenge_img ? $post->challenge_img = $appUrl.'storage/app/'.$post->challenge_img : $post->challenge_img = null;
         $post->video ? $post->video = $appUrl.'storage/app/'.$post->video : $post->video = null;
