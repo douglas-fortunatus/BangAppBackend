@@ -374,13 +374,15 @@ Route::get('/getPost', function(Request $request) {
 
         $post->isLikedA = false;
         $post->isLikedB = false;
-
+        $post->isLiked = true;
        // Check if the user has liked the post and update isLikedA and isLikedB accordingly
         $likeType = Post::getLikeTypeForUser($user_id, $post->id);
         if ($likeType == "A") {
             $post->isLikedA = true;
+            $post->isLiked = true;
         } elseif ($likeType == "B") {
             $post->isLikedB = true;
+            $post->isLiked = true;
         }
         
         
@@ -398,7 +400,6 @@ Route::get('/getPost', function(Request $request) {
         }
         $post->like_count_A = $likeCountA;
         $post->like_count_B = $likeCountB;
-         $post->isLiked = ($likeCountA > 0 || $likeCountB > 0);
         
         return $post;
     });
