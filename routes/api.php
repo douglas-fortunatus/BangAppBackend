@@ -374,7 +374,7 @@ Route::get('/getPost', function(Request $request) {
 
         $post->isLikedA = false;
         $post->isLikedB = false;
-        $post->isLiked = true;
+        $post->isLiked = false;
        // Check if the user has liked the post and update isLikedA and isLikedB accordingly
         $likeType = Post::getLikeTypeForUser($user_id, $post->id);
         if ($likeType == "A") {
@@ -382,7 +382,7 @@ Route::get('/getPost', function(Request $request) {
             $post->isLiked = true;
         } elseif ($likeType == "B") {
             $post->isLikedB = true;
-            $post->isLiked = true;
+            //$post->isLiked = true;
         }
         
         // Retrieve the like counts for both A and B challenge images
