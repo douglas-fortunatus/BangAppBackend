@@ -529,14 +529,14 @@ Route::post('/likePost', function(Request $request)
         $message = 'Post unliked successfully';
     } else {
         // User hasn't liked the post yet, so like it
-        // Remove the opposite like if it exists
-        $oppositeLikeType = ($likeType === 'A') ? 'B' : 'A';
-        $post->likes()->where('user_id', $user->id)->where('like_type', $oppositeLikeType)->detach();
-       dd( Like::create([
-                   'user_id' => $userId,
-                   'like_type' => $likeType,
-                   'post_id'=>$postId
-               ]));
+        // // Remove the opposite like if it exists
+        // $oppositeLikeType = ($likeType === 'A') ? 'B' : 'A';
+        // $post->likes()->where('user_id', $user->id)->where('like_type', $oppositeLikeType)->detach();
+        Like::create([
+            'user_id' => $userId,
+            'like_type' => $likeType,
+            'post_id'=>$postId
+        ]);
         $message = 'Post liked successfully';
     }
 
