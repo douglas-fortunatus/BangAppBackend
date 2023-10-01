@@ -523,7 +523,7 @@ Route::post('/likePost', function(Request $request)
     $isLiked = $post->likes()->where('user_id', $user->id)->where('like_type', $likeType)->exists();
 
     if ($isLiked) {
-        
+
         $post->likes()->where('user_id', $user->id)->where('like_type', $likeType)->delete();
         $message = 'Post unliked successfully';
     } else {
@@ -533,7 +533,7 @@ Route::post('/likePost', function(Request $request)
         $post->likes()->where('user_id', $user->id)->where('like_type', $oppositeLikeType)->detach();
 
         $post->likes()->create([
-            'user_id' => $user->id,
+            'user_id' => $userId,
             'like_type' => $likeType,
         ]);
         $message = 'Post liked successfully';
