@@ -596,7 +596,7 @@ Route::post('/sendUserNotification', function(Request $request)
     $notification->user_id = $request->user_id;
     $notification->message = $request->body;
     $notification->type = $request->type;
-    $notification->reference_id = $request->reference;
+    $notification->reference_id = $request->reference_id;
     $notification->save();
     $pushNotificationService = new PushNotificationService();
     $pushNotificationService->sendUserPushNotification($deviceToken, $request->heading, $request->body);
