@@ -519,19 +519,17 @@ Route::post('/likePost', function(Request $request)
         return response()->json(['message' => 'Post or user not found'], 404);
     }
     
-
     // Check if the user has already liked the post with the given like_type
     $isLiked = $post->likes()->where('user_id', $user->id)->where('like_type', $likeType)->exists();
 
     if ($isLiked) {
-
         Like::where('user_id', $user->id)->where('like_type', $likeType)->delete();
         $message = 'Post unliked successfully';
     } else {
         // User hasn't liked the post yet, so like it
         // // Remove the opposite like if it exists
-        // $oppositeLikeType = ($likeType === 'A') ? 'B' : 'A';
-        // $post->likes()->where('user_id', $user->id)->where('like_type', $oppositeLikeType)->detach();
+        $oppositeLikeType = ($likeType === 'A') ? 'B' : 'A'; 
+        Like::where('user_id', $user->id)->where('like_type', $oppositeLikeType)->delete();
         Like::create([
             'user_id' => $userId,
             'like_type' => $likeType,
@@ -539,7 +537,6 @@ Route::post('/likePost', function(Request $request)
         ]);
         $message = 'Post liked successfully';
     }
-
     // Get the updated like count for the specific like_type
     $likeCount = $post->likes()->where('like_type', $likeType)->count();
 
