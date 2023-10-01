@@ -599,7 +599,7 @@ Route::post('/sendUserNotification', function(Request $request)
     $notification->reference_id = $request->reference_id;
     $notification->save();
     $pushNotificationService = new PushNotificationService();
-    $pushNotificationService->sendUserPushNotification($deviceToken, $request->heading, $request->body);
+    $pushNotificationService->sendUserPushNotification($deviceToken, $request->type, $request->body);
     return response(['message' => 'success'], 200);
 });
 
