@@ -434,6 +434,7 @@ Route::post('/imageaddWithResponse', function(Request $request){
     } else {
         list($image->width, $image->height) = [300, 300];
     }
+    $image->user->name;
     $image->isLikedA = false;
     $image->isLikedB = false;
     $image->isLiked = false;
@@ -520,9 +521,10 @@ Route::post('/likePost', function(Request $request)
     }
     
     // Check if the user has already liked the post with the given like_type
-    $isLiked = $post->likes()->where('user_id', $user->id)->where('like_type', $likeType)->exists();
+    $isLiked = Like::where('user_id', $user->id)->where('like_type', $likeType)->exists();
 
     if ($isLiked) {
+
         Like::where('user_id', $user->id)->where('like_type', $likeType)->delete();
         $message = 'Post unliked successfully';
     } else {
