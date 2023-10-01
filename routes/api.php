@@ -384,7 +384,6 @@ Route::get('/getPost', function(Request $request) {
             $post->isLikedB = true;
             //$post->isLiked = true;
         }
-        
         // Retrieve the like counts for both A and B challenge images
         $likeCountA = 0;
         $likeCountB = 0;
@@ -588,6 +587,23 @@ Route::post('/sendNotification', function(Request $request)
     return response(['message' => 'success'], 200);
 });
 
+
+Route::post('/sendUserNotification', function(Request $request)
+{
+    $user = User::findOrFail($request->user_id);
+    $deviceToken = $user->device_token;
+    $notification = new Notification;
+    $notification->user_id = $request->user_id;
+    $notification->message = $request->body;
+    $notification->type = $request->type;
+    $notification->reference_id = $request->reference;
+    $notification->save();
+    $pushNotificationService = new PushNotificationService();
+    $pushNotificationService->sendUserPushNotification($deviceToken, $request->heading, $request->body);
+    return response(['message' => 'success'], 200);
+});
+
+
 Route::get('/getMyPosts/{id}', function($id) 
 {
     $appUrl = "https://bangapp.pro/BangAppBackend/";
@@ -773,6 +789,8 @@ Route::get('/getNotifications/{user_id}', function($user_id){
 
     return response()->json(['notifications' => $notifications]);
 });
+
+
 
 Route::group(['prefix' => 'v1'], function () {
 
