@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Post; 
+use App\Like; 
 use App\Challenge;
 use App\User;
 use FFMpeg\FFMpeg;
@@ -511,31 +512,31 @@ Route::post('/likePost', function(Request $request)
     $postId = $request->input('post_id');
     $userId = $request->input('user_id');
     $likeType = $request->input('like_type'); // Add this line to get the like_type ('A' or 'B') from the request
-
     $post = Post::find($postId);
     $user = User::find($userId);
 
     if (!$post || !$user) {
         return response()->json(['message' => 'Post or user not found'], 404);
     }
+    
 
     // Check if the user has already liked the post with the given like_type
     $isLiked = $post->likes()->where('user_id', $user->id)->where('like_type', $likeType)->exists();
 
     if ($isLiked) {
 
-        $post->likes()->where('user_id', $user->id)->where('like_type', $likeType)->delete();
+        Like::where('user_id', $user->id)->where('like_type', $likeType)->delete();
         $message = 'Post unliked successfully';
     } else {
         // User hasn't liked the post yet, so like it
         // Remove the opposite like if it exists
         $oppositeLikeType = ($likeType === 'A') ? 'B' : 'A';
         $post->likes()->where('user_id', $user->id)->where('like_type', $oppositeLikeType)->detach();
-
-        $post->likes()->create([
-            'user_id' => $userId,
-            'like_type' => $likeType,
-        ]);
+       dd( Like::create([
+                   'user_id' => $userId,
+                   'like_type' => $likeType,
+                   'post_id'=>$postId
+               ]));
         $message = 'Post liked successfully';
     }
 

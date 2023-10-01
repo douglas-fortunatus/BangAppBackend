@@ -38,6 +38,10 @@ class Post extends Model
         return $this->belongsToMany(User::class, 'likes', 'post_id', 'user_id');
     }
 
+    public function like() {
+        return $this->belongsToMany(Like::class, 'likes', 'post_id', 'user_id');
+    }
+
     public function challenges(){
         return $this->hasMany(Challenge::class, 'post_id');
     }
