@@ -523,8 +523,8 @@ Route::post('/likePost', function(Request $request)
     $isLiked = $post->likes()->where('user_id', $user->id)->where('like_type', $likeType)->exists();
 
     if ($isLiked) {
-        // User has already liked the post with the same like_type, so unlike it
-        $post->likes()->where('user_id', $user->id)->where('like_type', $likeType)->detach();
+        
+        $post->likes()->where('user_id', $user->id)->where('like_type', $likeType)->delete();
         $message = 'Post unliked successfully';
     } else {
         // User hasn't liked the post yet, so like it
@@ -532,7 +532,10 @@ Route::post('/likePost', function(Request $request)
         $oppositeLikeType = ($likeType === 'A') ? 'B' : 'A';
         $post->likes()->where('user_id', $user->id)->where('like_type', $oppositeLikeType)->detach();
 
-        $post->likes()->attach($user->id, ['like_type' => $likeType]);
+        $post->likes()->create([
+            'user_id' => $user->id,
+            'like_type' => $likeType,
+        ]);
         $message = 'Post liked successfully';
     }
 
