@@ -40,14 +40,14 @@ class HomeController extends Controller
         // Validate the form inputs
         $validatedData = $request->validate([
             'caption' => 'required|string',
-            'post' => 'required|file|mimes:gif,png,jpg,mp4,mov|max:20480',// Max file size: 2MB
+            'post' => 'required|file|mimes:gif,png,jpg,mp4,mov|max:20480', // Max file size: 2MB
         ]);
 
         // Get the uploaded file
         $file = $request->file('post');
 
         // Generate a unique filename
-        $filename = uniqid().'.'.$file->getClientOriginalExtension();
+        $filename = uniqid() . '.' . $file->getClientOriginalExtension();
 
         // Store the file locally in the storage/app/public directory
         $file->storeAs('bangUpdates', $filename);
@@ -60,7 +60,6 @@ class HomeController extends Controller
 
         // Redirect back or show a success message
         return redirect()->back()->with('success', 'Bang update posted successfully!');
-
     }
 
     function bangInspiration()
@@ -70,37 +69,41 @@ class HomeController extends Controller
 
     function postBangInspiration(Request $request)
     {
-        return $request->all();
-         // Validate the form inputs
+
+        // Validate the form inputs
         $validatedData = $request->validate([
             'tittle' => 'required|string',
-            'video' => 'required|file|mimes:mp4,mov|max:20480',// Max file size: 2MB
         ]);
         // Get the uploaded file
         $video = $request->file('video');
+        $thumbnail = $request->file('thumbnail');
         // Generate a unique filename
-        $filename = uniqid().'.'.$video->getClientOriginalExtension();
+        $filename = uniqid() . '.' . $video->getClientOriginalExtension();
+        $thumbnailName = uniqid() . '.' . $thumbnail->getClientOriginalExtension();
 
-        $thumbnailPath = 'bangInspiration/'.$filename;
-        $outputVideo = 'bangInspiration/compressed_videos/'.$filename;
+        $thumbnailPath = 'bangInspiration/thumb/' . $thumbnailName;
+        $outputVideo = 'bangInspiration/compressed_videos/' . $filename;
         // Store the video locally in the storage/app/public directory
         $video->storeAs('bangInspiration', $filename);
- 
+        $thumbnail->storeAs('bangInspiration/thumb', $thumbnailName);
+
+
         $bangInspiration = new bangInspiration();
         $bangInspiration->tittle = $validatedData['tittle'];
         $bangInspiration->video_url = $filename;
         $bangInspiration->creator = 'BangInspiration';
         $bangInspiration->view_count = '0';
         $bangInspiration->profile_url  = 'bangInspiration/bang_logo.jpg';
-        $bangInspiration->thumbnail = $thumbnailPath;
+        $bangInspiration->thumbnail = $thumbnailName;
         $bangInspiration->save();
+
+        return redirect()->route('bangInspirationWeb')->with('success', 'Bang inspiration posted successfully!');
     }
 
 
-    function postBangThumbnail(Request $request){
+    function postBangThumbnail(Request $request)
+    {
         Storage::put('bangInspiration/thumbnails', $request->thumbnail);
         return $request->thumbnail;
     }
-
-    
 }

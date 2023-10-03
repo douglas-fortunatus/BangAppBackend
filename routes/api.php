@@ -6,7 +6,7 @@ use App\Image;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
-use App\Post; 
+use App\Post;
 use App\Challenge;
 use App\User;
 use FFMpeg\FFMpeg;
@@ -24,6 +24,7 @@ use App\Notification;
 use Illuminate\Validation\Rule;
 use App\Http\Controllers\PushNotificationService;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\ChatController;
 
 global $appUrl;
 $appUrl = "https://bangapp.pro/BangAppBackend/";
@@ -32,17 +33,17 @@ Route::get('/users/search', 'App\Http\Controllers\UserController@search');
 
 Route::get('/bang-updatesnew', function (\Illuminate\Http\Request $request) {
     $appUrl = "https://bangapp.pro/BangAppBackend/";
-    
+
     $page = $request->query('_page', 1);
-    $limit = $request->query('_limit', 4);
-    
+    $limit = $request->query('_limit', 100);
+
       $bangUpdates = BangUpdate::all();
-    
+
     $formattedUpdates = $bangUpdates->getCollection()->map(function ($update) use ($appUrl) {
         $update->filename = $appUrl .'storage/app/bangUpdates/'. $update->filename;
         return $update;
     });
-    
+
     $paginatedResponse = [
         'data' => $formattedUpdates,
         'meta' => [
@@ -80,7 +81,7 @@ Route::get('/bang-updates', function () {
 Route::get('/bang-updates/{userId}', function ($userId) {
 
     $appUrl = "https://bangapp.pro/BangAppBackend/";
-    
+
     // Get the bang updates and include like information for the given user
     $bangUpdates = BangUpdate::orderBy('created_at', 'desc')
         ->with([
@@ -101,10 +102,10 @@ Route::get('/bang-updates/{userId}', function ($userId) {
     // Format the updates and add the isLiked variable
     $formattedUpdates = $bangUpdates->map(function ($update) use ($appUrl, $userId) {
         $update->filename = $appUrl .'storage/app/bangUpdates/'. $update->filename;
-      
+
         $update->isLiked = $update->bang_update_likes->isNotEmpty(); // Check if there are likes
-        
-            
+
+
         return $update;
     });
 
@@ -120,7 +121,7 @@ Route::get('/getPostnotNull', function(Request $request) {
     $numberOfPostsPerRequest = $request->query('_limit', 10);
 
     // Get the user's ID if available (you can adjust how you get the user's ID based on your authentication system)
-    $user_id = $request->input('user_id'); 
+    $user_id = $request->input('user_id');
 
     $posts = Post::latest()
 	->whereNotNull('image')
@@ -149,7 +150,7 @@ Route::get('/getPostnotNull', function(Request $request) {
         foreach ($post->challenges as $challenge) {
             $challenge->challenge_img ? $challenge->challenge_img = $appUrl . 'storage/app/' . $challenge->challenge_img : $challenge->challenge_img = null;
         }
-        
+
         // Initialize isLikedA and isLikedB as false
         $post->isLikedA = false;
         $post->isLikedB = false;
@@ -164,7 +165,7 @@ Route::get('/getPostnotNull', function(Request $request) {
                 }
             }
         }
-        
+
         // Retrieve the like counts for both A and B challenge images
         $likeCountA = 0;
         $likeCountB = 0;
@@ -180,7 +181,7 @@ Route::get('/getPostnotNull', function(Request $request) {
         $post->like_count_A = $likeCountA;
         $post->like_count_B = $likeCountB;
         $post->isLiked = ($likeCountA > 0 || $likeCountB > 0);
-        
+
         // Filter out posts with NULL images
         return !is_null($post->image);
     });
@@ -209,7 +210,7 @@ Route::post('imageadd', function(Request $request){
 
 Route::post('imagechallengadd', function(Request $request){
     $image = new Post;
-    $image->body = $request->body;    
+    $image->body = $request->body;
     $image->user_id = $request->user_id;
         if ($request->hasFile('image') && $request->hasFile('image2')) {
         $path = $request->file('image')->store('images');
@@ -224,7 +225,7 @@ Route::post('imagechallengadd', function(Request $request){
 
 Route::post('/addChallenge', function(Request $request){
     $image = new Challenge;
-    $image->body = $request->body;    
+    $image->body = $request->body;
     $image->user_id = $request->user_id;
     $image->post_id = $request->post_id;
     if ($request->hasFile('image')) {
@@ -271,17 +272,36 @@ Route::get('/comments', function(Post $post){
     return response(['data' => $comments, 'message' => 'success'], 200);
 });
 
+/**
+ *
+ * This route returns all the bang inspirations with their profile url, video url and thumbnail.
+ * The urls are formatted with the app url and returned as a json response.
+ *
+ */
 Route::get('/get/bangInspirations',function(){
-    $appUrl = "http://192.168.188.229/social-backend-laravel/";
+    $appUrl = "http://192.168.194.226/BangAppBackend/";
     $bangInspirations = bangInspiration::all();
     $formattedInspirations = $bangInspirations->map(function ($update) use ($appUrl) {
         $update->profile_url = $appUrl . 'storage/app/bangInspiration/' . $update->profile_url;
         $update->video_url = $appUrl .'storage/app/bangInspiration/'. $update->video_url;
-        $update->thumbnail = $appUrl . 'storage/app/bangInspiration/'. $update->thumbnail;
+        $update->thumbnail = $appUrl . 'storage/app/bangInspiration/thumb/'. $update->thumbnail;
         return $update;
     });
 
     return response()->json($formattedInspirations);
+});
+Route::get('/get/bangInspirations/{videoId}', function($videoId) {
+    $appUrl = "https://bangapp.pro/BangAppBackend/";
+    // Retrieve the Video model instance by its ID
+    $video = BangInspiration::where('id',$videoId)->first();
+    if (!$video) {
+        return response(['message' => 'Video not found'], 404);
+    }
+
+    // Perform the necessary transformations
+    $video->video_url = $video->video_url ? $appUrl . 'storage/app/bangInspiration/' . $video->video_url : null;
+    $video->thumbnail = $video->thumbnail ? $appUrl . 'storage/app/bangInspiration/thumb/' . $video->thumbnail : null;
+    return response()->json($video);
 });
 
 Route::get('/editPost', function(Request $request){
@@ -343,7 +363,7 @@ Route::get('/getPost', function(Request $request) {
     $numberOfPostsPerRequest = $request->query('_limit', 10);
 
     // Get the user's ID if available (you can adjust how you get the user's ID based on your authentication system)
-    $user_id = $request->input('user_id'); 
+    $user_id = $request->input('user_id');
 
     $posts = Post::latest()
         ->with([
@@ -384,7 +404,7 @@ Route::get('/getPost', function(Request $request) {
             $post->isLikedB = true;
             $post->isLiked = true;
         }
-        
+
         // Retrieve the like counts for both A and B challenge images
         $likeCountA = 0;
         $likeCountB = 0;
@@ -399,7 +419,7 @@ Route::get('/getPost', function(Request $request) {
         }
         $post->like_count_A = $likeCountA;
         $post->like_count_B = $likeCountB;
-        
+
         return $post;
     });
 
@@ -446,7 +466,7 @@ Route::post('/imageaddWithResponse', function(Request $request){
 Route::post('/imagechallengaddWithResponse', function(Request $request){
     $appUrl = "https://bangapp.pro/BangAppBackend/";
     $image = new Post;
-    $image->body = $request->body;    
+    $image->body = $request->body;
     $image->user_id = $request->user_id;
         if ($request->hasFile('image') && $request->hasFile('image2')) {
         $image->image = $request->file('image')->store('images');
@@ -588,7 +608,7 @@ Route::post('/sendNotification', function(Request $request)
     return response(['message' => 'success'], 200);
 });
 
-Route::get('/getMyPosts/{id}', function($id) 
+Route::get('/getMyPosts/{id}', function($id)
 {
     $appUrl = "https://bangapp.pro/BangAppBackend/";
     $posts = Post::where('user_id', $id)->with([
@@ -681,7 +701,7 @@ Route::post('/acceptChallenge', function(request $request){
     if($challenge->save()){
         return response(['data' => $challenge, 'message' => 'success'], 200);
     }
-    
+
 });
 
 Route::get('/hobbies', function(request $request){
@@ -777,11 +797,11 @@ Route::get('/getNotifications/{user_id}', function($user_id){
 Route::group(['prefix' => 'v1'], function () {
 
     Route::post('/register', 'Api\AuthenticationController@register');
-    
+
     Route::get('/users/getCurrentUser', 'Api\AuthenticationController@getCurrentUser');
 
     Route::post('/login', 'Api\AuthenticationController@login')->name('login');
-    
+
     Route::group(['middleware' => ['auth:api']], function () {
         //get user
         Route::get('/users/{user}', 'Api\AuthenticationController@user');
@@ -814,3 +834,10 @@ Route::group(['prefix' => 'v1'], function () {
         return $request->user();
     });
 });
+
+
+
+Route::get('/chats', [ChatController::class, 'getAllConversations']);
+Route::get('/getChatMessages', [ChatController::class, 'getMessages']);
+Route::post('/sendMessage', [ChatController::class, 'sendMessage']);
+Route::any('/startNewChat', [ChatController::class, 'startConversation']);
