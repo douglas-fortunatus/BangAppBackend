@@ -204,7 +204,10 @@ Route::post('imageadd', function(Request $request){
         $path = $request->file('image')->store('images');
         $image->image = $path;
     }
-    $image->save();
+    if($path){
+        $image->save();
+    }
+    
     return response()->json(['url' => asset($image->url)], 201);
 });
 
