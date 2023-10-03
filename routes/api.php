@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Post;
+use App\Like;
 use App\Challenge;
 use App\User;
 use FFMpeg\FFMpeg;
@@ -204,7 +205,10 @@ Route::post('imageadd', function(Request $request){
         $path = $request->file('image')->store('images');
         $image->image = $path;
     }
-    $image->save();
+    if($path){
+        $image->save();
+    }
+
     return response()->json(['url' => asset($image->url)], 201);
 });
 
@@ -394,7 +398,7 @@ Route::get('/getPost', function(Request $request) {
 
         $post->isLikedA = false;
         $post->isLikedB = false;
-        $post->isLiked = true;
+        $post->isLiked = false;
        // Check if the user has liked the post and update isLikedA and isLikedB accordingly
         $likeType = Post::getLikeTypeForUser($user_id, $post->id);
         if ($likeType == "A") {
@@ -402,7 +406,7 @@ Route::get('/getPost', function(Request $request) {
             $post->isLiked = true;
         } elseif ($likeType == "B") {
             $post->isLikedB = true;
-            $post->isLiked = true;
+            //$post->isLiked = true;
         }
 
         // Retrieve the like counts for both A and B challenge images
@@ -454,6 +458,7 @@ Route::post('/imageaddWithResponse', function(Request $request){
     } else {
         list($image->width, $image->height) = [300, 300];
     }
+    $image->user->name;
     $image->isLikedA = false;
     $image->isLikedB = false;
     $image->isLiked = false;
@@ -532,7 +537,6 @@ Route::post('/likePost', function(Request $request)
     $postId = $request->input('post_id');
     $userId = $request->input('user_id');
     $likeType = $request->input('like_type'); // Add this line to get the like_type ('A' or 'B') from the request
-
     $post = Post::find($postId);
     $user = User::find($userId);
 
@@ -541,22 +545,24 @@ Route::post('/likePost', function(Request $request)
     }
 
     // Check if the user has already liked the post with the given like_type
-    $isLiked = $post->likes()->where('user_id', $user->id)->where('like_type', $likeType)->exists();
+    $isLiked = Like::where('user_id', $user->id)->where('like_type', $likeType)->exists();
 
     if ($isLiked) {
-        // User has already liked the post with the same like_type, so unlike it
-        $post->likes()->where('user_id', $user->id)->where('like_type', $likeType)->detach();
+
+        Like::where('user_id', $user->id)->where('like_type', $likeType)->delete();
         $message = 'Post unliked successfully';
     } else {
         // User hasn't liked the post yet, so like it
-        // Remove the opposite like if it exists
+        // // Remove the opposite like if it exists
         $oppositeLikeType = ($likeType === 'A') ? 'B' : 'A';
-        $post->likes()->where('user_id', $user->id)->where('like_type', $oppositeLikeType)->detach();
-
-        $post->likes()->attach($user->id, ['like_type' => $likeType]);
+        Like::where('user_id', $user->id)->where('like_type', $oppositeLikeType)->delete();
+        Like::create([
+            'user_id' => $userId,
+            'like_type' => $likeType,
+            'post_id'=>$postId
+        ]);
         $message = 'Post liked successfully';
     }
-
     // Get the updated like count for the specific like_type
     $likeCount = $post->likes()->where('like_type', $likeType)->count();
 
@@ -607,6 +613,23 @@ Route::post('/sendNotification', function(Request $request)
     $pushNotificationService->sendPushNotification($deviceToken, $request->heading, $request->body,$request->challengeId);
     return response(['message' => 'success'], 200);
 });
+
+
+Route::post('/sendUserNotification', function(Request $request)
+{
+    $user = User::findOrFail($request->user_id);
+    $deviceToken = $user->device_token;
+    $notification = new Notification;
+    $notification->user_id = $request->user_id;
+    $notification->message = $request->body;
+    $notification->type = $request->type;
+    $notification->reference_id = $request->reference_id;
+    $notification->save();
+    $pushNotificationService = new PushNotificationService();
+    $pushNotificationService->sendUserPushNotification($deviceToken, $request->type, $request->body);
+    return response(['message' => 'success'], 200);
+});
+
 
 Route::get('/getMyPosts/{id}', function($id)
 {
@@ -793,6 +816,8 @@ Route::get('/getNotifications/{user_id}', function($user_id){
 
     return response()->json(['notifications' => $notifications]);
 });
+
+
 
 Route::group(['prefix' => 'v1'], function () {
 
