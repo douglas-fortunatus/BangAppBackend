@@ -26,10 +26,6 @@ class AuthenticationController extends Controller
             'name' => ['required', 'string', 'regex:/^[A-Za-z][A-Za-z0-9]{4,31}$/', 'max:20', 'min:5', 'alpha_num', 'unique:users,name'],
             'email' => ['required', 'email', 'unique:users'],
             'password' => ['required', 'string', 'min:6', 'max:30'],
-            'phone_number' => ['required', 'regex:/^[0-9]{10}$/'],
-            'date_of_birth' => ['required', 'date', 'before:-18 years'],
-            'occupation' => ['required'],
-
         ]);
 
         if ($validator->fails()) {
