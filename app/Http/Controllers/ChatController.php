@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Conversation;
 use App\Message;
+use App\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -14,13 +15,31 @@ class ChatController extends Controller
     public function getAllConversations(Request $request)
     {
         $user_id = $request->get('user_id');
+        $user = User::find($user_id);
 
         // This will retrieve conversations where the authenticated user is either participant
         $conversations = Conversation::where('user1_id', $user_id)
             ->orWhere('user2_id', $user_id)
             ->get();
 
-        return response()->json($conversations);
+        $chats = [];
+        foreach ($conversations as $conversation) {
+            $receiver_id = $conversation->user1_id == $user_id ? $conversation->user2_id : $conversation->user1_id;
+            $receiver = User::find($receiver_id);
+            $lastMessage = $conversation->messages()->orderBy('created_at', 'desc')->first();
+            $chats[] = [
+                'receiver_name' => $receiver->name,
+                'receiver_id' => $receiver->id,
+                'sender_id' => $user_id,
+                'sender_name' => $user->name ,
+                'lastMessage' => $lastMessage ? $lastMessage->message : '',
+                'image' => $receiver->image,
+                'time' => $lastMessage ? $lastMessage->created_at->diffForHumans() : '',
+                'isActive' => false,
+            ];
+        }
+
+        return response()->json($chats);
     }
 
     // Get messages for a specific conversation
@@ -41,6 +60,22 @@ class ChatController extends Controller
         }
 
         return response()->json($conversation->messages()->orderBy('created_at', 'desc')->get());
+    }
+
+    // Mark a message as read
+    public function markMessageAsRead(Request $request)
+    {
+        $message_id = $request->get('message_id');
+        $message = Message::find($message_id);
+
+        if (!$message) {
+            return response()->json(['message' => 'Message not found'], 404);
+        }
+
+        $message->is_read = true;
+        $message->save();
+
+        return response()->json(['message' => 'Message marked as read'], 200);
     }
 
     // Send a message in a specific conversation

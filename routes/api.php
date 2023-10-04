@@ -862,7 +862,14 @@ Route::group(['prefix' => 'v1'], function () {
 
 
 
-Route::get('/chats', [ChatController::class, 'getAllConversations']);
+Route::get('/getAllConversations', [ChatController::class, 'getAllConversations']);
 Route::get('/getChatMessages', [ChatController::class, 'getMessages']);
 Route::post('/sendMessage', [ChatController::class, 'sendMessage']);
 Route::any('/startNewChat', [ChatController::class, 'startConversation']);
+Route::post('/markMessageAsRead', 'ChatController@markMessageAsRead');
+Route::post('/deleteConversation', 'ChatController@deleteConversation');
+Route::post('/deleteMessage', 'ChatController@deleteMessage');
+Route::post('/deleteAllMessages', 'ChatController@deleteAllMessages');
+Route::post('/deleteAllConversations', 'ChatController@deleteAllConversations');
+Route::post('/deleteAllMessagesInConversation', 'ChatController@deleteAllMessagesInConversation');
+
