@@ -22,11 +22,15 @@ class ChatController extends Controller
             ->orWhere('user2_id', $user_id)
             ->get();
 
+
+
         $chats = [];
         foreach ($conversations as $conversation) {
             $receiver_id = $conversation->user1_id == $user_id ? $conversation->user2_id : $conversation->user1_id;
             $receiver = User::find($receiver_id);
             $lastMessage = $conversation->messages()->orderBy('created_at', 'desc')->first();
+            $unreadCount = $conversation->messages()->where('is_read', false)->where('sender_id', '!=', $user_id)->count(); // Count of unread messages
+
             $chats[] = [
                 'receiver_name' => $receiver->name,
                 'receiver_id' => $receiver->id,
@@ -35,6 +39,7 @@ class ChatController extends Controller
                 'lastMessage' => $lastMessage ? $lastMessage->message : '',
                 'image' => $receiver->image,
                 'time' => $lastMessage ? $lastMessage->created_at->diffForHumans() : '',
+                'unreadCount' => $unreadCount, // Include count of unread messages
                 'isActive' => false,
             ];
         }
@@ -62,21 +67,7 @@ class ChatController extends Controller
         return response()->json($conversation->messages()->orderBy('created_at', 'desc')->get());
     }
 
-    // Mark a message as read
-    public function markMessageAsRead(Request $request)
-    {
-        $message_id = $request->get('message_id');
-        $message = Message::find($message_id);
 
-        if (!$message) {
-            return response()->json(['message' => 'Message not found'], 404);
-        }
-
-        $message->is_read = true;
-        $message->save();
-
-        return response()->json(['message' => 'Message marked as read'], 200);
-    }
 
     // Send a message in a specific conversation
     public function sendMessage(Request $request)
