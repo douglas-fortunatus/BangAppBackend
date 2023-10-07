@@ -6,8 +6,8 @@ use App\Image;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
-use App\Post; 
-use App\Like; 
+use App\Post;
+use App\Like;
 use App\Challenge;
 use App\User;
 use FFMpeg\FFMpeg;
@@ -33,17 +33,17 @@ Route::get('/users/search', 'App\Http\Controllers\UserController@search');
 
 Route::get('/bang-updatesnew', function (\Illuminate\Http\Request $request) {
     $appUrl = "https://bangapp.pro/BangAppBackend/";
-    
+
     $page = $request->query('_page', 1);
     $limit = $request->query('_limit', 4);
-    
+
       $bangUpdates = BangUpdate::all();
-    
+
     $formattedUpdates = $bangUpdates->getCollection()->map(function ($update) use ($appUrl) {
         $update->filename = $appUrl .'storage/app/bangUpdates/'. $update->filename;
         return $update;
     });
-    
+
     $paginatedResponse = [
         'data' => $formattedUpdates,
         'meta' => [
@@ -81,7 +81,7 @@ Route::get('/bang-updates', function () {
 Route::get('/bang-updates/{userId}', function ($userId) {
 
     $appUrl = "https://bangapp.pro/BangAppBackend/";
-    
+
     // Get the bang updates and include like information for the given user
     $bangUpdates = BangUpdate::orderBy('created_at', 'desc')
         ->with([
@@ -102,10 +102,10 @@ Route::get('/bang-updates/{userId}', function ($userId) {
     // Format the updates and add the isLiked variable
     $formattedUpdates = $bangUpdates->map(function ($update) use ($appUrl, $userId) {
         $update->filename = $appUrl .'storage/app/bangUpdates/'. $update->filename;
-      
+
         $update->isLiked = $update->bang_update_likes->isNotEmpty(); // Check if there are likes
-        
-            
+
+
         return $update;
     });
 
@@ -121,7 +121,7 @@ Route::get('/getPostnotNull', function(Request $request) {
     $numberOfPostsPerRequest = $request->query('_limit', 10);
 
     // Get the user's ID if available (you can adjust how you get the user's ID based on your authentication system)
-    $user_id = $request->input('user_id'); 
+    $user_id = $request->input('user_id');
 
     $posts = Post::latest()
 	->whereNotNull('image')
@@ -150,7 +150,7 @@ Route::get('/getPostnotNull', function(Request $request) {
         foreach ($post->challenges as $challenge) {
             $challenge->challenge_img ? $challenge->challenge_img = $appUrl . 'storage/app/' . $challenge->challenge_img : $challenge->challenge_img = null;
         }
-        
+
         // Initialize isLikedA and isLikedB as false
         $post->isLikedA = false;
         $post->isLikedB = false;
@@ -165,7 +165,7 @@ Route::get('/getPostnotNull', function(Request $request) {
                 }
             }
         }
-        
+
         // Retrieve the like counts for both A and B challenge images
         $likeCountA = 0;
         $likeCountB = 0;
@@ -181,7 +181,7 @@ Route::get('/getPostnotNull', function(Request $request) {
         $post->like_count_A = $likeCountA;
         $post->like_count_B = $likeCountB;
         $post->isLiked = ($likeCountA > 0 || $likeCountB > 0);
-        
+
         // Filter out posts with NULL images
         return !is_null($post->image);
     });
@@ -207,13 +207,13 @@ Route::post('imageadd', function(Request $request){
     if($path){
         $image->save();
     }
-    
+
     return response()->json(['url' => asset($image->url)], 201);
 });
 
 Route::post('imagechallengadd', function(Request $request){
     $image = new Post;
-    $image->body = $request->body;    
+    $image->body = $request->body;
     $image->user_id = $request->user_id;
         if ($request->hasFile('image') && $request->hasFile('image2')) {
         $path = $request->file('image')->store('images');
@@ -228,7 +228,7 @@ Route::post('imagechallengadd', function(Request $request){
 
 Route::post('/addChallenge', function(Request $request){
     $image = new Challenge;
-    $image->body = $request->body;    
+    $image->body = $request->body;
     $image->user_id = $request->user_id;
     $image->post_id = $request->post_id;
     if ($request->hasFile('image')) {
@@ -347,7 +347,7 @@ Route::get('/getPost', function(Request $request) {
     $numberOfPostsPerRequest = $request->query('_limit', 10);
 
     // Get the user's ID if available (you can adjust how you get the user's ID based on your authentication system)
-    $user_id = $request->input('user_id'); 
+    $user_id = $request->input('user_id');
 
     $posts = Post::latest()
         ->with([
@@ -402,7 +402,7 @@ Route::get('/getPost', function(Request $request) {
         }
         $post->like_count_A = $likeCountA;
         $post->like_count_B = $likeCountB;
-        
+
         return $post;
     });
 
@@ -450,7 +450,7 @@ Route::post('/imageaddWithResponse', function(Request $request){
 Route::post('/imagechallengaddWithResponse', function(Request $request){
     $appUrl = "https://bangapp.pro/BangAppBackend/";
     $image = new Post;
-    $image->body = $request->body;    
+    $image->body = $request->body;
     $image->user_id = $request->user_id;
         if ($request->hasFile('image') && $request->hasFile('image2')) {
         $image->image = $request->file('image')->store('images');
@@ -522,7 +522,7 @@ Route::post('/likePost', function(Request $request)
     if (!$post || !$user) {
         return response()->json(['message' => 'Post or user not found'], 404);
     }
-    
+
     // Check if the user has already liked the post with the given like_type
     $isLiked = Like::where('user_id', $user->id)->where('like_type', $likeType)->exists();
 
@@ -533,7 +533,7 @@ Route::post('/likePost', function(Request $request)
     } else {
         // User hasn't liked the post yet, so like it
         // // Remove the opposite like if it exists
-        $oppositeLikeType = ($likeType === 'A') ? 'B' : 'A'; 
+        $oppositeLikeType = ($likeType === 'A') ? 'B' : 'A';
         Like::where('user_id', $user->id)->where('like_type', $oppositeLikeType)->delete();
         Like::create([
             'user_id' => $userId,
@@ -610,7 +610,7 @@ Route::post('/sendUserNotification', function(Request $request)
 });
 
 
-Route::get('/getMyPosts/{id}', function($id) 
+Route::get('/getMyPosts/{id}', function($id)
 {
     $appUrl = "https://bangapp.pro/BangAppBackend/";
     $posts = Post::where('user_id', $id)->with([
@@ -703,7 +703,7 @@ Route::post('/acceptChallenge', function(request $request){
     if($challenge->save()){
         return response(['data' => $challenge, 'message' => 'success'], 200);
     }
-    
+
 });
 
 Route::get('/hobbies', function(request $request){
@@ -791,7 +791,7 @@ Route::get('/getBangBattle', function (Request $request) {
 
 Route::get('/getNotifications/{user_id}', function($user_id){
     // Fetch notifications for the user
-    $notifications = Notification::where('user_id', $user_id)->orderByDesc('created_at')->get();
+    $notifications = Notification::where('user_id', $user_id)->with('user')->orderByDesc('created_at')->get();
 
     return response()->json(['notifications' => $notifications]);
 });
@@ -801,11 +801,11 @@ Route::get('/getNotifications/{user_id}', function($user_id){
 Route::group(['prefix' => 'v1'], function () {
 
     Route::post('/register', 'Api\AuthenticationController@register');
-    
+
     Route::get('/users/getCurrentUser', 'Api\AuthenticationController@getCurrentUser');
 
     Route::post('/login', 'Api\AuthenticationController@login')->name('login');
-    
+
     Route::group(['middleware' => ['auth:api']], function () {
         //get user
         Route::get('/users/{user}', 'Api\AuthenticationController@user');
