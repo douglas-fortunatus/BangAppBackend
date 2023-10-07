@@ -540,7 +540,6 @@ Route::post('/likePost', function(Request $request)
     $likeType = $request->input('like_type'); // Add this line to get the like_type ('A' or 'B') from the request
     $post = Post::find($postId);
     $user = User::find($userId);
-
     if (!$post || !$user) {
         return response()->json(['message' => 'Post or user not found'], 404);
     }
@@ -557,6 +556,7 @@ Route::post('/likePost', function(Request $request)
         // // Remove the opposite like if it exists
         $oppositeLikeType = ($likeType === 'A') ? 'B' : 'A';
         Like::where('user_id', $user->id)->where('post_id', $postId)->where('like_type', $oppositeLikeType)->delete();
+        
         Like::create([
             'user_id' => $userId,
             'like_type' => $likeType,
