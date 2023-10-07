@@ -389,6 +389,7 @@ Route::get('/getPost', function(Request $request) {
             //$post->isLiked = true;
         }
         // Retrieve the like counts for both A and B challenge images
+        $likeCount
         $likeCountA = 0;
         $likeCountB = 0;
         if ($post->likes->isNotEmpty()) {
@@ -524,17 +525,17 @@ Route::post('/likePost', function(Request $request)
     }
 
     // Check if the user has already liked the post with the given like_type
-    $isLiked = Like::where('user_id', $user->id)->where('like_type', $likeType)->exists();
+    $isLiked = Like::where('user_id', $user->id)->where('post_id', $postId)->exists();
 
     if ($isLiked) {
 
-        Like::where('user_id', $user->id)->where('like_type', $likeType)->delete();
+        Like::where('user_id', $user->id)->where('post_id', $postId)->delete();
         $message = 'Post unliked successfully';
     } else {
         // User hasn't liked the post yet, so like it
         // // Remove the opposite like if it exists
         $oppositeLikeType = ($likeType === 'A') ? 'B' : 'A';
-        Like::where('user_id', $user->id)->where('like_type', $oppositeLikeType)->delete();
+        Like::where('user_id', $user->id)->where('post_id', $postId)->delete();
         Like::create([
             'user_id' => $userId,
             'like_type' => $likeType,
@@ -603,6 +604,7 @@ Route::post('/sendUserNotification', function(Request $request)
     $notification->message = $request->body;
     $notification->type = $request->type;
     $notification->reference_id = $request->reference_id;
+    $notification->post_id = $request->post_id;
     $notification->save();
     $pushNotificationService = new PushNotificationService();
     $pushNotificationService->sendUserPushNotification($deviceToken, $request->type, $request->body);
@@ -651,6 +653,18 @@ Route::get('/getComments/{id}', function($id){
     ])->orderBy('created_at', 'desc')->get(); // Corrected 'orderBy' here
     return response()->json(['comments' => $comments]);
 });
+
+
+Route::get('/getPostInfo/{user_id}/{post_id}', function($user_id,$post_id){
+
+    $post = Post::where('post_id', $post_id)->with([
+        'user' => function($query) {
+            $query->select('id', 'name', 'image');
+        },
+    ])->get(); // Corrected 'orderBy' here
+    return response()->json(['post' => $comments]);
+});
+
 
 Route::get('/bangUpdateComment/{id}', function($id){
     $comments = bangUpdateComment::where('post_id', $id)->with([
