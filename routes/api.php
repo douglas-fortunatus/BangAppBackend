@@ -556,7 +556,7 @@ Route::post('/likePost', function(Request $request)
         // User hasn't liked the post yet, so like it
         // // Remove the opposite like if it exists
         $oppositeLikeType = ($likeType === 'A') ? 'B' : 'A';
-        Like::where('user_id', $user->id)->where('like_type', $oppositeLikeType)->delete();
+        Like::where('user_id', $user->id)->where('post_id', $postId)->where('like_type', $oppositeLikeType)->delete();
         Like::create([
             'user_id' => $userId,
             'like_type' => $likeType,
