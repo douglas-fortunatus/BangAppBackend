@@ -789,9 +789,14 @@ Route::get('/getBangBattle', function (Request $request) {
     return response()->json(['data' => $battles]);
 });
 
-Route::get('/getNotifications/{user_id}', function($user_id){
-    // Fetch notifications for the user
-    $notifications = Notification::where('user_id', $user_id)->with('user')->orderByDesc('created_at')->get();
+Route::get('/getNotifications/{user_id}', function ($user_id) {
+    // Fetch notifications for the user with user details (name and image)
+    $notifications = Notification::where('user_id', $user_id)
+        ->with(['user' => function ($query) {
+            $query->select('id', 'name', 'image'); // Select the desired user attributes
+        }])
+        ->orderByDesc('created_at')
+        ->get();
 
     return response()->json(['notifications' => $notifications]);
 });
