@@ -283,7 +283,7 @@ Route::get('/comments', function(Post $post){
  *
  */
 Route::get('/get/bangInspirations',function(){
-    $appUrl = "http://192.168.194.226/BangAppBackend/";
+    $appUrl = "http://192.168.137.226/BangAppBackend/";
     $bangInspirations = bangInspiration::all();
     $formattedInspirations = $bangInspirations->map(function ($update) use ($appUrl) {
         $update->profile_url = $appUrl . 'storage/app/bangInspiration/' . $update->profile_url;
@@ -861,15 +861,16 @@ Route::group(['prefix' => 'v1'], function () {
 });
 
 
+Route::any('/associateOneSignalPlayerId', [ChatController::class , 'associateOneSignalPlayerId']);
 
 Route::get('/getAllConversations', [ChatController::class, 'getAllConversations']);
 Route::get('/getChatMessages', [ChatController::class, 'getMessages']);
 Route::post('/sendMessage', [ChatController::class, 'sendMessage']);
 Route::any('/startNewChat', [ChatController::class, 'startConversation']);
-Route::post('/markMessageAsRead', 'ChatController@markMessageAsRead');
-Route::post('/deleteConversation', 'ChatController@deleteConversation');
-Route::post('/deleteMessage', 'ChatController@deleteMessage');
-Route::post('/deleteAllMessages', 'ChatController@deleteAllMessages');
-Route::post('/deleteAllConversations', 'ChatController@deleteAllConversations');
-Route::post('/deleteAllMessagesInConversation', 'ChatController@deleteAllMessagesInConversation');
+Route::post('/markMessageAsRead', [ChatController::class, 'markMessageAsRead']);
+Route::post('/deleteConversation', [ChatController::class, 'deleteConversation']);
+Route::post('/deleteMessage', [ChatController::class, 'deleteMessage']);
+Route::post('/deleteAllMessages', [ChatController::class, 'deleteAllMessages']);
+Route::post('/deleteAllConversations', [ChatController::class, 'deleteAllConversations']);
+Route::post('/deleteAllMessagesInConversation', [ChatController::class, 'deleteAllMessagesInConversation']);
 

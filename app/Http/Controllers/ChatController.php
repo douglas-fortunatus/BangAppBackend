@@ -1,9 +1,9 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Conversation;
 use App\Message;
+use App\OneSignalUserMapping;
 use App\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -11,6 +11,21 @@ use Illuminate\Support\Facades\Auth;
 
 class ChatController extends Controller
 {
+
+
+    public function associateOneSignalPlayerId(Request $request)
+{
+    $userId = $request->input('user_id');
+    $playerId = $request->input('onesignal_player_id');
+
+    // Check if the association already exists; if not, create it
+    OneSignalUserMapping::updateOrCreate(
+        ['user_id' => $userId],
+        ['onesignal_player_id' => $playerId]
+    );
+
+    return response()->json(['message' => 'Association successful']);
+}
     // Retrieve all conversations for the authenticated user
     public function getAllConversations(Request $request)
     {
@@ -32,6 +47,7 @@ class ChatController extends Controller
             $unreadCount = $conversation->messages()->where('is_read', false)->where('sender_id', '!=', $user_id)->count(); // Count of unread messages
 
             $chats[] = [
+                'conversation_id' => $conversation->id,
                 'receiver_name' => $receiver->name,
                 'receiver_id' => $receiver->id,
                 'sender_id' => $user_id,
@@ -43,6 +59,9 @@ class ChatController extends Controller
                 'isActive' => false,
             ];
         }
+        usort($chats, function ($a, $b) {
+            return strtotime($b['time']) - strtotime($a['time']);
+        });
 
         return response()->json($chats);
     }
@@ -101,6 +120,20 @@ class ChatController extends Controller
     return response()->json($savedMessage, 200);
 }
 
+public function markMessageAsRead(Request $request)
+    {
+        $message_id = $request->get('message_id');
+        $message = Message::find($message_id);
+
+        if (!$message) {
+            return response()->json(['message' => 'Message not found'], 404);
+        }
+
+        $message->is_read = true;
+        $message->save();
+
+        return response()->json(['message' => 'Message marked as read'], 200);
+    }
     // Start a new conversation
     public function startConversation(Request $request)
     {

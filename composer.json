@@ -20,6 +20,7 @@
         "jrm2k6/cloudder": "^0.6.0",
         "kreait/firebase-php": "^7.5",
         "kreait/laravel-firebase": "^5.2",
+        "laravel-notification-channels/onesignal": "^2.5",
         "laravel/framework": "^9.0",
         "laravel/legacy-factories": "^1.1",
         "laravel/passport": "^10.0",
