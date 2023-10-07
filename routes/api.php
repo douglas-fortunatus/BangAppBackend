@@ -389,7 +389,7 @@ Route::get('/getPost', function(Request $request) {
             //$post->isLiked = true;
         }
         // Retrieve the like counts for both A and B challenge images
-        $likeCount
+        // $likeCount
         $likeCountA = 0;
         $likeCountB = 0;
         if ($post->likes->isNotEmpty()) {
