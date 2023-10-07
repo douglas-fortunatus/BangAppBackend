@@ -10,27 +10,27 @@ const io = new Server(server);
 const PORT = process.env.PORT || 3000;
 
 // MongoDB connection settings
-const username = encodeURIComponent("herman");
-const password = encodeURIComponent("Kilimanjaro1927");
-const cluster = "Cluster0";
+// const username = encodeURIComponent("herman");
+// const password = encodeURIComponent("Kilimanjaro1927");
+// const cluster = "Cluster0";
 
-const uri = `mongodb+srv://${username}:${password}@${cluster}.n6mhdlx.mongodb.net/websockets?retryWrites=true&w=majority`;
+// const uri = `mongodb+srv://${username}:${password}@${cluster}.n6mhdlx.mongodb.net/websockets?retryWrites=true&w=majority`;
 
-mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: false })
-  .then(() => {
-    console.log("Connected to MongoDB Atlas");
-  })
-  .catch((error) => {
-    console.error("Error connecting to MongoDB Atlas:", error);
-  });
+// mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: false })
+//   .then(() => {
+//     console.log("Connected to MongoDB Atlas");
+//   })
+//   .catch((error) => {
+//     console.error("Error connecting to MongoDB Atlas:", error);
+//   });
 
 // Define a MongoDB schema for chat rooms
-const roomSchema = new mongoose.Schema({
-  participant1_id: String,
-  participant2_id: String
-});
+// const roomSchema = new mongoose.Schema({
+//   participant1_id: String,
+//   participant2_id: String
+// });
 
-const ChatRoom = mongoose.model('ChatRoom', roomSchema);
+// const ChatRoom = mongoose.model('ChatRoom', roomSchema);
 
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
@@ -62,9 +62,6 @@ io.on('connection', (socket) => {
     if (!userRooms[socket.id]) {
       userRooms[socket.id] = room;
     }
-
-    // Send the current room back to the client
-    socket.emit('current_room', room);
   });
 
   // When a user sends a message
