@@ -322,7 +322,6 @@ Route::get('/getPost', function(Request $request) {
         $post->isLiked = false;
        // Check if the user has liked the post and update isLikedA and isLikedB accordingly
         $likeType = Post::getLikeTypeForUser($user_id, $post->id);
-        $post->comment_count = Post::getCommentCount($post->id);
         if ($likeType == "A") {
             $post->isLikedA = true;
             $post->isLiked = true;
@@ -590,7 +589,7 @@ Route::get('/getComments/{id}', function($id){
         'user' => function($query) {
             $query->select('id', 'name', 'image');
         },
-    ])->orderBy('created_at', 'desc')->get(); // Corrected 'orderBy' here
+    ])->orderBy('created_at', 'asc')->get(); // Corrected 'orderBy' here
     return response()->json(['comments' => $comments]);
 });
 
