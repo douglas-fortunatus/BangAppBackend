@@ -603,7 +603,7 @@ Route::get('/bangUpdateComment/{id}', function($id){
             'user' => function($query) {
                 $query->select('id', 'name', 'image');
             },
-        ])->get();
+        ])->orderBy('created_at', 'asc')->get();
     return response()->json(['comments' => $comments]);
 });
 
@@ -611,6 +611,8 @@ Route::post('/postComment', function(request $request,Post $post){
     $request->validate([
         'body' => 'string|min:3|max:6000',
     ]);
+    $post = Post::find($request->post_id);
+    $user = User::find($request->user_id);
     $comment = Comment::create([
         'user_id' => $request->user_id,
         'post_id' => $request->post_id,
@@ -621,7 +623,9 @@ Route::post('/postComment', function(request $request,Post $post){
             $query->select('id', 'name', 'image');
         },
     ])->findOrFail($comment->id);
-    // $post->user->notify(new CommentedOnYourPost($post, auth()->user()));
+    $pushNotificationService = new PushNotificationService();
+    $pushNotificationService->sendPushNotification($post->user->device_token, $user->name, commentMessage(), $request->post_id);
+    saveNotification($request->user_id, commentMessage(), 'comment', $post->user->id, $postId);
     return response(['data' => $comment, 'message' => 'success'], 200);
 });
 
