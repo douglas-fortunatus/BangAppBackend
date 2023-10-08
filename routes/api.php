@@ -606,12 +606,12 @@ Route::get('/getPostInfo/{post_id}', function($post_id) {
             list($post->width, $post->height) = [300, 300];
         }
         // Retrieve the like count
-        $post->likeCount = 0;
+        $post->ilikeCount = 0;
         
         return $post;
     });
     
-    return response()->json(['post' => $posts]);
+    return response()->json($posts);
 });
 
 
