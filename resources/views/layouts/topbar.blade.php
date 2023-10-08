@@ -408,7 +408,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="" class="nav-link ">
+                            <a href="{{ route('bangBattleWeb') }}" class="nav-link ">
                                 <i class="ph-house"></i>
                                 <span>
                                     Add Bang Battle

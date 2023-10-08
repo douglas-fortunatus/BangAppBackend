@@ -11,6 +11,8 @@ use Intervention\Image\Facades\Image;
 use FFMpeg\Format\Video\X264;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
+use App\BangBattle;
+
 
 
 class HomeController extends Controller
@@ -69,7 +71,6 @@ class HomeController extends Controller
 
     function postBangInspiration(Request $request)
     {
-
         // Validate the form inputs
         $validatedData = $request->validate([
             'tittle' => 'required|string',
@@ -105,5 +106,11 @@ class HomeController extends Controller
     {
         Storage::put('bangInspiration/thumbnails', $request->thumbnail);
         return $request->thumbnail;
+    }
+
+    function bangBattleWeb()
+    {
+        $battles = BangBattle::all();
+        return view('posts.bang_battle',compact('battles'));
     }
 }

@@ -587,15 +587,33 @@ Route::get('/getComments/{id}', function($id){
 });
 
 
-Route::get('/getPostInfo/{user_id}/{post_id}', function($user_id,$post_id){
+Route::get('/getPostInfo/{post_id}', function($post_id) {
+    $appUrl = "https://bangapp.pro/BangAppBackend/";
 
-    $post = Post::where('post_id', $post_id)->with([
+    $posts = Post::where('id', $post_id)->with([
         'user' => function($query) {
             $query->select('id', 'name', 'image');
         },
     ])->get(); // Corrected 'orderBy' here
-    return response()->json(['post' => $comments]);
+    
+    $posts->transform(function($post) use ($appUrl) {
+        $post->image  ? $post->image = $appUrl.'storage/app/'.$post->image : $post->image = null;
+        $post->challenge_img ? $post->challenge_img = $appUrl.'storage/app/'.$post->challenge_img : $post->challenge_img = null;
+        $post->video ? $post->video = $appUrl.'storage/app/'.$post->video : $post->video = null;
+        if ($post->type === 'image' && isset($post->media)) {
+            list($post->width, $post->height) = getimagesize($post->media);
+        } else {
+            list($post->width, $post->height) = [300, 300];
+        }
+        // Retrieve the like count
+        $post->likeCount = 0;
+        
+        return $post;
+    });
+    
+    return response()->json(['post' => $posts]);
 });
+
 
 
 Route::get('/bangUpdateComment/{id}', function($id){
