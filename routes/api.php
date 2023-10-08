@@ -823,15 +823,53 @@ Route::get('/bangBattleComment/{id}', function($id){
 });
 
 
-Route::get('/getBangBattle', function (Request $request) {
-    $appUrl = "https://bangapp.pro/BangAppBackend/";
-    $battles = BangBattle::withCount('likes')->get();
+Route::get('/getBangBattle/{user_id}', function ($user_id) {
 
-    $battles->transform(function ($battle) use ($appUrl) {
+    $appUrl = "https://bangapp.pro/BangAppBackend/";
+    $battles = BangBattle::with([
+            'likes' => function($query) {
+                $query->select('battle_id', 'like_type', DB::raw('count(*) as like_count'))
+                    ->groupBy('battle_id', 'like_type');
+            }])->get();
+
+    $battles->transform(function ($battle) use ($appUrl,$user_id) {
         $battle->battle1 ? $battle->battle1 = $appUrl . 'storage/app/' . $battle->battle1 : $battle->battle1 = null;
         $battle->battle2 ? $battle->battle2 = $appUrl . 'storage/app/' . $battle->battle2 : $battle->battle2 = null;
+
+        $battle->isLikedA = false;
+        $battle->isLikedB = false;
+        $battle->isLiked = false;
+      // Check if the user has liked the battle and update isLikedA and isLikedB accordingly
+        $likeType = BangBattle::getLikeTypeForUser($user_id, $battle->id);
+        if ($likeType == "A") {
+            $battle->isLikedA = true;
+            $battle->isLiked = true;
+        } elseif ($likeType == "B") {
+            $battle->isLikedB = true;
+            //$battle->isLiked = true;
+        }
+
+        // Retrieve the like counts for both A and B challenge images
+        // $likeCount
+        $likeCountA = 0;
+        $likeCountB = 0;
+        if ($battle->likes->isNotEmpty()) {
+            foreach ($battle->likes as $like) {
+                if ($like->like_type === 'A') {
+                    $likeCountA = $like->like_count;
+                } elseif ($like->like_type === 'B' ) {
+                    $likeCountB = $like->like_count;
+                }
+            }
+        }
+        $battle->like_count_A = $likeCountA;
+        $battle->like_count_B = $likeCountB;
         return $battle;
     });
+
+   
+
+
 
     return response()->json(['data' => $battles]);
 });
