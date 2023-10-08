@@ -422,7 +422,8 @@ Route::post('/likePost', function(Request $request)
             'post_id'=>$postId
         ]);
         $pushNotificationService = new PushNotificationService();
-        $pushNotificationService->sendPushNotification($post->user->device_token, 'like', 'hello',1);
+        $pushNotificationService->sendPushNotification($post->user->device_token, $post->user->name, likeMessage(), $postId);
+        saveNotification($userId, likeMessage(), 'like', $post->user->id, $postId);
         $message = 'Post liked successfully';
     }
     else{
@@ -434,7 +435,8 @@ Route::post('/likePost', function(Request $request)
             'post_id'=>$postId
         ]);
         $pushNotificationService = new PushNotificationService();
-        $pushNotificationService->sendPushNotification($post->user->device_token, 'like', 'hello',1);
+        $pushNotificationService->sendPushNotification($post->user->device_token, $post->user->name, likeMessage(), $postId);
+        saveNotification($userId, likeMessage(), 'like', $post->user->id, $postId);
         $message = 'Post liked successfully';
     }
     // Get the updated like count for the specific like_type
@@ -536,24 +538,6 @@ Route::post('/sendNotification', function(Request $request)
     $pushNotificationService->sendPushNotification($deviceToken, $request->heading, $request->body,$request->challengeId);
     return response(['message' => 'success'], 200);
 });
-
-
-Route::post('/sendUserNotification', function(Request $request)
-{
-    $user = User::findOrFail($request->user_id);
-    $deviceToken = $user->device_token;
-    $notification = new Notification;
-    $notification->user_id = $request->user_id;
-    $notification->message = $request->body;
-    $notification->type = $request->type;
-    $notification->reference_id = $request->reference_id;
-    $notification->post_id = $request->post_id;
-    $notification->save();
-    $pushNotificationService = new PushNotificationService();
-    $pushNotificationService->sendUserPushNotification($deviceToken, $request->type, $request->body);
-    return response(['message' => 'success'], 200);
-});
-
 
 Route::get('/getMyPosts/{id}', function($id)
 {
@@ -792,6 +776,29 @@ Route::get('/getNotifications/{user_id}', function ($user_id) {
 
     return response()->json(['notifications' => $notifications]);
 });
+
+
+function likeMessage(){
+    return "Has Liked Your Post";
+}
+
+function commentMessage(){
+    return "Has Commented on Your Post";
+}
+
+function chatMessage(){
+    return "Has Messaged You";
+}
+
+function saveNotification($user_id,$body,$type,$reference_id,$post_id){
+    $notification = new Notification;
+    $notification->user_id = $user_id;
+    $notification->message = $body;
+    $notification->type = $type;
+    $notification->reference_id = $reference_id;
+    $notification->post_id = $post_id;
+    $notification->save();
+}
 
 
 
