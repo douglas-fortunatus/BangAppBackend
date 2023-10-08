@@ -12,7 +12,7 @@ class Post extends Model
     use Favorable;
     protected $appends = ['favoriteCount', 'isFavorited', 'commentCount'];
     protected $casts = ['isFavorited' => 'boolean'];
-    protected $with = ['user:id,name,image', 'category:id,name'];
+    protected $with = ['user:id,name,image,device_token', 'category:id,name'];
     protected $guarded = [];
 
     public function comments() {
@@ -20,7 +20,7 @@ class Post extends Model
     }
 
     public function user() {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class,'user_id');
     }
 
     public function category() {

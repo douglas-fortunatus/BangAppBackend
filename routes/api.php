@@ -421,6 +421,8 @@ Route::post('/likePost', function(Request $request)
             'like_type' => $likeType,
             'post_id'=>$postId
         ]);
+        $pushNotificationService = new PushNotificationService();
+        $pushNotificationService->sendPushNotification($post->user->device_token, 'like', 'hello',1);
         $message = 'Post liked successfully';
     }
     else{
@@ -431,6 +433,8 @@ Route::post('/likePost', function(Request $request)
             'like_type' => $likeType,
             'post_id'=>$postId
         ]);
+        $pushNotificationService = new PushNotificationService();
+        $pushNotificationService->sendPushNotification($post->user->device_token, 'like', 'hello',1);
         $message = 'Post liked successfully';
     }
     // Get the updated like count for the specific like_type
