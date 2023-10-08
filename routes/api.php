@@ -452,21 +452,21 @@ Route::post('/likeBangBattle', function(Request $request)
     $likeType = $request->input('like_type'); // Add this line to get the like_type ('A' or 'B') from the request
     $battle = BangBattle::find($battleId);
     $user = User::find($userId);
-    if (!$post || !$user) {
-        return response()->json(['message' => 'Post or user not found'], 404);
+    if (!$battle || !$user) {
+        return response()->json(['message' => 'battle or user not found'], 404);
     }
     $oppositeLikeType = ($likeType === 'A') ? 'B' : 'A';
 
-    // Check if the user has already liked the post with the given like_type
+    // Check if the user has already liked the battle with the given like_type
     $isLiked = BattleLike::where('user_id', $user->id)->where('battle_id', $battleId)->exists();
     $isLikedChallenge = BattleLike::where('user_id', $user->id)->where('battle_id', $battleId)->where('like_type', $oppositeLikeType)->exists();
 
     if (isset($isLiked) && !isset($isLikedChallenge)) {
         Like::where('user_id', $user->id)->where('battle_id', $battleId)->delete();
-        $message = 'Post unliked successfully';
+        $message = 'battle unliked successfully';
 
     } else if(isset($isLiked) && isset($isLikedChallenge)) {
-        // User hasn't liked the post yet, so like it
+        // User hasn't liked the battle yet, so like it
         // // Remove the opposite like if it exists
         
         Like::where('user_id', $user->id)->where('battle_id', $battleId)->where('like_type', $oppositeLikeType)->delete();
@@ -476,7 +476,7 @@ Route::post('/likeBangBattle', function(Request $request)
             'like_type' => $likeType,
             'battle_id'=>$battleId
         ]);
-        $message = 'Post liked successfully';
+        $message = 'battle liked successfully';
     }
     else{
         Like::where('user_id', $user->id)->where('battle_id', $battleId)->where('like_type', $oppositeLikeType)->delete();
@@ -486,10 +486,10 @@ Route::post('/likeBangBattle', function(Request $request)
             'like_type' => $likeType,
             'battle_id'=>$battleId
         ]);
-        $message = 'Post liked successfully';
+        $message = 'battle liked successfully';
     }
     // Get the updated like count for the specific like_type
-    $likeCount = $post->likes()->where('like_type', $likeType)->count();
+    $likeCount = $battle->likes()->where('like_type', $likeType)->count();
 
     return response()->json(['message' => $message, 'likeCount' => $likeCount]);
 });
