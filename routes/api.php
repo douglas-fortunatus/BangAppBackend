@@ -603,7 +603,7 @@ Route::get('/bangUpdateComment/{id}', function($id){
             'user' => function($query) {
                 $query->select('id', 'name', 'image');
             },
-        ])->get();
+        ])->orderBy('created_at', 'desc')->get();
     return response()->json(['comments' => $comments]);
 });
 
