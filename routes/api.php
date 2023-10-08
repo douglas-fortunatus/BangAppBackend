@@ -543,20 +543,32 @@ Route::post('/likePost', function(Request $request)
     if (!$post || !$user) {
         return response()->json(['message' => 'Post or user not found'], 404);
     }
+    $oppositeLikeType = ($likeType === 'A') ? 'B' : 'A';
 
     // Check if the user has already liked the post with the given like_type
     $isLiked = Like::where('user_id', $user->id)->where('post_id', $postId)->exists();
+    $isLikedChallenge = Like::where('user_id', $user->id)->where('post_id', $postId)->where('like_type', $oppositeLikeType)->exists();
 
-    if ($isLiked) {
-
+    if (isset($isLiked) && !isset($isLikedChallenge)) {
         Like::where('user_id', $user->id)->where('post_id', $postId)->delete();
         $message = 'Post unliked successfully';
-    } else {
+
+    } else if(isset($isLiked) && isset($isLikedChallenge)) {
         // User hasn't liked the post yet, so like it
         // // Remove the opposite like if it exists
-        $oppositeLikeType = ($likeType === 'A') ? 'B' : 'A';
-        Like::where('user_id', $user->id)->where('post_id', $postId)->where('like_type', $oppositeLikeType)->delete();
         
+        Like::where('user_id', $user->id)->where('post_id', $postId)->where('like_type', $oppositeLikeType)->delete();
+
+        Like::create([
+            'user_id' => $userId,
+            'like_type' => $likeType,
+            'post_id'=>$postId
+        ]);
+        $message = 'Post liked successfully';
+    }
+    else{
+        Like::where('user_id', $user->id)->where('post_id', $postId)->where('like_type', $oppositeLikeType)->delete();
+
         Like::create([
             'user_id' => $userId,
             'like_type' => $likeType,

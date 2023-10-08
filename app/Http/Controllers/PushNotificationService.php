@@ -24,7 +24,7 @@ class PushNotificationService extends Controller
         $messaging->send($message);
     }
 
-    public function sendUserPushNotification($deviceToken, $title, $body,$challengeId)
+    public function sendUserPushNotification($deviceToken, $title, $body)
     {
         $messaging = app('firebase.messaging');
         // Create a new Message instance with the notification details
