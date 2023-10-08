@@ -607,6 +607,7 @@ Route::get('/getPostInfo/{post_id}', function($post_id) {
         }
         // Retrieve the like count
         $post->ilikeCount = 0;
+        $post->isLiked = false;
         
         return $post;
     });
