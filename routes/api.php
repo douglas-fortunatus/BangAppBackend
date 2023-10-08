@@ -678,24 +678,6 @@ Route::post('/setUserProfile',function(request $request){
     return response()->json(['message' => 'Profile updated successfully']);
 });
 
-Route::post('/posBattleComment', function(Request $request)
-{
-    // Validate the incoming request data
-    $request->validate([
-        'user_id' => 'required|numeric',
-        'post_id' => 'required|numeric',
-        'body' => 'required|string',
-    ]);
-
-    // Create a new comment instance and save it to the database
-    $comment = new BattleComment();
-    $comment->user_id = $request->input('user_id');
-    $comment->post_id = $request->input('post_id');
-    $comment->body = $request->input('body');
-    $comment->save();
-
-    return response()->json(['message' => 'Comment added successfully', 'data' => $comment], 201);
-});
 
 Route::post('/postBattleComment', function(request $request,Post $post){
     $request->validate([
@@ -808,6 +790,13 @@ function saveNotification($user_id,$body,$type,$reference_id,$post_id){
     $notification->post_id = $post_id;
     $notification->save();
 }
+
+Route::get('/getNotificationCount/{user_id}',function ($user_id){
+    $notificationCount = Notification::where('user_id', $user_id)->count();
+    return response()->json(['notification_count' => $notificationCount]);
+});
+
+
 
 
 
