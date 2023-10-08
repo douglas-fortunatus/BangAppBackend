@@ -625,7 +625,7 @@ Route::post('/postComment', function(request $request,Post $post){
     ])->findOrFail($comment->id);
     $pushNotificationService = new PushNotificationService();
     $pushNotificationService->sendPushNotification($post->user->device_token, $user->name, commentMessage(), $request->post_id);
-    saveNotification($request->user_id, commentMessage(), 'comment', $post->user->id, $postId);
+    saveNotification($request->user_id, commentMessage(), 'comment', $post->user->id, $request->post_id);
     return response(['data' => $comment, 'message' => 'success'], 200);
 });
 
