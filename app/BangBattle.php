@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\BattleLike;
+use App\BattleComment;
 
 class BangBattle extends Model
 {
@@ -26,5 +27,17 @@ class BangBattle extends Model
         }
 
         return null;
+    }
+
+    public function battle_comments() {
+        return $this->belongsToMany(User::class, 'battle_comments', 'battles_id', 'user_id');
+    }
+
+    public static function getCommentCount($battleId){
+        $comment_count = BattleComment::where('battles_id', $battleId)->count();
+        if ($comment_count){
+            return $comment_count;
+        }
+        return 0;
     }
 }

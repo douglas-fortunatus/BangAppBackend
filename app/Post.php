@@ -5,6 +5,7 @@ namespace App;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use App\Like;
+use App\Comment;
 
 class Post extends Model
 {
@@ -57,5 +58,13 @@ class Post extends Model
         }
 
         return null;
+    }
+
+    public static function getCommentCount($postId){
+        $commentCount = Comment::where('post_id',$postId)->count();
+        if ($commentCount){
+            return $commentCount;
+        }
+        return 0;
     }
 }

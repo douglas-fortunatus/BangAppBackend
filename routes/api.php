@@ -22,6 +22,7 @@ use App\BattleComment;
 use App\bangUpdateComment;
 use App\BangBattle;
 use App\Notification;
+use App\BattleLike;
 use Illuminate\Validation\Rule;
 use App\Http\Controllers\PushNotificationService;
 use Illuminate\Support\Facades\DB;
@@ -111,83 +112,6 @@ Route::get('/bang-updates/{userId}', function ($userId) {
     });
 
     return response()->json($formattedUpdates);
-});
-
-
-Route::get('/getPostnotNull', function(Request $request) {
-    $appUrl = "https://bangapp.pro/BangAppBackend/";
-
-    // Get the _page and _limit parameters from the request query
-    $pageNumber = $request->query('_page', 1);
-    $numberOfPostsPerRequest = $request->query('_limit', 10);
-
-    // Get the user's ID if available (you can adjust how you get the user's ID based on your authentication system)
-    $user_id = $request->input('user_id');
-
-    $posts = Post::latest()
-	->whereNotNull('image')
-        ->with([
-            'category' => function($query) {
-                $query->select('id', 'name');
-            },
-            'likes' => function($query) {
-                $query->select('post_id', 'like_type', DB::raw('count(*) as like_count'))
-                    ->groupBy('post_id', 'like_type');
-            },
-            'challenges' => function($query) {
-                $query->select('*')->where('confirmed', 1);
-            }
-        ])->paginate($numberOfPostsPerRequest, ['*'], '_page', $pageNumber);
-
-    $filteredPosts = $posts->getCollection()->filter(function($post) use ($appUrl, $user_id) {
-        $post->image ? $post->image = $appUrl.'storage/app/'.$post->image : $post->image = null;
-        $post->challenge_img ? $post->challenge_img = $appUrl.'storage/app/'.$post->challenge_img : $post->challenge_img = null;
-        $post->video ? $post->video = $appUrl.'storage/app/'.$post->video : $post->video = null;
-        if ($post->type === 'image' && isset($post->media)) {
-            list($post->width, $post->height) = getimagesize($post->media);
-        } else {
-            list($post->width, $post->height) = [300, 300];
-        }
-        foreach ($post->challenges as $challenge) {
-            $challenge->challenge_img ? $challenge->challenge_img = $appUrl . 'storage/app/' . $challenge->challenge_img : $challenge->challenge_img = null;
-        }
-
-        // Initialize isLikedA and isLikedB as false
-        $post->isLikedA = false;
-        $post->isLikedB = false;
-
-        // Retrieve the like counts for both A and B challenge images
-        if ($post->likes->isNotEmpty()) {
-            foreach ($post->likes as $like) {
-                if ($like->like_type === 'A') {
-                    $post->isLikedA = true;
-                } elseif ($like->like_type === 'B') {
-                    $post->isLikedB = true;
-                }
-            }
-        }
-
-        // Retrieve the like counts for both A and B challenge images
-        $likeCountA = 0;
-        $likeCountB = 0;
-        if ($post->likes->isNotEmpty()) {
-            foreach ($post->likes as $like) {
-                if ($like->like_type === 'A') {
-                    $likeCountA = $like->like_count;
-                } elseif ($like->like_type === 'B') {
-                    $likeCountB = $like->like_count;
-                }
-            }
-        }
-        $post->like_count_A = $likeCountA;
-        $post->like_count_B = $likeCountB;
-        $post->isLiked = ($likeCountA > 0 || $likeCountB > 0);
-
-        // Filter out posts with NULL images
-        return !is_null($post->image);
-    });
-
-    return response(['data' => $filteredPosts, 'message' => 'success'], 200);
 });
 
 
@@ -283,7 +207,7 @@ Route::get('/comments', function(Post $post){
  *
  */
 Route::get('/get/bangInspirations',function(){
-    $appUrl = "http://192.168.137.226/BangAppBackend/";
+    $appUrl = "https://bangapp.pro/BangAppBackend/";
     $bangInspirations = bangInspiration::all();
     $formattedInspirations = $bangInspirations->map(function ($update) use ($appUrl) {
         $update->profile_url = $appUrl . 'storage/app/bangInspiration/' . $update->profile_url;
@@ -371,9 +295,6 @@ Route::get('/getPost', function(Request $request) {
 
     $posts = Post::latest()
         ->with([
-            'category' => function($query) {
-                $query->select('id', 'name');
-            },
             'likes' => function($query) {
                 $query->select('post_id', 'like_type', DB::raw('count(*) as like_count'))
                     ->groupBy('post_id', 'like_type');
@@ -401,6 +322,7 @@ Route::get('/getPost', function(Request $request) {
         $post->isLiked = false;
        // Check if the user has liked the post and update isLikedA and isLikedB accordingly
         $likeType = Post::getLikeTypeForUser($user_id, $post->id);
+        $post->comment_count = Post::getCommentCount($post->id);
         if ($likeType == "A") {
             $post->isLikedA = true;
             $post->isLiked = true;
@@ -432,70 +354,6 @@ Route::get('/getPost', function(Request $request) {
 });
 
 
-
-Route::post('/imageaddWithResponse', function(Request $request){
-    $appUrl = "https://bangapp.pro/BangAppBackend/";
-    $user_id = $request->user_id;
-    $image = new Post;
-    $image->body = $request->body;
-    $image->user_id = $user_id;
-    $image->pinned = $request->pinned;
-    if($request->type){
-        $image->type = $request->type;
-        // $image->video_height = $request->videoHeight;
-    }
-    if ($request->hasFile('image')) {
-        $path = $request->file('image')->store('images');
-        $image->image = $path;
-    }
-    $image->save();
-
-    // Perform the transformations directly on the $image object
-    $image->image = $image->image ? $appUrl . 'storage/app/' . $image->image : null;
-    $image->challenge_img = $image->challenge_img ? $appUrl . 'storage/app/' . $image->challenge_img : null;
-    $image->video = $image->video ? $appUrl . 'storage/app/' . $image->video : null;
-    if ($image->type === 'image' && isset($image->media)) {
-        list($image->width, $image->height) = getimagesize($image->media);
-    } else {
-        list($image->width, $image->height) = [300, 300];
-    }
-    $image->user->name;
-    $image->isLikedA = false;
-    $image->isLikedB = false;
-    $image->isLiked = false;
-    $image->likeCountA = 0;
-    $image->likeCountB = 0;
-    return response(['data' => $image, 'message' => 'success'], 201);
-});
-
-
-Route::post('/imagechallengaddWithResponse', function(Request $request){
-    $appUrl = "https://bangapp.pro/BangAppBackend/";
-    $image = new Post;
-    $image->body = $request->body;
-    $image->user_id = $request->user_id;
-        if ($request->hasFile('image') && $request->hasFile('image2')) {
-        $image->image = $request->file('image')->store('images');
-        $image->challenge_img = $request->file('image2')->store('images');
-       }
-    $image->save();
-    // Perform the transformations directly on the $image object
-    $image->image = $image->image ? $appUrl . 'storage/app/' . $image->image : null;
-    $image->challenge_img = $image->challenge_img ? $appUrl . 'storage/app/' . $image->challenge_img : null;
-    $image->video = $image->video ? $appUrl . 'storage/app/' . $image->video : null;
-    if ($image->type === 'image' && isset($image->media)) {
-        list($image->width, $image->height) = getimagesize($image->media);
-    } else {
-        list($image->width, $image->height) = [300, 300];
-    }
-    $image->isLikedA = false;
-    $image->isLikedB = false;
-    $image->isLiked = false;
-    $image->likeCountA = 0;
-    $image->likeCountB = 0;
-    return response(['data' => $image, 'message' => 'success'], 201);
-
-});
 
 
 Route::delete('/deletePost/{id}', function ($id) {
@@ -573,6 +431,55 @@ Route::post('/likePost', function(Request $request)
             'user_id' => $userId,
             'like_type' => $likeType,
             'post_id'=>$postId
+        ]);
+        $message = 'Post liked successfully';
+    }
+    // Get the updated like count for the specific like_type
+    $likeCount = $post->likes()->where('like_type', $likeType)->count();
+
+    return response()->json(['message' => $message, 'likeCount' => $likeCount]);
+});
+
+Route::post('/likeBangBattle', function(Request $request)
+{
+    $battleId = $request->input('battle_id');
+    $userId = $request->input('user_id');
+    $likeType = $request->input('like_type'); // Add this line to get the like_type ('A' or 'B') from the request
+    $battle = BangBattle::find($postId);
+    $user = User::find($userId);
+    if (!$post || !$user) {
+        return response()->json(['message' => 'Post or user not found'], 404);
+    }
+    $oppositeLikeType = ($likeType === 'A') ? 'B' : 'A';
+
+    // Check if the user has already liked the post with the given like_type
+    $isLiked = BattleLike::where('user_id', $user->id)->where('battle_id', $postId)->exists();
+    $isLikedChallenge = BattleLike::where('user_id', $user->id)->where('battle_id', $postId)->where('like_type', $oppositeLikeType)->exists();
+
+    if (isset($isLiked) && !isset($isLikedChallenge)) {
+        Like::where('user_id', $user->id)->where('battle_id', $postId)->delete();
+        $message = 'Post unliked successfully';
+
+    } else if(isset($isLiked) && isset($isLikedChallenge)) {
+        // User hasn't liked the post yet, so like it
+        // // Remove the opposite like if it exists
+        
+        Like::where('user_id', $user->id)->where('battle_id', $postId)->where('like_type', $oppositeLikeType)->delete();
+
+        Like::create([
+            'user_id' => $userId,
+            'like_type' => $likeType,
+            'battle_id'=>$postId
+        ]);
+        $message = 'Post liked successfully';
+    }
+    else{
+        Like::where('user_id', $user->id)->where('battle_id', $postId)->where('like_type', $oppositeLikeType)->delete();
+
+        Like::create([
+            'user_id' => $userId,
+            'like_type' => $likeType,
+            'battle_id'=>$postId
         ]);
         $message = 'Post liked successfully';
     }
@@ -830,17 +737,18 @@ Route::get('/getBangBattle/{user_id}', function ($user_id) {
             'likes' => function($query) {
                 $query->select('battle_id', 'like_type', DB::raw('count(*) as like_count'))
                     ->groupBy('battle_id', 'like_type');
-            }])->get();
+            },
+        ])->get();
 
     $battles->transform(function ($battle) use ($appUrl,$user_id) {
         $battle->battle1 ? $battle->battle1 = $appUrl . 'storage/app/' . $battle->battle1 : $battle->battle1 = null;
         $battle->battle2 ? $battle->battle2 = $appUrl . 'storage/app/' . $battle->battle2 : $battle->battle2 = null;
-
         $battle->isLikedA = false;
         $battle->isLikedB = false;
         $battle->isLiked = false;
       // Check if the user has liked the battle and update isLikedA and isLikedB accordingly
         $likeType = BangBattle::getLikeTypeForUser($user_id, $battle->id);
+        $battle->comment_count = BangBattle::getCommentCount($battle->id);
         if ($likeType == "A") {
             $battle->isLikedA = true;
             $battle->isLiked = true;
@@ -866,10 +774,6 @@ Route::get('/getBangBattle/{user_id}', function ($user_id) {
         $battle->like_count_B = $likeCountB;
         return $battle;
     });
-
-   
-
-
 
     return response()->json(['data' => $battles]);
 });
