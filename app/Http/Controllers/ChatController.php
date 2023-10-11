@@ -125,8 +125,14 @@ class ChatController extends Controller
         'sender_id' => $sender_id,
         'message' => $messageText,
     ]);
-
+    $receiver = User::find($user2_id);
     $conversation->messages()->save($message);
+
+
+    $pushNotificationService = new PushNotificationService();
+    $pushNotificationService->sendPushNotification($receiver->device_token, $receiver->name, commentMessage(), $conversation->id);
+    saveNotification($request->user_id, chatMessage(), 'chat', $receiver->id, $conversation->id);
+
 
     // Fetch the saved message from the database
     $savedMessage = Message::findOrFail($message->id);
