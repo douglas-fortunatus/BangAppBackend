@@ -29,5 +29,7 @@ Route::post('/post/bang/thumbnail', [App\Http\Controllers\HomeController::class,
 
 Route::get('/bangInspirationWeb', [App\Http\Controllers\HomeController::class, 'bangInspiration'])->name('bangInspirationWeb');
 
+Route::get('/bangBattleWeb', [App\Http\Controllers\HomeController::class, 'bangBattleWeb'])->name('bangBattleWeb');
+
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
