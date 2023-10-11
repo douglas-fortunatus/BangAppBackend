@@ -504,6 +504,7 @@ Route::delete('/deletePost/{id}', function ($id) {
     $deletedPostData = $post->toArray();
     unset($deletedPostData['id']);
     DeletedPost::create(['user_id'=>$deletedPostData['user_id'],'body'=>$deletedPostData['user_id'],'type'=>$deletedPostData['type'],'image'=>$deletedPostData['image'],'challenge_img'=>$deletedPostData['challenge_img'],'pinned'=>$deletedPostData['pinned']]);
+
     // Move associated media files to the recycle bin in the storage folder
     $appUrl = "https://bangapp.pro/BangAppBackend/";
     $deletedFolder = 'recycle_bin';
@@ -892,4 +893,5 @@ Route::post('/deleteMessage', [ChatController::class, 'deleteMessage']);
 Route::post('/deleteAllMessages', [ChatController::class, 'deleteAllMessages']);
 Route::post('/deleteAllConversations', [ChatController::class, 'deleteAllConversations']);
 Route::post('/deleteAllMessagesInConversation', [ChatController::class, 'deleteAllMessagesInConversation']);
+Route::get('/getTotalUnreadMessages', [ChatController::class, 'getTotalUnreadMessages']);
 

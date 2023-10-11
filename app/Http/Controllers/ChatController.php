@@ -66,6 +66,20 @@ class ChatController extends Controller
         return response()->json($chats);
     }
 
+    public function getTotalUnreadMessages(Request $request){
+        $user_id = $request->user_id;
+        $conversations = Conversation::where('user1_id', $user_id)
+            ->orWhere('user2_id', $user_id)
+            ->get();
+
+        $unreadCount = 0;
+        foreach ($conversations as $conversation) {
+            $unreadCount += $conversation->messages()->where('is_read', false)->where('sender_id', '!=', $user_id)->count(); // Count of unread messages
+        }
+
+        return response()->json(['unreadCount' => $unreadCount]);
+    }
+
     // Get messages for a specific conversation
     public function getMessages(Request $request)
     {
