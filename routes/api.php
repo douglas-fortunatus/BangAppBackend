@@ -138,7 +138,7 @@ Route::post('imageadd', function(Request $request){
         $image->save();
     }
 
-    return response()->json(['url' => asset($request->all())], 201);
+    return response()->json(['url' => asset($request)], 201);
 });
 
 Route::post('imagechallengadd', function(Request $request){
