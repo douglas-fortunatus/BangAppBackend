@@ -8,6 +8,7 @@ use App\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class ChatController extends Controller
 {
@@ -66,6 +67,20 @@ class ChatController extends Controller
         return response()->json($chats);
     }
 
+    public function getTotalUnreadMessages(Request $request){
+        $user_id = $request->user_id;
+        $conversations = Conversation::where('user1_id', $user_id)
+            ->orWhere('user2_id', $user_id)
+            ->get();
+
+        $unreadCount = 0;
+        foreach ($conversations as $conversation) {
+            $unreadCount += $conversation->messages()->where('is_read', false)->where('sender_id', '!=', $user_id)->count(); // Count of unread messages
+        }
+
+        return response()->json(['unreadCount' => $unreadCount]);
+    }
+
     // Get messages for a specific conversation
     public function getMessages(Request $request)
     {
@@ -94,6 +109,7 @@ class ChatController extends Controller
     $sender_id = $request->sender_id;
     $user2_id = $request->user2_id;
     $messageText = $request->message;
+    $messageType = $request->message_type;
 
     $conversation = Conversation::where(function ($query) use ($sender_id, $user2_id) {
         $query->where('user1_id', $sender_id)
@@ -110,15 +126,70 @@ class ChatController extends Controller
     $message = new Message([
         'sender_id' => $sender_id,
         'message' => $messageText,
+        'message_type' => $messageType ?? 'text',
     ]);
-
+    $receiver = User::find($user2_id);
     $conversation->messages()->save($message);
+    $pushNotificationService = new PushNotificationService();
+    $pushNotificationService->sendPushNotification($receiver->device_token, $receiver->name, "New Message:" .$messageText, $conversation->id);
+    // saveNotification($request->user_id, chatMessage($messageText), 'chat', $receiver->id, $conversation->id);
+
 
     // Fetch the saved message from the database
     $savedMessage = Message::findOrFail($message->id);
 
     return response()->json($savedMessage, 200);
 }
+
+
+// app/Http/Controllers/MessageController.php
+
+public function storeImageMessage(Request $request)
+{
+    // $request->validate([
+    //     'sender_id' => 'required',
+    //     'user2_id' => 'required',
+    //     'attachment' => 'required|image|mimes:jpeg,png,gif',
+    // ]);
+
+Log::info($request->all());
+    $sender_id = $request->sender_id;
+    $user2_id = $request->user2_id;
+    $messageText = $request->message;
+    $messageType = $request->message_type;
+
+    $conversation = Conversation::where(function ($query) use ($sender_id, $user2_id) {
+        $query->where('user1_id', $sender_id)
+            ->where('user2_id', $user2_id);
+    })->orWhere(function ($query) use ($sender_id, $user2_id) {
+        $query->where('user1_id', $user2_id)
+            ->where('user2_id', $sender_id);
+    })->first();
+    Log::info($conversation);
+
+    if (!$conversation) {
+        return response()->json(['message' => 'Conversation not found'], 404);
+    }
+    Log::info($conversation);
+
+
+    $attachment = $request->file('attachment');
+    $attachmentPath = $attachment->store('message_attachments', 'public');
+
+    $message = new Message([
+        'sender_id' => $sender_id,
+        'message' => "https://bangapp.pro/BangAppBackend/".$attachmentPath,
+        'message_type'=> 'image',
+        'attachment'=> $attachmentPath,
+
+    ]);
+    $savedMessage = Message::findOrFail($message->id);
+    Log::info($savedMessage);
+
+    return response()->json($savedMessage, 200);
+}
+
+
 
 public function markMessageAsRead(Request $request)
     {
