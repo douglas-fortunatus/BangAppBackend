@@ -121,6 +121,7 @@ Route::post('imageadd', function(Request $request){
     $image->body = $request->body;
     $image->user_id = $request->user_id;
     $image->pinned = $request->pinned;
+
     if($request->type){
         $image->type = $request->type;
         // $image->video_height = $request->videoHeight;
@@ -130,14 +131,14 @@ Route::post('imageadd', function(Request $request){
         $image->image = $path;
     }
     if ($request->hasFile('video')) {
-        $path = $request->file('image')->store('images');
+        $path = $request->file('video')->store('images');
         $image->image = $path;
     }
     if($path){
         $image->save();
     }
 
-    return response()->json(['url' => asset($image->url)], 201);
+    return response()->json(['url' => asset($request->all())], 201);
 });
 
 Route::post('imagechallengadd', function(Request $request){
