@@ -131,7 +131,7 @@ Route::post('imageadd', function(Request $request){
         $image->image = $path;
     }
     if ($request->hasFile('video')) {
-        $path = $request->file('video')->store('images');
+        $path = $request->file('images')->store('images');
         $image->image = $path;
     }
     if($path){
