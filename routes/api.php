@@ -129,10 +129,6 @@ Route::post('imageadd', function(Request $request){
         $path = $request->file('image')->store('images');
         $image->image = $path;
     }
-    if ($request->hasFile('video')) {
-        $path = $request->file('image')->store('images');
-        $image->image = $path;
-    }
     if($path){
         $image->save();
     }
@@ -365,7 +361,6 @@ Route::delete('/deletePost/{id}', function ($id) {
     $deletedPostData = $post->toArray();
     unset($deletedPostData['id']);
     DeletedPost::create(['user_id'=>$deletedPostData['user_id'],'body'=>$deletedPostData['user_id'],'type'=>$deletedPostData['type'],'image'=>$deletedPostData['image'],'challenge_img'=>$deletedPostData['challenge_img'],'pinned'=>$deletedPostData['pinned']]);
-
     // Move associated media files to the recycle bin in the storage folder
     $appUrl = "https://bangapp.pro/BangAppBackend/";
     $deletedFolder = 'recycle_bin';
@@ -422,7 +417,7 @@ Route::post('/likePost', function(Request $request)
     } else if(isset($isLiked) && isset($isLikedChallenge)) {
         // User hasn't liked the post yet, so like it
         // // Remove the opposite like if it exists
-
+        
         Like::where('user_id', $user->id)->where('post_id', $postId)->where('like_type', $oppositeLikeType)->delete();
 
         Like::create([
@@ -478,7 +473,7 @@ Route::post('/likeBangBattle', function(Request $request)
     } else if(isset($isLiked) && isset($isLikedChallenge)) {
         // User hasn't liked the battle yet, so like it
         // // Remove the opposite like if it exists
-
+        
         BattleLike::where('user_id', $user->id)->where('battle_id', $battleId)->where('like_type', $oppositeLikeType)->delete();
 
         BattleLike::create([
@@ -600,7 +595,7 @@ Route::get('/getPostInfo/{post_id}', function($post_id) {
             $query->select('id', 'name', 'image');
         },
     ])->get(); // Corrected 'orderBy' here
-
+    
     $posts->transform(function($post) use ($appUrl) {
         $post->image  ? $post->image = $appUrl.'storage/app/'.$post->image : $post->image = null;
         $post->challenge_img ? $post->challenge_img = $appUrl.'storage/app/'.$post->challenge_img : $post->challenge_img = null;
@@ -613,10 +608,10 @@ Route::get('/getPostInfo/{post_id}', function($post_id) {
         // Retrieve the like count
         $post->ilikeCount = 0;
         $post->isLiked = false;
-
+        
         return $post;
     });
-
+    
     return response()->json($posts);
 });
 
@@ -801,8 +796,8 @@ function commentMessage(){
     return "Has Commented on Your Post";
 }
 
-function chatMessage($message){
-    return "Has Messaged You:. $message";
+function chatMessage(){
+    return "Has Messaged You";
 }
 
 function saveNotification($user_id,$body,$type,$reference_id,$post_id){
@@ -878,7 +873,4 @@ Route::post('/deleteMessage', [ChatController::class, 'deleteMessage']);
 Route::post('/deleteAllMessages', [ChatController::class, 'deleteAllMessages']);
 Route::post('/deleteAllConversations', [ChatController::class, 'deleteAllConversations']);
 Route::post('/deleteAllMessagesInConversation', [ChatController::class, 'deleteAllMessagesInConversation']);
-Route::get('/getTotalUnreadMessages', [ChatController::class, 'getTotalUnreadMessages']);
-Route::post('/sendImageMessage', 'ChatController@storeImageMessage');
-
 
