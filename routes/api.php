@@ -129,6 +129,10 @@ Route::post('imageadd', function(Request $request){
         $path = $request->file('image')->store('images');
         $image->image = $path;
     }
+    if ($request->hasFile('video')) {
+        $path = $request->file('image')->store('images');
+        $image->image = $path;
+    }
     if($path){
         $image->save();
     }
