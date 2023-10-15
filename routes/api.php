@@ -115,6 +115,21 @@ Route::get('/bang-updates/{userId}', function ($userId) {
 });
 
 
+Route::get('/updateIsRead/{notificationId}',function ($notificationId){
+    $update = Notification::updateIsRead($notificationId);
+    if($update){
+        return response()->json(['status'=>$update]);
+    }
+});
+
+
+Route::get('/updateIsSeen/{postId}',function ($postId){
+    $update = Post::updateIsSeen($postId);
+    if($update){
+        return response()->json(['status'=>$update]);
+    }
+});
+
 
 Route::post('imageadd', function(Request $request){
     $image = new Post;
@@ -133,7 +148,7 @@ Route::post('imageadd', function(Request $request){
         $image->save();
     }
 
-    return response()->json(['url' => asset($image->url)], 201);
+    return response()->json(['url' => asset($image->image)], 201);
 });
 
 Route::post('imagechallengadd', function(Request $request){
@@ -294,6 +309,7 @@ Route::get('/getPost', function(Request $request) {
     $user_id = $request->input('user_id');
 
     $posts = Post::latest()
+        ->where('is_seen', 0)
         ->with([
             'likes' => function($query) {
                 $query->select('post_id', 'like_type', DB::raw('count(*) as like_count'))
@@ -407,9 +423,6 @@ Route::post('/likePost', function(Request $request)
     $isLikedChallenge = Like::where('user_id', $user->id)->where('post_id', $postId)->where('like_type', $oppositeLikeType)->exists();
     $challengeLike = Like::where('user_id', $user->id)->where('post_id', $postId)->where('like_type', $likeType)->exists();
 
-    // dd([$isLikedChallenge,$isLiked,$challengeLike]);
-
-
     if ($isLiked && $challengeLike) {
         Like::where('user_id', $user->id)->where('post_id', $postId)->delete();
         $message = 'Post unliked successfully';
@@ -464,7 +477,7 @@ Route::post('/likeBangBattle', function(Request $request)
     // Check if the user has already liked the battle with the given like_type
     $isLiked = BattleLike::where('user_id', $user->id)->where('battle_id', $battleId)->exists();
     $isLikedChallenge = BattleLike::where('user_id', $user->id)->where('battle_id', $battleId)->where('like_type', $oppositeLikeType)->exists();
-    $challengeLike = BattleLike::where('user_id', $user->id)->where('battle_id', $postId)->where('like_type', $likeType)->exists();
+    $challengeLike = BattleLike::where('user_id', $user->id)->where('battle_id', $battleId)->where('like_type', $likeType)->exists();
 
     if ($isLiked && $challengeLike) {
         BattleLike::where('user_id', $user->id)->where('battle_id', $battleId)->delete();

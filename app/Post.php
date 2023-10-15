@@ -60,11 +60,24 @@ class Post extends Model
         return null;
     }
 
-    public static function getCommentCount($postId){
+    public static function getCommentCount($postId)
+    {
         $commentCount = Comment::where('post_id',$postId)->count();
         if ($commentCount){
             return $commentCount;
         }
         return 0;
     }
+
+    public static function updateIsSeen($postId)
+    {
+        $post = Post::find($postId);
+        if($post){
+            $post->update(['is_seen' => 1]);
+            return true;
+        }
+        return false;
+    }
+
+
 }
