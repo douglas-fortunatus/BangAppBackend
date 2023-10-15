@@ -113,7 +113,6 @@ class HomeController extends Controller
         $battles = BangBattle::all();
         return view('posts.bang_battle',compact('battles'));
     }
-
     function postBangBattle(Request $request)
     {
         $bangBattle = new BangBattle();
@@ -123,9 +122,24 @@ class HomeController extends Controller
         $bangBattle->battle2 = $request->battle2;
         $bangBattle->save();
 
-        return redirect()->route('bangBattleWeb')->with('success', 'Bang Battle posted successfully!');
+        // Generate a unique filename
+        $filename = uniqid();
 
+        // Store battle1 file
+        if ($request->hasFile('battle1')) {
+            $extension = $request->battle1->getClientOriginalExtension();
+            $request->battle1->storeAs('bangBattle', $filename . '_battle1.' . $extension);
+        }
+
+        // Store battle2 file
+        if ($request->hasFile('battle2')) {
+            $extension = $request->battle2->getClientOriginalExtension();
+            $request->battle2->storeAs('bangBattle', $filename . '_battle2.' . $extension);
+        }
+
+        return redirect()->route('bangBattleWeb')->with('success', 'Bang Battle posted successfully!');
     }
+
 
 
 }

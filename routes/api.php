@@ -752,8 +752,8 @@ Route::get('/getBangBattle/{user_id}', function ($user_id) {
         ])->get();
 
     $battles->transform(function ($battle) use ($appUrl,$user_id) {
-        $battle->battle1 ? $battle->battle1 = $appUrl . 'storage/app/' . $battle->battle1 : $battle->battle1 = null;
-        $battle->battle2 ? $battle->battle2 = $appUrl . 'storage/app/' . $battle->battle2 : $battle->battle2 = null;
+        $battle->battle1 ? $battle->battle1 = $appUrl . 'storage/app/bangBattle/' . $battle->battle1 : $battle->battle1 = null;
+        $battle->battle2 ? $battle->battle2 = $appUrl . 'storage/app/bangBattle/' . $battle->battle2 : $battle->battle2 = null;
         $battle->isLikedA = false;
         $battle->isLikedB = false;
         $battle->isLiked = false;
