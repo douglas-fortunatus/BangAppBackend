@@ -801,8 +801,8 @@ Route::get('/getNotifications/{user_id}', function ($user_id) {
         ->get();
     // Update notifications to set is_read to true
     foreach ($notifications as $notification) {
-        Notification::updateIsRead($notification->id);
-        // $notification->update(['is_read' => 1]);
+        // Notification::updateIsRead($notification->id);
+        $notification->update(['is_read' => 1]);
     }
 
     return response()->json(['notifications' => $notifications]);
