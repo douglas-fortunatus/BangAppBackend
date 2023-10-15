@@ -115,6 +115,13 @@ Route::get('/bang-updates/{userId}', function ($userId) {
 });
 
 
+Route::get('/updateIsRead/{$notificationId}',function (){
+    $update = Notification::updateIsRead($notificationId);
+    if($update){
+        return response()->json(['status'=>$update]);
+    }
+});
+
 
 Route::post('imageadd', function(Request $request){
     $image = new Post;
@@ -133,7 +140,7 @@ Route::post('imageadd', function(Request $request){
         $image->save();
     }
 
-    return response()->json(['url' => asset($image->url)], 201);
+    return response()->json(['url' => asset($image->image)], 201);
 });
 
 Route::post('imagechallengadd', function(Request $request){
