@@ -123,7 +123,7 @@ Route::get('/updateIsRead/{notificationId}',function ($notificationId){
 });
 
 
-Route::get('/updateIsSeen/{postId}',function ($postId){
+Route::get('/updateIsSeen/{postId}/{user_id}',function ($postId,$userId){
      PostView::create([
             'user_id' => $userId,
             'post_id' => $postId,
