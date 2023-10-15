@@ -790,14 +790,20 @@ Route::get('/getBangBattle/{user_id}', function ($user_id) {
     return response()->json(['data' => $battles]);
 });
 
+
 Route::get('/getNotifications/{user_id}', function ($user_id) {
     // Fetch notifications for the user with user details (name and image)
-    $notifications = Notification::where('user_id', $user_id)
+    $notifications = Notification::where('is_read',0)->where('user_id', $user_id)
         ->with(['user' => function ($query) {
             $query->select('id', 'name', 'image'); // Select the desired user attributes
         }])
         ->orderByDesc('created_at')
         ->get();
+    // Update notifications to set is_read to true
+    foreach ($notifications as $notification) {
+        //Notification::updateIsRead($id);
+        $notification->update(['is_read' => 1]);
+    }
 
     return response()->json(['notifications' => $notifications]);
 });
@@ -826,7 +832,7 @@ function saveNotification($user_id,$body,$type,$reference_id,$post_id){
 }
 
 Route::get('/getNotificationCount/{user_id}',function ($user_id){
-    $notificationCount = Notification::where('user_id', $user_id)->count();
+    $notificationCount = Notification::where('is_read',0)->where('user_id', $user_id)->count();
     return response()->json(['notification_count' => $notificationCount]);
 });
 
