@@ -24,10 +24,14 @@ Route::post('/post/bang/updates', [App\Http\Controllers\HomeController::class, '
 
 Route::any('/post/bang/inspiration', [App\Http\Controllers\HomeController::class, 'postBangInspiration'])->name('postBangInspiration');
 
+Route::post('/post/bang/battle', [App\Http\Controllers\HomeController::class, 'postBangBattle'])->name('postBangBattle');
+
+
 Route::post('/post/bang/thumbnail', [App\Http\Controllers\HomeController::class, 'postBangThumbnail'])->name('postBangThumbnail');
 
 
 Route::get('/bangInspirationWeb', [App\Http\Controllers\HomeController::class, 'bangInspiration'])->name('bangInspirationWeb');
+
 
 Route::get('/bangBattleWeb', [App\Http\Controllers\HomeController::class, 'bangBattleWeb'])->name('bangBattleWeb');
 

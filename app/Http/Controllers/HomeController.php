@@ -113,4 +113,19 @@ class HomeController extends Controller
         $battles = BangBattle::all();
         return view('posts.bang_battle',compact('battles'));
     }
+
+    function postBangBattle(Request $request)
+    {
+        $bangBattle = new BangBattle();
+        $bangBattle->body = $request->body;
+        $bangBattle->type = $request->type;
+        $bangBattle->battle1 = $request->battle1;
+        $bangBattle->battle2 = $request->battle2;
+        $bangBattle->save();
+
+        return redirect()->route('bangBattleWeb')->with('success', 'Bang Battle posted successfully!');
+
+    }
+
+
 }
