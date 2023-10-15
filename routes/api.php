@@ -125,11 +125,11 @@ Route::get('/updateIsRead/{notificationId}',function ($notificationId){
 
 
 Route::get('/updateIsSeen/{postId}/{user_id}',function ($postId,$userId){
-     PostView::create([
+    PostView::create([
             'user_id' => $userId,
             'post_id' => $postId,
         ]);
-    return response()->json(['status' => $update]);
+    return response()->json(['status' => true]);
 });
 
 
