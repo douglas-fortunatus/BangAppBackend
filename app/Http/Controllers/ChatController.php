@@ -173,6 +173,7 @@ Log::info($request->all());
     Log::info($conversation);
 
 
+
     $attachment = $request->file('attachment');
     $attachmentPath = $attachment->store('message_attachments', 'public');
 
@@ -183,11 +184,15 @@ Log::info($request->all());
         'attachment'=> $attachmentPath,
 
     ]);
+    $conversation->messages()->save($message);
     $savedMessage = Message::findOrFail($message->id);
     Log::info($savedMessage);
 
     return response()->json($savedMessage, 200);
 }
+
+
+
 
 
 
