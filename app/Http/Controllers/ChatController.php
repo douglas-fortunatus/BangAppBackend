@@ -179,7 +179,7 @@ Log::info($request->all());
 
     $message = new Message([
         'sender_id' => $sender_id,
-        'message' => "https://bangapp.pro/BangAppBackend/".$attachmentPath,
+        'message' => "https://bangapp.pro/BangAppBackend/storage/app/public/".$attachmentPath,
         'message_type'=> 'image',
         'attachment'=> $attachmentPath,
 
