@@ -113,32 +113,45 @@ class HomeController extends Controller
         $battles = BangBattle::all();
         return view('posts.bang_battle',compact('battles'));
     }
+
+
     function postBangBattle(Request $request)
     {
+        // Generate a unique filename
+        $filename = uniqid();
+
+        // Create a new BangBattle model
         $bangBattle = new BangBattle();
         $bangBattle->body = $request->body;
         $bangBattle->type = $request->type;
-        $bangBattle->battle1 = $request->battle1;
-        $bangBattle->battle2 = $request->battle2;
-        $bangBattle->save();
 
-        // Generate a unique filename
-        $filename = uniqid();
+        // Save the model to get an ID
+        $bangBattle->save();
 
         // Store battle1 file
         if ($request->hasFile('battle1')) {
             $extension = $request->battle1->getClientOriginalExtension();
-            $request->battle1->storeAs('bangBattle', $filename . '_battle1.' . $extension);
+            $request->battle1->storeAs('bangBattle', $filename. '_battle1.' . $extension);
+
+            // Update the battle1 attribute with the stored path
+            $bangBattle->battle1 = 'bangBattle/' . $filename . '_battle1.' . $extension;
         }
 
         // Store battle2 file
         if ($request->hasFile('battle2')) {
             $extension = $request->battle2->getClientOriginalExtension();
-            $request->battle2->storeAs('bangBattle', $filename . '_battle2.' . $extension);
+            $request->battle2->storeAs('bangBattle', $filename. '_battle2.' . $extension);
+
+            // Update the battle2 attribute with the stored path
+            $bangBattle->battle2 = 'bangBattle/' . $filename . '_battle2.' . $extension;
         }
+
+        // Save the updated model
+        $bangBattle->save();
 
         return redirect()->route('bangBattleWeb')->with('success', 'Bang Battle posted successfully!');
     }
+
 
 
 
