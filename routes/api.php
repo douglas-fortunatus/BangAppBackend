@@ -309,6 +309,7 @@ Route::get('/getPost', function(Request $request) {
     $user_id = $request->input('user_id');
 
     $posts = Post::latest()
+        ->where('is_seen', 0)
         ->with([
             'likes' => function($query) {
                 $query->select('post_id', 'like_type', DB::raw('count(*) as like_count'))

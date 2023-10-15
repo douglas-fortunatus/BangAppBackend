@@ -19,7 +19,7 @@ class Notification extends Model
     		$record->update(['is_read' => 1 ]);
     		return true;
     	}
-    	return false
+    	return false;
     }
 
 }
