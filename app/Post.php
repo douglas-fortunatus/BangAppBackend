@@ -81,7 +81,7 @@ class Post extends Model
 
     public static function unseenPosts($userId)
     {
-        return $this->whereDoesntHave('postViews', function ($query) use ($userId) {
+        return static::whereDoesntHave('postViews', function ($query) use ($userId) {
             $query->where('user_id', $userId);
         });
     }
