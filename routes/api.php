@@ -124,10 +124,11 @@ Route::get('/updateIsRead/{notificationId}',function ($notificationId){
 
 
 Route::get('/updateIsSeen/{postId}',function ($postId){
-    $update = Post::updateIsSeen($postId);
-    if($update){
-        return response()->json(['status'=>$update]);
-    }
+     PostView::create([
+            'user_id' => $userId,
+            'post_id' => $postId,
+        ]);
+    return response()->json(['status' => $update]);
 });
 
 
@@ -308,8 +309,7 @@ Route::get('/getPost', function(Request $request) {
     // Get the user's ID if available (you can adjust how you get the user's ID based on your authentication system)
     $user_id = $request->input('user_id');
 
-    $posts = Post::latest()
-        ->where('is_seen', 0)
+    $posts = Post::unseenPosts($user_id)->latest()
         ->with([
             'likes' => function($query) {
                 $query->select('post_id', 'like_type', DB::raw('count(*) as like_count'))
@@ -511,6 +511,7 @@ Route::post('/likeBangBattle', function(Request $request)
 
     return response()->json(['message' => $message, 'likeCount' => $likeCount]);
 });
+
 
 Route::post('/likeBangUpdate', function(Request $request)
 {

@@ -79,5 +79,17 @@ class Post extends Model
         return false;
     }
 
+    public function unseenPosts($userId)
+    {
+        return $this->whereDoesntHave('postViews', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        });
+    }
+
+    public function postViews()
+    {
+        return $this->hasMany(PostView::class);
+    }
+
 
 }
