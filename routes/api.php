@@ -423,9 +423,6 @@ Route::post('/likePost', function(Request $request)
     $isLikedChallenge = Like::where('user_id', $user->id)->where('post_id', $postId)->where('like_type', $oppositeLikeType)->exists();
     $challengeLike = Like::where('user_id', $user->id)->where('post_id', $postId)->where('like_type', $likeType)->exists();
 
-    // dd([$isLikedChallenge,$isLiked,$challengeLike]);
-
-
     if ($isLiked && $challengeLike) {
         Like::where('user_id', $user->id)->where('post_id', $postId)->delete();
         $message = 'Post unliked successfully';
@@ -480,7 +477,7 @@ Route::post('/likeBangBattle', function(Request $request)
     // Check if the user has already liked the battle with the given like_type
     $isLiked = BattleLike::where('user_id', $user->id)->where('battle_id', $battleId)->exists();
     $isLikedChallenge = BattleLike::where('user_id', $user->id)->where('battle_id', $battleId)->where('like_type', $oppositeLikeType)->exists();
-    $challengeLike = BattleLike::where('user_id', $user->id)->where('battle_id', $postId)->where('like_type', $likeType)->exists();
+    $challengeLike = BattleLike::where('user_id', $user->id)->where('battle_id', $battleId)->where('like_type', $likeType)->exists();
 
     if ($isLiked && $challengeLike) {
         BattleLike::where('user_id', $user->id)->where('battle_id', $battleId)->delete();
