@@ -887,4 +887,5 @@ Route::post('/deleteAllMessages', [ChatController::class, 'deleteAllMessages']);
 Route::post('/deleteAllConversations', [ChatController::class, 'deleteAllConversations']);
 Route::post('/deleteAllMessagesInConversation', [ChatController::class, 'deleteAllMessagesInConversation']);
 Route::post('/sendImageMessage', [ChatController::class, 'storeImageMessage']);
+Route::get('/getTotalUnreadMessages', [ChatController::class, 'getTotalUnreadMessages']);
 
