@@ -173,21 +173,26 @@ Log::info($request->all());
     Log::info($conversation);
 
 
+
     $attachment = $request->file('attachment');
     $attachmentPath = $attachment->store('message_attachments', 'public');
 
     $message = new Message([
         'sender_id' => $sender_id,
-        'message' => "https://bangapp.pro/BangAppBackend/".$attachmentPath,
+        'message' => "https://bangapp.pro/BangAppBackend/storage/app/public/".$attachmentPath,
         'message_type'=> 'image',
         'attachment'=> $attachmentPath,
 
     ]);
+    $conversation->messages()->save($message);
     $savedMessage = Message::findOrFail($message->id);
     Log::info($savedMessage);
 
     return response()->json($savedMessage, 200);
 }
+
+
+
 
 
 
