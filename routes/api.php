@@ -417,7 +417,7 @@ Route::post('/likePost', function(Request $request)
     } else if(isset($isLiked) && isset($isLikedChallenge)) {
         // User hasn't liked the post yet, so like it
         // // Remove the opposite like if it exists
-        
+
         Like::where('user_id', $user->id)->where('post_id', $postId)->where('like_type', $oppositeLikeType)->delete();
 
         Like::create([
@@ -473,7 +473,7 @@ Route::post('/likeBangBattle', function(Request $request)
     } else if(isset($isLiked) && isset($isLikedChallenge)) {
         // User hasn't liked the battle yet, so like it
         // // Remove the opposite like if it exists
-        
+
         BattleLike::where('user_id', $user->id)->where('battle_id', $battleId)->where('like_type', $oppositeLikeType)->delete();
 
         BattleLike::create([
@@ -595,7 +595,7 @@ Route::get('/getPostInfo/{post_id}', function($post_id) {
             $query->select('id', 'name', 'image');
         },
     ])->get(); // Corrected 'orderBy' here
-    
+
     $posts->transform(function($post) use ($appUrl) {
         $post->image  ? $post->image = $appUrl.'storage/app/'.$post->image : $post->image = null;
         $post->challenge_img ? $post->challenge_img = $appUrl.'storage/app/'.$post->challenge_img : $post->challenge_img = null;
@@ -608,10 +608,10 @@ Route::get('/getPostInfo/{post_id}', function($post_id) {
         // Retrieve the like count
         $post->ilikeCount = 0;
         $post->isLiked = false;
-        
+
         return $post;
     });
-    
+
     return response()->json($posts);
 });
 
@@ -873,4 +873,5 @@ Route::post('/deleteMessage', [ChatController::class, 'deleteMessage']);
 Route::post('/deleteAllMessages', [ChatController::class, 'deleteAllMessages']);
 Route::post('/deleteAllConversations', [ChatController::class, 'deleteAllConversations']);
 Route::post('/deleteAllMessagesInConversation', [ChatController::class, 'deleteAllMessagesInConversation']);
+Route::post('/sendImageMessage', [ChatController::class, 'storeImageMessage']);
 
