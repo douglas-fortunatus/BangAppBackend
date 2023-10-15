@@ -115,8 +115,16 @@ Route::get('/bang-updates/{userId}', function ($userId) {
 });
 
 
-Route::get('/updateIsRead/{$notificationId}',function (){
+Route::get('/updateIsRead/{notificationId}',function ($notificationId){
     $update = Notification::updateIsRead($notificationId);
+    if($update){
+        return response()->json(['status'=>$update]);
+    }
+});
+
+
+Route::get('/updateIsSeen/{postId}',function ($postId){
+    $update = Post::updateIsSeen($postId);
     if($update){
         return response()->json(['status'=>$update]);
     }
