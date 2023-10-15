@@ -18,6 +18,7 @@ use App\bangInspiration;
 use App\Comment;
 use App\DeletedPost;
 use App\Hobby;
+use App\PostView;
 use App\BattleComment;
 use App\bangUpdateComment;
 use App\BangBattle;
