@@ -21,6 +21,7 @@ use App\Hobby;
 use App\PostView;
 use App\BattleComment;
 use App\bangUpdateComment;
+use App\UserHobby;
 use App\BangBattle;
 use App\Notification;
 use App\BattleLike;
@@ -702,7 +703,7 @@ Route::post('/setUserProfile',function(request $request)
     // Update the user's profile
     if ($request->hasFile('image')) {
         // Save the profile picture and get its path
-        $profilePicturePath = $request->file('profile_picture')->store('profile_pictures', 'public');
+        $profilePicturePath = $request->file('image')->store('profile_pictures', 'public');
         $user->image = $profilePicturePath;
     }
     if(json_decode($request->hobbies) > 0){
