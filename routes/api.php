@@ -696,8 +696,8 @@ Route::get('/hobbies', function(request $request){
     return response()->json($hobbies);
 });
 
-Route::post('/setUserProfile',function(request $request){
-
+Route::post('/setUserProfile',function(request $request)
+{
     $user = User::findOrFail($request->user_id);
     // Update the user's profile
     if ($request->hasFile('image')) {
@@ -705,9 +705,15 @@ Route::post('/setUserProfile',function(request $request){
         $profilePicturePath = $request->file('profile_picture')->store('profile_pictures', 'public');
         $user->image = $profilePicturePath;
     }
-
+    if(json_decode($request->hobbies) > 0){
+        foreach (json_decode($request->hobbies) as $key => $value) {
+            UserHobby::create(['user_id'=>$user->id,'hobby_id'=>$value]);
+        }
+    }
+    $user->date_of_birth = $request->input('date_of_birth');
+    $user->phone_number = $request->input('phoneNumber');
+    $user->occupation = $request->input('occupation');
     $user->bio = $request->input('bio');
-    $user->username = $request->input('username');
     $user->save();
     return response()->json(['message' => 'Profile updated successfully']);
 });
