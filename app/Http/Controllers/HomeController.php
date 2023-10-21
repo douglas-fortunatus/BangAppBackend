@@ -66,7 +66,9 @@ class HomeController extends Controller
 
     function bangInspiration()
     {
-        return view('posts.bang_inspiration');
+
+        $bannginspirations = bangInspiration::all();
+        return view('posts.bang_inspiration',compact('bannginspirations'));
     }
 
     function postBangInspiration(Request $request)
