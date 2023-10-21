@@ -172,8 +172,8 @@
                             <td>{{$battle->body}}</td>
                             <td>{{$battle->type}}</td>
                             <td>
-                                <button class="btn btn-primary">EDIT</button>
-                                <button class="btn btn-danger">DELETE</button>
+                                <button  class="btn btn-primary">EDIT</button>
+                                <button  class="btn btn-danger">DELETE</button>
 
                             </td>
                         </tr>
@@ -194,30 +194,39 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="mb-0">Bang Inspiration</h5>
+                        <h5 class="mb-0">Bang Battle</h5>
                     </div>
 
                     <div class="card-body border-top">
-                        <form action="{{route('postBangInspiration')}}" method="POST" enctype="multipart/form-data">
+                        <form action="{{route('postBangBattle')}}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <div class="row mb-3">
                                 <label class="col-lg-4 col-form-label">Title:</label>
                                 <div class="col-lg-8">
-                                    <input name="tittle" type="text" class="form-control" placeholder="Write Title">
+                                    <input name="body" type="text" class="form-control" placeholder="Write Title">
                                 </div>
                             </div>
                             <div class="row mb-3">
-                                <label class="col-lg-4 col-form-label">Thumbnail:</label>
+                                <label class="col-lg-4 col-form-label">Type:</label>
                                 <div class="col-lg-8">
-                                    <input name="thumbnail" id="thumbnailInput" type="file" class="form-control">
-                                    <div class="form-text text-muted">Accepted formats: jpg, png, webpg Max file size 2Mb</div>
+                                    <select name="type" class="form-control">
+                                        <option value="image">Image</option>
+                                        <option value="video">Video</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="row mb-3">
-                                <label class="col-lg-4 col-form-label">Video:</label>
+                                <label class="col-lg-4 col-form-label">Battle 1:</label>
                                 <div class="col-lg-8">
-                                    <input name="video" id="videoInput" type="file" class="form-control">
-                                    <div class="form-text text-muted">Accepted formats: gif, png, jpg. Max file size 2Mb</div>
+                                    <input name="battle1" id="thumbnailInput" type="file" class="form-control">
+                                    <div class="form-text text-muted">Accepted formats: jpg, png, webpg Max file size 12Mb</div>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-lg-4 col-form-label">Battle 2:</label>
+                                <div class="col-lg-8">
+                                    <input name="battle2" id="videoInput" type="file" class="form-control">
+                                    <div class="form-text text-muted">Accepted formats: gif, png, jpg. Max file size 12Mb</div>
                                 </div>
                             </div>
                             <div class="text-end">

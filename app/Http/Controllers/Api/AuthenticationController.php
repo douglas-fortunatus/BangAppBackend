@@ -37,11 +37,7 @@ class AuthenticationController extends Controller
         $validatedData['password'] = bcrypt($request->password);
 
         $user = User::create($validatedData);
-        if(json_decode($request->hobbies) > 0){
-            foreach (json_decode($request->hobbies) as $key => $value) {
-                UserHobby::create(['user_id'=>$user->id,'hobby_id'=>$value]);
-            }
-        }
+        
 
         $token = JWTAuth::attempt(['email' => $request->email, 'password' => $request->password]);
 

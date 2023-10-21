@@ -18,8 +18,10 @@ use App\bangInspiration;
 use App\Comment;
 use App\DeletedPost;
 use App\Hobby;
+use App\PostView;
 use App\BattleComment;
 use App\bangUpdateComment;
+use App\UserHobby;
 use App\BangBattle;
 use App\Notification;
 use App\BattleLike;
@@ -123,11 +125,12 @@ Route::get('/updateIsRead/{notificationId}',function ($notificationId){
 });
 
 
-Route::get('/updateIsSeen/{postId}',function ($postId){
-    $update = Post::updateIsSeen($postId);
-    if($update){
-        return response()->json(['status'=>$update]);
-    }
+Route::get('/updateIsSeen/{postId}/{user_id}',function ($postId,$userId){
+    PostView::create([
+            'user_id' => $userId,
+            'post_id' => $postId,
+        ]);
+    return response()->json(['status' => true]);
 });
 
 
@@ -308,8 +311,7 @@ Route::get('/getPost', function(Request $request) {
     // Get the user's ID if available (you can adjust how you get the user's ID based on your authentication system)
     $user_id = $request->input('user_id');
 
-    $posts = Post::latest()
-        ->where('is_seen', 0)
+    $posts = Post::unseenPosts($user_id)->latest()
         ->with([
             'likes' => function($query) {
                 $query->select('post_id', 'like_type', DB::raw('count(*) as like_count'))
@@ -512,6 +514,7 @@ Route::post('/likeBangBattle', function(Request $request)
     return response()->json(['message' => $message, 'likeCount' => $likeCount]);
 });
 
+
 Route::post('/likeBangUpdate', function(Request $request)
 {
     $postId = $request->input('post_id');
@@ -694,18 +697,24 @@ Route::get('/hobbies', function(request $request){
     return response()->json($hobbies);
 });
 
-Route::post('/setUserProfile',function(request $request){
-
+Route::post('/setUserProfile',function(request $request)
+{
     $user = User::findOrFail($request->user_id);
     // Update the user's profile
     if ($request->hasFile('image')) {
         // Save the profile picture and get its path
-        $profilePicturePath = $request->file('profile_picture')->store('profile_pictures', 'public');
+        $profilePicturePath = $request->file('image')->store('profile_pictures', 'public');
         $user->image = $profilePicturePath;
     }
-
+    if(json_decode($request->hobbies) > 0){
+        foreach (json_decode($request->hobbies) as $key => $value) {
+            UserHobby::create(['user_id'=>$user->id,'hobby_id'=>$value]);
+        }
+    }
+    $user->date_of_birth = $request->input('date_of_birth');
+    $user->phone_number = $request->input('phoneNumber');
+    $user->occupation = $request->input('occupation');
     $user->bio = $request->input('bio');
-    $user->username = $request->input('username');
     $user->save();
     return response()->json(['message' => 'Profile updated successfully']);
 });
@@ -788,6 +797,7 @@ Route::get('/getBangBattle/{user_id}', function ($user_id) {
     return response()->json(['data' => $battles]);
 });
 
+
 Route::get('/getNotifications/{user_id}', function ($user_id) {
     // Fetch notifications for the user with user details (name and image)
     $notifications = Notification::where('user_id', $user_id)
@@ -796,6 +806,11 @@ Route::get('/getNotifications/{user_id}', function ($user_id) {
         }])
         ->orderByDesc('created_at')
         ->get();
+    // Update notifications to set is_read to true
+    foreach ($notifications as $notification) {
+        // Notification::updateIsRead($notification->id);
+        $notification->update(['is_read' => 1]);
+    }
 
     return response()->json(['notifications' => $notifications]);
 });
@@ -824,7 +839,7 @@ function saveNotification($user_id,$body,$type,$reference_id,$post_id){
 }
 
 Route::get('/getNotificationCount/{user_id}',function ($user_id){
-    $notificationCount = Notification::where('user_id', $user_id)->count();
+    $notificationCount = Notification::where('is_read',0)->where('user_id', $user_id)->count();
     return response()->json(['notification_count' => $notificationCount]);
 });
 
