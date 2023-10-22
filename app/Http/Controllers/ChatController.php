@@ -192,6 +192,54 @@ Log::info($request->all());
 }
 
 
+public function storeVideoMessage(Request $request)
+{
+    // $request->validate([
+    //     'sender_id' => 'required',
+    //     'user2_id' => 'required',
+    //     'attachment' => 'required|image|mimes:jpeg,png,gif',
+    // ]);
+
+Log::info($request->all());
+    $sender_id = $request->sender_id;
+    $user2_id = $request->user2_id;
+    $messageText = $request->message;
+    $messageType = $request->message_type;
+
+    $conversation = Conversation::where(function ($query) use ($sender_id, $user2_id) {
+        $query->where('user1_id', $sender_id)
+            ->where('user2_id', $user2_id);
+    })->orWhere(function ($query) use ($sender_id, $user2_id) {
+        $query->where('user1_id', $user2_id)
+            ->where('user2_id', $sender_id);
+    })->first();
+    Log::info($conversation);
+
+    if (!$conversation) {
+        return response()->json(['message' => 'Conversation not found'], 404);
+    }
+    Log::info($conversation);
+
+
+
+    $attachment = $request->file('attachment');
+    $attachmentPath = $attachment->store('message_attachments/video', 'public');
+
+    $message = new Message([
+        'sender_id' => $sender_id,
+        'message' => "https://bangapp.pro/BangAppBackend/storage/app/public/".$attachmentPath,
+        'message_type'=> 'video',
+        'attachment'=> $attachmentPath,
+
+    ]);
+    $conversation->messages()->save($message);
+    $savedMessage = Message::findOrFail($message->id);
+    Log::info($savedMessage);
+
+    return response()->json($savedMessage, 200);
+}
+
+
 
 
 
