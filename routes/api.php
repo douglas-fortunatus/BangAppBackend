@@ -904,6 +904,7 @@ Route::post('/deleteMessage', [ChatController::class, 'deleteMessage']);
 Route::post('/deleteAllMessages', [ChatController::class, 'deleteAllMessages']);
 Route::post('/deleteAllConversations', [ChatController::class, 'deleteAllConversations']);
 Route::post('/deleteAllMessagesInConversation', [ChatController::class, 'deleteAllMessagesInConversation']);
-Route::post('/sendImageMessage', [ChatController::class, 'storeImageMessage']);
+Route::post('/sendImageMessage', [ChatController::class, 'storeImageMessage']);Route::post('/sendImageMessage', [ChatController::class, 'storeImageMessage']);
+Route::post('/sendVideoMessage', [ChatController::class, 'storeVideoMessage']);
 Route::get('/getTotalUnreadMessages', [ChatController::class, 'getTotalUnreadMessages']);
 
