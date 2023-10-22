@@ -166,19 +166,25 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <th scope="row">1</th>
-                            <td>Mark</td>
-                            <td>Otto</td>
-                            <td>
-                                <button class="btn btn-primary">EDIT</button>
-                                <button class="btn btn-danger">DELETE</button>
+                    @foreach ($bannginspirations as $value )
+                    <tr>
+                        <th>{{ $value->id }}</th>
+                        <td>{{ $value -> title }}</td>
+                        <td>{{ $value -> video_url }}</td>
+                        {{-- <a href="{{ $value->video_url }}" target="_blank" class="btn btn-primary">View Video</a> --}}
+                        <td class="d-flex">
+                            <a class="px-2" href="">Edit</a>
+                            <a class="px-2" href="">Delete</a>
 
-                            </td>
-                        </tr>
 
-                    </tbody>
-                </table>
+                        </td>
+                    </tr>
+
+                    @endforeach
+
+
+                </tbody>
+            </table>
             </div>
         </div>
 
