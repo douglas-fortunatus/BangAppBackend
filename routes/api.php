@@ -139,7 +139,7 @@ Route::post('imageadd', function(Request $request){
     $image->body = $request->body;
     $image->user_id = $request->user_id;
     $image->pinned = $request->pinned;
-    if($request->type){
+    if($request->type) {
         $image->type = $request->type;
         // $image->video_height = $request->videoHeight;
     }
@@ -158,12 +158,15 @@ Route::post('imagechallengadd', function(Request $request){
     $image = new Post;
     $image->body = $request->body;
     $image->user_id = $request->user_id;
-        if ($request->hasFile('image') && $request->hasFile('image2')) {
+    if($request->type) {
+        $image->type = $request->type;
+    }
+    if ($request->hasFile('image') && $request->hasFile('image2')) {
         $path = $request->file('image')->store('images');
         $path2 = $request->file('image2')->store('images');
         $image->image = $path;
         $image->challenge_img = $path2;
-       }
+    }
     $image->save();
     return response()->json(['url' => asset($image->url)], 201);
 
