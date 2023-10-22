@@ -122,5 +122,10 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsToMany(Hobby::class);
     }
 
+    public function role()
+    {
+        return $this->belongsTo(Role::class);
+    }
+
 
 }

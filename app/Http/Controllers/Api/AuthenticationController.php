@@ -66,6 +66,7 @@ class AuthenticationController extends Controller
             'user_id' => $user->id,
             'user_image' => env('APP_URL').$user->image,
             'name' => $user->name,
+            'role' => $user->role->name,
         ]);
     }
 
