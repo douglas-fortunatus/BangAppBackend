@@ -455,7 +455,6 @@ Route::post('/likePost', function(Request $request)
             'post_id'=>$postId
         ]);
         $pushNotificationService = new PushNotificationService();
-        $pushNotificationService->sendPushNotification($post->user->device_token, $user->name, likeMessage(), $postId, 'like');
         saveNotification($userId, likeMessage(), 'like', $post->user->id, $postId);
         $message = 'Post liked successfully';
     }
