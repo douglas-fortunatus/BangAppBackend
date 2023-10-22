@@ -433,8 +433,6 @@ Route::post('/likePost', function(Request $request)
         $message = 'Post unliked successfully';
 
     } else if(isset($isLiked) && isset($isLikedChallenge)) {
-        // User hasn't liked the post yet, so like it
-        // // Remove the opposite like if it exists
 
         Like::where('user_id', $user->id)->where('post_id', $postId)->where('like_type', $oppositeLikeType)->delete();
 
@@ -444,7 +442,7 @@ Route::post('/likePost', function(Request $request)
             'post_id'=>$postId
         ]);
         $pushNotificationService = new PushNotificationService();
-        $pushNotificationService->sendPushNotification($post->user->device_token, $user->name, likeMessage(), $postId);
+        $pushNotificationService->sendPushNotification($post->user->device_token, $user->name, likeMessage(), $postId, 'like');
         saveNotification($userId, likeMessage(), 'like', $post->user->id, $postId);
         $message = 'Post liked successfully';
     }
@@ -457,7 +455,7 @@ Route::post('/likePost', function(Request $request)
             'post_id'=>$postId
         ]);
         $pushNotificationService = new PushNotificationService();
-        $pushNotificationService->sendPushNotification($post->user->device_token, $user->name, likeMessage(), $postId);
+        $pushNotificationService->sendPushNotification($post->user->device_token, $user->name, likeMessage(), $postId, 'like');
         saveNotification($userId, likeMessage(), 'like', $post->user->id, $postId);
         $message = 'Post liked successfully';
     }
@@ -662,7 +660,7 @@ Route::post('/postComment', function(request $request,Post $post){
         },
     ])->findOrFail($comment->id);
     $pushNotificationService = new PushNotificationService();
-    $pushNotificationService->sendPushNotification($post->user->device_token, $user->name, commentMessage(), $request->post_id);
+    $pushNotificationService->sendPushNotification($post->user->device_token, $user->name, commentMessage(), $request->post_id,'comment');
     saveNotification($request->user_id, commentMessage(), 'comment', $post->user->id, $request->post_id);
     return response(['data' => $comment, 'message' => 'success'], 200);
 });
