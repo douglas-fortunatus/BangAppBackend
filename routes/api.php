@@ -186,6 +186,29 @@ Route::post('/addChallenge', function(Request $request){
 
 });
 
+
+Route::post('addBangUpdate', function(Request $request){
+    // Get the uploaded file
+    $file = $request->file('image');
+
+    // Generate a unique filename
+    $filename = uniqid() . '.' . $file->getClientOriginalExtension();
+
+    // Store the file locally in the storage/app/public directory
+    $file->storeAs('bangUpdates', $filename);
+
+    $bangUpdate = new BangUpdate();
+    $bangUpdate->caption = $request->body;
+    $bangUpdate->filename = $filename;
+    $bangUpdate->type = $request->type;
+    $bangUpdate->save();
+
+    // Redirect back or show a success message
+    return redirect()->back()->with('success', 'Bang update posted successfully!');
+});
+
+
+
 Route::get('/getChallenge/{challengeId}', function($challengeId) {
     $appUrl = "https://bangapp.pro/BangAppBackend/";
     // Retrieve the Challenge model instance by its ID
