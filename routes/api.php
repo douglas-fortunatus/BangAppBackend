@@ -204,7 +204,7 @@ Route::post('/addBangUpdate', function(Request $request){
     $bangUpdate->save();
 
     // Redirect back or show a success message
-    return redirect()->back()->with('success', 'Bang update posted successfully!');
+    return response()->json(['BangUpdateID' => $bangUpdate->id], 200);
 });
 
 
