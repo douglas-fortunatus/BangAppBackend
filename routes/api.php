@@ -187,7 +187,7 @@ Route::post('/addChallenge', function(Request $request){
 });
 
 
-Route::post('addBangUpdate', function(Request $request){
+Route::post('/addBangUpdate', function(Request $request){
     // Get the uploaded file
     $file = $request->file('image');
 
