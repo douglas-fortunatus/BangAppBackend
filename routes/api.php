@@ -590,14 +590,14 @@ Route::post('/sendNotification', function(Request $request)
     return response(['message' => 'success'], 200);
 });
 
-Route::get('/getMyPosts/{id}', function($id)
+Route::get('/getMyPosts/', function(Request $request)
 {
     $appUrl = "https://bangapp.pro/BangAppBackend/";
     // Get the _page and _limit parameters from the request query
     $pageNumber = $request->query('_page', 1);
     $numberOfPostsPerRequest = $request->query('_limit', 10);
-
-    $posts = Post::where('user_id', $id)->with([
+    $user_id = $request->input('user_id');
+    $posts = Post::where('user_id', $user_id)->with([
         'user' => function ($query) {
             $query->select('id', 'name', 'image');
         },
