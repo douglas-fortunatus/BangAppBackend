@@ -597,7 +597,7 @@ Route::get('/getMyPosts', function(Request $request)
     $pageNumber = $request->query('_page', 1);
     $numberOfPostsPerRequest = $request->query('_limit', 10);
     $user_id = $request->input('user_id');
-    $posts = Post::where('user_id', $user_id)->with([
+    $posts = Post::latest()->where('user_id', $user_id)->with([
         'user' => function ($query) {
             $query->select('id', 'name', 'image');
         },
