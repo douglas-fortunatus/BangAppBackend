@@ -298,6 +298,7 @@ Route::get('/getPosts', function(Request $request) {
 
     // Get the _page and _limit parameters from the request query
     $pageNumber = $request->query('_page', 1);
+
     $numberOfPostsPerRequest = $request->query('_limit', 10);
 
     $posts = Post::latest()
@@ -592,6 +593,10 @@ Route::post('/sendNotification', function(Request $request)
 Route::get('/getMyPosts/{id}', function($id)
 {
     $appUrl = "https://bangapp.pro/BangAppBackend/";
+    // Get the _page and _limit parameters from the request query
+    $pageNumber = $request->query('_page', 1);
+    $numberOfPostsPerRequest = $request->query('_limit', 10);
+
     $posts = Post::where('user_id', $id)->with([
         'user' => function ($query) {
             $query->select('id', 'name', 'image');
@@ -600,7 +605,7 @@ Route::get('/getMyPosts/{id}', function($id)
             $query->select('post_id', DB::raw('count(*) as like_count'))
                 ->groupBy('post_id');
         },
-    ])->paginate(10);
+    ])->paginate($numberOfPostsPerRequest, ['*'], '_page', $pageNumber);
     $posts->getCollection()->transform(function($post) use ($appUrl) {
         $post->image  ? $post->image = $appUrl.'storage/app/'.$post->image : $post->image = null;
         $post->challenge_img ? $post->challenge_img = $appUrl.'storage/app/'.$post->challenge_img : $post->challenge_img = null;
