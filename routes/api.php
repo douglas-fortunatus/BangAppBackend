@@ -617,11 +617,34 @@ Route::get('/getMyPosts', function(Request $request)
         else{
             list($post->width, $post->height) = [300,300];
         }
-        // Retrieve the like count
-        $likeCount = 0;
-        if ($post->likes->isNotEmpty()) {
-            $likeCount = $post->likes[0]->like_count;
+        $post->isLikedA = false;
+        $post->isLikedB = false;
+        $post->isLiked = false;
+       // Check if the user has liked the post and update isLikedA and isLikedB accordingly
+        $likeType = Post::getLikeTypeForUser($user_id, $post->id);
+        if ($likeType == "A") {
+            $post->isLikedA = true;
+            $post->isLiked = true;
+        } elseif ($likeType == "B") {
+            $post->isLikedB = true;
+            //$post->isLiked = true;
         }
+
+        // Retrieve the like counts for both A and B challenge images
+        // $likeCount
+        $likeCountA = 0;
+        $likeCountB = 0;
+        if ($post->likes->isNotEmpty()) {
+            foreach ($post->likes as $like) {
+                if ($like->like_type === 'A') {
+                    $likeCountA = $like->like_count;
+                } elseif ($like->like_type === 'B' ) {
+                    $likeCountB = $like->like_count;
+                }
+            }
+        }
+        $post->like_count_A = $likeCountA;
+        $post->like_count_B = $likeCountB;
         return $post;
     });
 
