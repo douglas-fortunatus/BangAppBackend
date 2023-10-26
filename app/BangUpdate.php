@@ -21,5 +21,21 @@ class BangUpdate extends Model
         return $this->belongsToMany(User::class, 'bang_update_likes', 'post_id', 'user_id');
     }
 
+    public function user() {
+        return $this->belongsTo(User::class,'user_id');
+    }
+
+    public static function unseenPosts($userId)
+    {
+        return static::whereDoesntHave('bangUpdateViews', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        });
+    }
+
+    public function bangUpdateViews()
+    {
+        return $this->hasMany(BangUpdateView::class);
+    }
+
 
 }

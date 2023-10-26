@@ -19,6 +19,7 @@ use App\Comment;
 use App\DeletedPost;
 use App\Hobby;
 use App\PostView;
+use App\BangUpdateView
 use App\BattleComment;
 use App\bangUpdateComment;
 use App\UserHobby;
@@ -64,7 +65,7 @@ Route::get('/bang-updatesnew', function (\Illuminate\Http\Request $request) {
 Route::get('/bang-updates', function () {
 
     $appUrl = "https://bangapp.pro/BangAppBackend/";
-    $bangUpdates = BangUpdate::orderBy('created_at', 'desc')
+    $bangUpdates = BangUpdate::unseenPosts($user_id)->orderBy('created_at', 'desc')
         ->with([
             'bang_update_likes' => function($query) {
                 $query->select('post_id', DB::raw('count(*) as like_count'))
@@ -85,9 +86,8 @@ Route::get('/bang-updates', function () {
 Route::get('/bang-updates/{userId}', function ($userId) {
 
     $appUrl = "https://bangapp.pro/BangAppBackend/";
-
     // Get the bang updates and include like information for the given user
-    $bangUpdates = BangUpdate::orderBy('created_at', 'desc')
+    $bangUpdates = BangUpdate::unseenPosts($user_id)->orderBy('created_at', 'desc')
         ->with([
             'bang_update_likes' => function ($query) use ($userId) {
                 $query->select('post_id')->where('user_id', $userId); // Filter likes by user ID
@@ -129,6 +129,14 @@ Route::get('/updateIsSeen/{postId}/{user_id}',function ($postId,$userId){
     PostView::create([
             'user_id' => $userId,
             'post_id' => $postId,
+        ]);
+    return response()->json(['status' => true]);
+});
+
+Route::get('/updateBangUpdateIsSeen/{bangUpdateId}/{user_id}',function ($bangUpdateId,$userId){
+    BangUpdateView::create([
+            'user_id' => $userId,
+            'bang_update_id' => $bangUpdateId,
         ]);
     return response()->json(['status' => true]);
 });
@@ -190,19 +198,16 @@ Route::post('/addChallenge', function(Request $request){
 Route::post('/addBangUpdate', function(Request $request){
     // Get the uploaded file
     $file = $request->file('image');
-
     // Generate a unique filename
     $filename = uniqid() . '.' . $file->getClientOriginalExtension();
-
     // Store the file locally in the storage/app/public directory
     $file->storeAs('bangUpdates', $filename);
-
     $bangUpdate = new BangUpdate();
     $bangUpdate->caption = $request->body;
+    $bangUpdate->user_id = $request->user_id;
     $bangUpdate->filename = $filename;
     $bangUpdate->type = $request->type;
     $bangUpdate->save();
-
     // Redirect back or show a success message
     return response()->json(['BangUpdateID' => $bangUpdate->id], 200);
 });
@@ -286,6 +291,7 @@ Route::get('/editPost', function(Request $request){
         return response(['error' => 'Something went Wrong'], 400);
     }
 });
+
 
 Route::get('/getPosts', function(Request $request) {
     $appUrl = "https://bangapp.pro/BangAppBackend/";

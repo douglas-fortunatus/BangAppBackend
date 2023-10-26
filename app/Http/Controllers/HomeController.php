@@ -56,6 +56,7 @@ class HomeController extends Controller
 
         $bangUpdate = new BangUpdate();
         $bangUpdate->caption = $validatedData['caption'];
+        $bangUpdate->user_id = Auth::user()->id;
         $bangUpdate->filename = $filename;
         $bangUpdate->type = $request->type;
         $bangUpdate->save();
