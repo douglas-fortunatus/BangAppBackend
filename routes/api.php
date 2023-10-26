@@ -606,6 +606,7 @@ Route::get('/getMyPosts', function(Request $request)
                 ->groupBy('post_id');
         },
     ])->paginate($numberOfPostsPerRequest, ['*'], '_page', $pageNumber);
+
     $posts->getCollection()->transform(function($post) use ($appUrl) {
         $post->image  ? $post->image = $appUrl.'storage/app/'.$post->image : $post->image = null;
         $post->challenge_img ? $post->challenge_img = $appUrl.'storage/app/'.$post->challenge_img : $post->challenge_img = null;
@@ -730,6 +731,32 @@ Route::get('/hobbies', function(request $request){
 
     return response()->json($hobbies);
 });
+
+Route::get('/notificationIsRead/{notification_id}', function($notification_id){
+    $notification = Notification::find($notification_id);
+
+    if ($notification) {
+        $notification->is_read = true; // Assuming you have an "is_read" column
+        $notification->save();
+
+        return response()->json(['message' => 'Notification updated as read']);
+    } else {
+        return response()->json(['message' => 'Notification not found'], 404);
+    }
+});
+
+Route::get('/deleteNotification/{notification_id}', function($notification_id){
+   $notification = Notification::find($notification_id);
+
+    if ($notification) {
+        $notification->delete();
+
+        return response()->json(['message' => 'Notification deleted']);
+    } else {
+        return response()->json(['message' => 'Notification not found'], 404);
+    }
+});
+
 
 Route::post('/setUserProfile',function(request $request)
 {
