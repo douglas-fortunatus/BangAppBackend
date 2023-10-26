@@ -19,7 +19,7 @@ use App\Comment;
 use App\DeletedPost;
 use App\Hobby;
 use App\PostView;
-use App\BangUpdateView
+use App\BangUpdateView;
 use App\BattleComment;
 use App\bangUpdateComment;
 use App\UserHobby;
