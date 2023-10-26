@@ -590,7 +590,7 @@ Route::post('/sendNotification', function(Request $request)
     return response(['message' => 'success'], 200);
 });
 
-Route::get('/getMyPosts/', function(Request $request)
+Route::get('/getMyPosts', function(Request $request)
 {
     $appUrl = "https://bangapp.pro/BangAppBackend/";
     // Get the _page and _limit parameters from the request query
