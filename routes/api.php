@@ -32,12 +32,12 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\ChatController;
 
 global $appUrl;
-$appUrl = "https://bangapp.pro/BangAppBackend/";
+$appUrl = "http://192.168.24.229/social-backend-laravel/";
 
 Route::get('/users/search', 'App\Http\Controllers\UserController@search');
 
 Route::get('/bang-updatesnew', function (\Illuminate\Http\Request $request) {
-    $appUrl = "https://bangapp.pro/BangAppBackend/";
+    $appUrl = "http://192.168.24.229/social-backend-laravel/";
 
     $page = $request->query('_page', 1);
     $limit = $request->query('_limit', 4);
@@ -64,7 +64,7 @@ Route::get('/bang-updatesnew', function (\Illuminate\Http\Request $request) {
 
 Route::get('/bang-updates', function () {
 
-    $appUrl = "https://bangapp.pro/BangAppBackend/";
+    $appUrl = "http://192.168.24.229/social-backend-laravel/";
     $bangUpdates = BangUpdate::unseenPosts($user_id)->orderBy('created_at', 'desc')
         ->with([
             'bang_update_likes' => function($query) {
@@ -85,9 +85,9 @@ Route::get('/bang-updates', function () {
 
 Route::get('/bang-updates/{userId}', function ($userId) {
 
-    $appUrl = "https://bangapp.pro/BangAppBackend/";
+    $appUrl = "http://192.168.24.229/social-backend-laravel/";
     // Get the bang updates and include like information for the given user
-    $bangUpdates = BangUpdate::unseenPosts($user_id)->orderBy('created_at', 'desc')
+    $bangUpdates = BangUpdate::unseenPosts($userId)->orderBy('created_at', 'desc')
         ->with([
             'bang_update_likes' => function ($query) use ($userId) {
                 $query->select('post_id')->where('user_id', $userId); // Filter likes by user ID
@@ -215,7 +215,7 @@ Route::post('/addBangUpdate', function(Request $request){
 
 
 Route::get('/getChallenge/{challengeId}', function($challengeId) {
-    $appUrl = "https://bangapp.pro/BangAppBackend/";
+    $appUrl = "http://192.168.24.229/social-backend-laravel/";
     // Retrieve the Challenge model instance by its ID
     $challenge = Challenge::where('id',$challengeId)->with([
         'user' => function ($query) {
@@ -256,7 +256,7 @@ Route::get('/comments', function(Post $post){
  *
  */
 Route::get('/get/bangInspirations',function(){
-    $appUrl = "https://bangapp.pro/BangAppBackend/";
+    $appUrl = "http://192.168.24.229/social-backend-laravel/";
     $bangInspirations = bangInspiration::all();
     $formattedInspirations = $bangInspirations->map(function ($update) use ($appUrl) {
         $update->profile_url = $appUrl . 'storage/app/bangInspiration/' . $update->profile_url;
@@ -268,7 +268,7 @@ Route::get('/get/bangInspirations',function(){
     return response()->json($formattedInspirations);
 });
 Route::get('/get/bangInspirations/{videoId}', function($videoId) {
-    $appUrl = "https://bangapp.pro/BangAppBackend/";
+    $appUrl = "http://192.168.24.229/social-backend-laravel/";
     // Retrieve the Video model instance by its ID
     $video = BangInspiration::where('id',$videoId)->first();
     if (!$video) {
@@ -294,7 +294,7 @@ Route::get('/editPost', function(Request $request){
 
 
 Route::get('/getPosts', function(Request $request) {
-    $appUrl = "https://bangapp.pro/BangAppBackend/";
+    $appUrl = "http://192.168.24.229/social-backend-laravel/";
 
     // Get the _page and _limit parameters from the request query
     $pageNumber = $request->query('_page', 1);
@@ -335,7 +335,7 @@ Route::get('/getPosts', function(Request $request) {
 });
 
 Route::get('/getPost', function(Request $request) {
-    $appUrl = "https://bangapp.pro/BangAppBackend/";
+    $appUrl = "http://192.168.24.229/social-backend-laravel/";
 
     // Get the _page and _limit parameters from the request query
     $pageNumber = $request->query('_page', 1);
@@ -413,7 +413,7 @@ Route::delete('/deletePost/{id}', function ($id) {
     unset($deletedPostData['id']);
     DeletedPost::create(['user_id'=>$deletedPostData['user_id'],'body'=>$deletedPostData['user_id'],'type'=>$deletedPostData['type'],'image'=>$deletedPostData['image'],'challenge_img'=>$deletedPostData['challenge_img'],'pinned'=>$deletedPostData['pinned']]);
     // Move associated media files to the recycle bin in the storage folder
-    $appUrl = "https://bangapp.pro/BangAppBackend/";
+    $appUrl = "http://192.168.24.229/social-backend-laravel/";
     $deletedFolder = 'recycle_bin';
     $deletedPath = storage_path('app/' . $deletedFolder);
     if($post->type == 'image'){
@@ -471,9 +471,12 @@ Route::post('/likePost', function(Request $request)
             'like_type' => $likeType,
             'post_id'=>$postId
         ]);
-        $pushNotificationService = new PushNotificationService();
-        $pushNotificationService->sendPushNotification($post->user->device_token, $user->name, likeMessage(), $postId, 'like');
-        saveNotification($userId, likeMessage(), 'like', $post->user->id, $postId);
+        if ($post->user->id <> $userId){
+            $pushNotificationService = new PushNotificationService();
+            $pushNotificationService->sendPushNotification($post->user->device_token, $user->name, likeMessage(), $postId, 'like');
+            saveNotification($userId, likeMessage(), 'like', $post->user->id, $postId);
+        }
+        
         $message = 'Post liked successfully';
     }
     else{
@@ -592,7 +595,7 @@ Route::post('/sendNotification', function(Request $request)
 
 Route::get('/getMyPosts', function(Request $request)
 {
-    $appUrl = "https://bangapp.pro/BangAppBackend/";
+    $appUrl = "http://192.168.24.229/social-backend-laravel/";
     // Get the _page and _limit parameters from the request query
     $pageNumber = $request->query('_page', 1);
     $numberOfPostsPerRequest = $request->query('_limit', 10);
@@ -662,7 +665,7 @@ Route::get('/getComments/{id}', function($id){
 
 
 Route::get('/getPostInfo/{post_id}', function($post_id) {
-    $appUrl = "https://bangapp.pro/BangAppBackend/";
+    $appUrl = "http://192.168.24.229/social-backend-laravel/";
 
     $posts = Post::where('id', $post_id)->with([
         'user' => function($query) {
@@ -835,7 +838,7 @@ Route::get('/bangBattleComment/{id}', function($id){
 
 Route::get('/getBangBattle/{user_id}', function ($user_id) {
 
-    $appUrl = "https://bangapp.pro/BangAppBackend/";
+    $appUrl = "http://192.168.24.229/social-backend-laravel/";
     $battles = BangBattle::with([
             'likes' => function($query) {
                 $query->select('battle_id', 'like_type', DB::raw('count(*) as like_count'))

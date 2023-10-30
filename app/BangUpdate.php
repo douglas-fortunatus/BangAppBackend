@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class BangUpdate extends Model
 {
     use HasFactory;
+    protected $with = ['user:id,name,image,device_token'];
 
     public function bang_update_likes() {
         return $this->belongsToMany(User::class, 'bang_update_likes', 'post_id', 'user_id');
