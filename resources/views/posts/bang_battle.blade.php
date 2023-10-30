@@ -1,141 +1,3 @@
-{{--
-  <div class="njjh">
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-        ADD INSPIRATION
-      </button>
-
-
-        <div class="col-md-12">
-            <div class="card">
-                <table class="table table-bordered">
-                    <thead>
-                      <tr>
-                        <th scope="col">S/N</th>
-                        <th scope="col">Name</th>
-                        <th scope="col">Media</th>
-                        <th scope="col">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <th scope="row">1</th>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>
-                            <button class="btn btn-primary">EDIT</button>
-                            <button class="btn btn-danger">DELETE</button>
-
-                        </td>
-                      </tr>
-
-                    </tbody>
-                  </table>
-            </div>
-        </div>
-  </div>
-
-
-
-  <div class="row">
-	<meta name="csrf-token" content="{{ csrf_token() }}">
-    <div class="col-lg-8 offset-lg-2">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Bang Battle</h5>
-            </div>
-            <div class="card-body">
-                Welcome to the Bang Inspiration section! This is the space where you can post updates that will be visible to all users. Share your latest news, announcements, or any important information here. Let everyone stay in the loop!
-            </div>
-            <div class="card-body border-top">
-                <form action="{{route('postBangInspiration')}}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <div class="row mb-3">
-                        <label class="col-lg-4 col-form-label">Title:</label>
-                        <div class="col-lg-8">
-                            <input name="tittle" type="text" class="form-control" placeholder="Write Title">
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <label class="col-lg-4 col-form-label">Thumbnail:</label>
-                        <div class="col-lg-8">
-                            <input name="thumbnail" id="thumbnailInput" type="file" class="form-control">
-                            <div class="form-text text-muted">Accepted formats: jpg, png, webpg Max file size 2Mb</div>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <label class="col-lg-4 col-form-label">Video:</label>
-                        <div class="col-lg-8">
-                            <input name="video" id="videoInput" type="file" class="form-control">
-                            <div class="form-text text-muted">Accepted formats: gif, png, jpg. Max file size 2Mb</div>
-                        </div>
-                    </div>
-                    <div class="text-end">
-                        <button type="submit" class="btn btn-primary">Submit form <i class="ph-paper-plane-tilt ms-2"></i></button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div> --}}
-<!-- Modal -->
-{{-- <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Bang Inspiration</h5>
-                </div>
-                <div class="card-body">
-                    Welcome to the Bang Inspiration section! This is the space where you can post updates that will be visible to all users. Share your latest news, announcements, or any important information here. Let everyone stay in the loop!
-                </div>
-                <div class="card-body border-top">
-                    <form action="{{route('postBangInspiration')}}" method="POST" enctype="multipart/form-data">
-                        @csrf
-                        <div class="row mb-3">
-                            <label class="col-lg-4 col-form-label">Title:</label>
-                            <div class="col-lg-8">
-                                <input name="tittle" type="text" class="form-control" placeholder="Write Title">
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <label class="col-lg-4 col-form-label">Thumbnail:</label>
-                            <div class="col-lg-8">
-                                <input name="thumbnail" id="thumbnailInput" type="file" class="form-control">
-                                <div class="form-text text-muted">Accepted formats: jpg, png, webpg Max file size 2Mb</div>
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <label class="col-lg-4 col-form-label">Video:</label>
-                            <div class="col-lg-8">
-                                <input name="video" id="videoInput" type="file" class="form-control">
-                                <div class="form-text text-muted">Accepted formats: gif, png, jpg. Max file size 2Mb</div>
-                            </div>
-                        </div>
-                        <div class="text-end">
-                            <button type="submit" class="btn btn-primary">Submit form <i class="ph-paper-plane-tilt ms-2"></i></button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary">Save changes</button>
-        </div>
-      </div>
-    </div>
-  </div> --}}
-
 
 
 
@@ -173,8 +35,7 @@
                             <td>{{$battle->type}}</td>
                             <td>
                                 <button  class="btn btn-primary">EDIT</button>
-                                <button  class="btn btn-danger">DELETE</button>
-
+                                <a href="{{ route('delete_bang_battle', ['id' => $battle->id]) }}" class="btn btn-danger"  >DELETE</a>
                             </td>
                         </tr>
                         @endforeach
@@ -185,6 +46,8 @@
 
     </div>
     </div>
+
+
 
 
     <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">

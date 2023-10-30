@@ -9,6 +9,7 @@ class BangUpdate extends Model
 {
     use HasFactory;
     protected $with = ['user:id,name,image,device_token'];
+    protected $appends = ['user_image_url'];
 
     public function bang_update_likes() {
         return $this->belongsToMany(User::class, 'bang_update_likes', 'post_id', 'user_id');
@@ -36,6 +37,12 @@ class BangUpdate extends Model
     public function bangUpdateViews()
     {
         return $this->hasMany(BangUpdateView::class);
+    }
+
+    public function getUserImageUrlAttribute()
+    {
+        $appUrl = "https://bangapp.pro/BangAppBackend/";
+        return $appUrl .'storage/app/'.$this->user->image;
     }
 
 

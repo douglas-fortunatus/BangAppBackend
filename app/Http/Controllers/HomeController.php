@@ -155,6 +155,24 @@ class HomeController extends Controller
         return redirect()->route('bangBattleWeb')->with('success', 'Bang Battle posted successfully!');
     }
 
+    public function deleteBangBattle($id)
+    {
+        $battle = BangBattle::find($id);
+        if (!$battle) {
+            return redirect()->route('bangBattleWeb')->with('error', 'Battle not found.');
+        }
+        // Delete image files
+        if (!empty($battle->battle1)) {
+            Storage::delete('bangbattle/' . $battle->battle1);
+        }
+        if (!empty($battle->battle2)) {
+            Storage::delete('bangbattle/' . $battle->battle2);
+        }
+        $battle->delete();
+        return redirect()->route('bangBattleWeb')->with('success', 'Battle deleted successfully.');
+    }
+
+
 
 
 

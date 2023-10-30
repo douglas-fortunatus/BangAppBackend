@@ -10,7 +10,7 @@ use App\Comment;
 class Post extends Model
 {
     use Favorable;
-    protected $appends = ['favoriteCount', 'isFavorited', 'commentCount'];
+    protected $appends = ['favoriteCount', 'isFavorited', 'commentCount','user_image_url'];
     protected $casts = ['isFavorited' => 'boolean'];
     protected $with = ['user:id,name,image,device_token', 'category:id,name'];
     protected $guarded = [];
@@ -90,6 +90,13 @@ class Post extends Model
     {
         return $this->hasMany(PostView::class);
     }
+
+    public function getUserImageUrlAttribute()
+    {
+        $appUrl = "https://bangapp.pro/BangAppBackend/";
+        return $appUrl .'storage/app/'.$this->user->image;
+    }
+
 
 
 }
