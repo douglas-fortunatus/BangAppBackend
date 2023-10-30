@@ -471,11 +471,11 @@ Route::post('/likePost', function(Request $request)
             'like_type' => $likeType,
             'post_id'=>$postId
         ]);
-        // if ($post->user->id <> $userId){
+        if ($post->user->id <> $userId){
             $pushNotificationService = new PushNotificationService();
             $pushNotificationService->sendPushNotification($post->user->device_token, $user->name, likeMessage(), $postId, 'like');
             saveNotification($userId, likeMessage(), 'like', $post->user->id, $postId);
-        // }
+        }
         
         $message = 'Post liked successfully';
     }
@@ -487,9 +487,11 @@ Route::post('/likePost', function(Request $request)
             'like_type' => $likeType,
             'post_id'=>$postId
         ]);
-        $pushNotificationService = new PushNotificationService();
-        saveNotification($userId, likeMessage(), 'like', $post->user->id, $postId);
-        $message = 'Post liked successfully';
+        if ($post->user->id <> $userId){
+            $pushNotificationService = new PushNotificationService();
+            saveNotification($userId, likeMessage(), 'like', $post->user->id, $postId);
+            $message = 'Post liked successfully';
+        }
     }
     // Get the updated like count for the specific like_type
     $likeCount = $post->likes()->where('like_type', $likeType)->count();
@@ -623,7 +625,7 @@ Route::get('/getMyPosts', function(Request $request)
         $post->isLikedA = false;
         $post->isLikedB = false;
         $post->isLiked = false;
-       // Check if the user has liked the post and update isLikedA and isLikedB accordingly
+        // Check if the user has liked the post and update isLikedA and isLikedB accordingly
         $likeType = Post::getLikeTypeForUser($user_id, $post->id);
         if ($likeType == "A") {
             $post->isLikedA = true;
@@ -632,7 +634,6 @@ Route::get('/getMyPosts', function(Request $request)
             $post->isLikedB = true;
             //$post->isLiked = true;
         }
-
         // Retrieve the like counts for both A and B challenge images
         // $likeCount
         $likeCountA = 0;
@@ -664,7 +665,7 @@ Route::get('/getComments/{id}', function($id){
 });
 
 
-Route::get('/getPostInfo/{post_id}', function($post_id) {
+Route::get('/getPostInfo/{post_id}/{user_id}', function($post_id,$user_id) {
     $appUrl = "https://bangapp.pro/BangAppBackend/";
 
     $posts = Post::where('id', $post_id)->with([
@@ -673,7 +674,7 @@ Route::get('/getPostInfo/{post_id}', function($post_id) {
         },
     ])->get(); // Corrected 'orderBy' here
 
-    $posts->transform(function($post) use ($appUrl) {
+    $posts->transform(function($post) use ($appUrl,$user_id) {
         $post->image  ? $post->image = $appUrl.'storage/app/'.$post->image : $post->image = null;
         $post->challenge_img ? $post->challenge_img = $appUrl.'storage/app/'.$post->challenge_img : $post->challenge_img = null;
         $post->video ? $post->video = $appUrl.'storage/app/'.$post->video : $post->video = null;
@@ -684,7 +685,31 @@ Route::get('/getPostInfo/{post_id}', function($post_id) {
         }
         // Retrieve the like count
         $post->likeCount = 0;
+        $likeCountA = 0;
+        $likeCountB = 0;
+        if ($post->likes->isNotEmpty()) {
+            foreach ($post->likes as $like) {
+                if ($like->like_type === 'A') {
+                    $likeCountA = $like->like_count;
+                } elseif ($like->like_type === 'B' ) {
+                    $likeCountB = $like->like_count;
+                }
+            }
+        }
+
+        $post->like_count_A = $likeCountA;
+        $post->like_count_B = $likeCountB;
+        $post->isLikedA = false;
+        $post->isLikedB = false;
         $post->isLiked = false;
+       // Check if the user has liked the post and update isLikedA and isLikedB accordingly
+        $likeType = Post::getLikeTypeForUser($user_id, $post->id);
+        if ($likeType == "A") {
+            $post->isLikedA = true;
+            $post->isLiked = true;
+        } elseif ($likeType == "B") {
+            $post->isLikedB = true;
+        }
 
         return $post;
     });
@@ -719,9 +744,11 @@ Route::post('/postComment', function(request $request,Post $post){
             $query->select('id', 'name', 'image');
         },
     ])->findOrFail($comment->id);
-    $pushNotificationService = new PushNotificationService();
-    $pushNotificationService->sendPushNotification($post->user->device_token, $user->name, commentMessage(), $request->post_id,'comment');
-    saveNotification($request->user_id, commentMessage(), 'comment', $post->user->id, $request->post_id);
+    if($post->user->id <> $user){
+        $pushNotificationService = new PushNotificationService();
+        $pushNotificationService->sendPushNotification($post->user->device_token, $user->name, commentMessage(), $request->post_id,'comment');
+        saveNotification($request->user_id, commentMessage(), 'comment', $post->user->id, $request->post_id);
+    }
     return response(['data' => $comment, 'message' => 'success'], 200);
 });
 
