@@ -471,11 +471,11 @@ Route::post('/likePost', function(Request $request)
             'like_type' => $likeType,
             'post_id'=>$postId
         ]);
-        if ($post->user->id <> $userId){
+        // if ($post->user->id <> $userId){
             $pushNotificationService = new PushNotificationService();
             $pushNotificationService->sendPushNotification($post->user->device_token, $user->name, likeMessage(), $postId, 'like');
             saveNotification($userId, likeMessage(), 'like', $post->user->id, $postId);
-        }
+        // }
         
         $message = 'Post liked successfully';
     }
