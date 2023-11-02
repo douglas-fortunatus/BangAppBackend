@@ -40,7 +40,7 @@ class UserController extends Controller
 private function searchFromUserTrie(string $keyword)
 {
     $keyword = strtolower($keyword); // Convert the keyword to lowercase
-	$appUrl = "http://192.168.165.229/social-backend-laravel/";
+	$appUrl = "https://bangapp.pro/BangAppBackend/";
     $uniqueUserIds = [];
     $len = strlen($keyword);
     for ($i = 1; $i <= $len; $i++) {
