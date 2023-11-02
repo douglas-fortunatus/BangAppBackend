@@ -52,7 +52,7 @@ class User extends Authenticatable implements JWTSubject
         'email_verified_at' => 'datetime',
     ];
 
-    protected $appends = ['followerCount', 'followingCount', 'followingMe', 'followed'];
+    protected $appends = ['followerCount', 'followingCount', 'followingMe', 'followed','user_image_url'];
 
     public function posts()
     {
@@ -126,6 +126,13 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->belongsTo(Role::class);
     }
+
+    public function getUserImageUrlAttribute()
+    {
+        $appUrl = "https://bangapp.pro/BangAppBackend/";
+        return $appUrl .'storage/app/'.$this->user->image;
+    }
+
 
 
 }
