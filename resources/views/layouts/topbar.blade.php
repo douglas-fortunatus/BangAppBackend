@@ -26,7 +26,7 @@
     <!-- Theme JS files -->
     <script src="../../../assets/js/vendor/visualization/d3/d3.min.js"></script>
     <script src="../../../assets/js/vendor/visualization/d3/d3_tooltip.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script src="assets/js/app.js"></script>
     <script src="../../../assets/demo/pages/dashboard.js"></script>
     <script src="../../../assets/demo/charts/pages/dashboard/streamgraph.js"></script>

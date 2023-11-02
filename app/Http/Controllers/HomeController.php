@@ -149,6 +149,23 @@ class HomeController extends Controller
             $bangBattle->battle2 = 'bangBattle/' . $filename . '_battle2.' . $extension;
         }
 
+        // Store battle2 file
+        if ($request->hasFile('thumbnail')) {
+            $extension = $request->thumbnail->getClientOriginalExtension();
+            $request->thumbnail->storeAs('bangBattle', $filename. '_thumbnail.' . $extension);
+
+            // Update the battle2 attribute with the stored path
+            $bangBattle->cover_image = 'bangBattle/' . $filename . '_thumbnail.' . $extension;
+        }
+
+        if ($request->hasFile('thumbnail2')) {
+            $extension = $request->thumbnail2->getClientOriginalExtension();
+            $request->thumbnail2->storeAs('bangBattle', $filename. '_thumbnail2.' . $extension);
+
+            // Update the battle2 attribute with the stored path
+            $bangBattle->cover_image2 = 'bangBattle/' . $filename . '_thumbnail2.' . $extension;
+        }
+
         // Save the updated model
         $bangBattle->save();
 

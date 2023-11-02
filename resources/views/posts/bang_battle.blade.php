@@ -72,10 +72,24 @@
                             <div class="row mb-3">
                                 <label class="col-lg-4 col-form-label">Type:</label>
                                 <div class="col-lg-8">
-                                    <select name="type" class="form-control">
+                                    <select id="typeChange" name="type" class="form-control">
                                         <option value="image">Image</option>
                                         <option value="video">Video</option>
                                     </select>
+                                </div>
+                            </div>
+                            <div id="thumbnail" class="row mb-3" style="display: none;">
+                                <label class="col-lg-4 col-form-label">Thumbnail:</label>
+                                <div class="col-lg-8">
+                                    <input name="thumbnail" id="thumbnailInput" type="file" class="form-control">
+                                    <div class="form-text text-muted">Accepted formats: jpg, png, webpg Max file size 12Mb</div>
+                                </div>
+                            </div>
+                            <div id="thumbnail2" class="row mb-3" style="display: none;">
+                                <label class="col-lg-4 col-form-label">Thumbnail2:</label>
+                                <div class="col-lg-8">
+                                    <input name="thumbnail2" id="thumbnailInput" type="file" class="form-control">
+                                    <div class="form-text text-muted">Accepted formats: jpg, png, webpg Max file size 12Mb</div>
                                 </div>
                             </div>
                             <div class="row mb-3">
@@ -271,6 +285,18 @@
                 type: mimeString
             });
         }
+
+        $("#typeChange").change(function(){
+            console.log('thisfdf')
+            if($("#typeChange").val()=='video'){
+                $("#thumbnail").show()
+                $("#thumbnail2").show()
+            }
+            else{
+                $("#thumbnail").hide()
+                $("#thumbnail2").hide()
+            }
+        });
     </script>
     <!-- /centered card -->
 @endsection
