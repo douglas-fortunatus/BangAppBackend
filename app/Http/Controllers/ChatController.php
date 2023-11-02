@@ -30,6 +30,7 @@ class ChatController extends Controller
     // Retrieve all conversations for the authenticated user
     public function getAllConversations(Request $request)
     {
+        $appUrl = "https://bangapp.pro/BangAppBackend/";
         $user_id = $request->get('user_id');
         $user = User::find($user_id);
 
@@ -37,7 +38,6 @@ class ChatController extends Controller
         $conversations = Conversation::where('user1_id', $user_id)
             ->orWhere('user2_id', $user_id)
             ->get();
-
 
 
         $chats = [];
@@ -54,7 +54,7 @@ class ChatController extends Controller
                 'sender_id' => $user_id,
                 'sender_name' => $user->name ,
                 'lastMessage' => $lastMessage ? $lastMessage->message : '',
-                'image' => $receiver->image,
+                'image' => $appUrl.'storage/profile_pictures/'.$receiver->image,
                 'time' => $lastMessage ? $lastMessage->created_at->diffForHumans() : '',
                 'unreadCount' => $unreadCount, // Include count of unread messages
                 'isActive' => false,

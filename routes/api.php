@@ -665,7 +665,8 @@ Route::get('/getComments/{id}', function($id){
 });
 
 
-Route::get('/getPostInfo/{post_id}/{user_id}', function($post_id,$user_id) {
+Route::get('/getPostInfo/{post_id}/{user_id}', function($post_id,$user_id) 
+{
     $appUrl = "https://bangapp.pro/BangAppBackend/";
 
     $posts = Post::where('id', $post_id)->with([
