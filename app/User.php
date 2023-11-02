@@ -130,7 +130,7 @@ class User extends Authenticatable implements JWTSubject
     public function getUserImageUrlAttribute()
     {
         $appUrl = "https://bangapp.pro/BangAppBackend/";
-        return $appUrl .'storage/app/'.$this->user->image;
+        return $appUrl .'storage/app/'.$this->image;
     }
 
 
