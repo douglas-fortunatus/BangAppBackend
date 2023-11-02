@@ -141,6 +141,6 @@ class UserController extends Controller
         }
 
         // Return user information as a JSON response
-        return response()->json(['user' => $user], 200);
+        return response()->json($user, 200);
     }
 }
