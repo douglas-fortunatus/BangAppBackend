@@ -45,5 +45,9 @@ class BangUpdate extends Model
         return $appUrl .'storage/app/'.$this->user->image;
     }
 
+    public function getCreatedAtAttribute($value) {
+        return (new Carbon($value))->diffForHumans();
+    }
+
 
 }
