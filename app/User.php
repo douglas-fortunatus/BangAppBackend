@@ -52,7 +52,7 @@ class User extends Authenticatable implements JWTSubject
         'email_verified_at' => 'datetime',
     ];
 
-    protected $appends = ['followerCount', 'followingCount', 'followingMe', 'followed','user_image_url'];
+    protected $appends = ['followerCount', 'followingCount', 'followingMe', 'followed','user_image_url','postCount'];
 
     public function posts()
     {
@@ -92,6 +92,11 @@ class User extends Authenticatable implements JWTSubject
     public function getFollowerCountAttribute()
     {
         return $this->followers()->count();
+    }
+
+    public function getPostCountAttribute()
+    {
+        return $this->posts()->count();
     }
 
     public function getFollowingCountAttribute()
