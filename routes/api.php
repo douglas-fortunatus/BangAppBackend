@@ -879,6 +879,8 @@ Route::get('/getBangBattle/{user_id}', function ($user_id) {
     $battles->transform(function ($battle) use ($appUrl,$user_id) {
         $battle->battle1 ? $battle->battle1 = $appUrl . 'storage/app/' . $battle->battle1 : $battle->battle1 = null;
         $battle->battle2 ? $battle->battle2 = $appUrl . 'storage/app/' . $battle->battle2 : $battle->battle2 = null;
+        $battle->cover_image ? $battle->cover_image = $appUrl . 'storage/app/' . $battle->cover_image : $battle->cover_image = null;
+        $battle->cover_image2 ? $battle->cover_image2 = $appUrl . 'storage/app/' . $battle->cover_image2 : $battle->cover_image2 = null;
         $battle->isLikedA = false;
         $battle->isLikedB = false;
         $battle->isLiked = false;
