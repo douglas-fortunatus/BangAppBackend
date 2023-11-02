@@ -54,7 +54,7 @@ class ChatController extends Controller
                 'sender_id' => $user_id,
                 'sender_name' => $user->name ,
                 'lastMessage' => $lastMessage ? $lastMessage->message : '',
-                'image' => $appUrl.'storage/profile_pictures/'.$receiver->image,
+                'image' => $appUrl.'storage/app/profile_pictures/'.$receiver->image,
                 'time' => $lastMessage ? $lastMessage->created_at->diffForHumans() : '',
                 'unreadCount' => $unreadCount, // Include count of unread messages
                 'isActive' => false,
