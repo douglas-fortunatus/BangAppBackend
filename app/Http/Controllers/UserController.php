@@ -37,23 +37,23 @@ class UserController extends Controller
         $currentTrie['__id'] = $id;
     }
 
-private function searchFromUserTrie(string $keyword)
-{
-    $keyword = strtolower($keyword); // Convert the keyword to lowercase
-	$appUrl = "https://bangapp.pro/BangAppBackend/";
-    $uniqueUserIds = [];
-    $len = strlen($keyword);
-    for ($i = 1; $i <= $len; $i++) {
-        $substr = substr($keyword, 0, $i);
-        $users = $this->retrieveUsersFromSubstring($substr);
+    private function searchFromUserTrie(string $keyword)
+    {
+        $keyword = strtolower($keyword); // Convert the keyword to lowercase
+    	$appUrl = "https://bangapp.pro/BangAppBackend/";
+        $uniqueUserIds = [];
+        $len = strlen($keyword);
+        for ($i = 1; $i <= $len; $i++) {
+            $substr = substr($keyword, 0, $i);
+            $users = $this->retrieveUsersFromSubstring($substr);
 
-        // Add unique user IDs to the result set
-        foreach ($users as $user) {
-            $id = $user['id'];
-            if (!in_array($id, $uniqueUserIds)) {
-                $uniqueUserIds[] = $id;
+            // Add unique user IDs to the result set
+            foreach ($users as $user) {
+                $id = $user['id'];
+                if (!in_array($id, $uniqueUserIds)) {
+                    $uniqueUserIds[] = $id;
+                }
             }
-        }
     }
 
     $results = [];
@@ -74,7 +74,7 @@ private function searchFromUserTrie(string $keyword)
     }
 
     return $results;
-}
+    }
 
     private function retrieveUsersFromSubstring(string $substr)
     {
@@ -122,5 +122,25 @@ private function searchFromUserTrie(string $keyword)
         }
 
         return response()->json($results);
+    }
+
+    public function getMyInfo(Request $request)
+    {
+        $user_id = $request->input('user_id');
+
+        // Check if the user_id is provided in the request
+        if (!$user_id) {
+            return response()->json(['error' => 'User ID is missing in the request'], 400);
+        }
+
+        // Find the user based on the user_id
+        $user = User::find($user_id);
+
+        if (!$user) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+
+        // Return user information as a JSON response
+        return response()->json(['user' => $user], 200);
     }
 }

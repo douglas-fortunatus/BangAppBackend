@@ -35,6 +35,8 @@ global $appUrl;
 $appUrl = "https://bangapp.pro/BangAppBackend/";
 
 Route::get('/users/search', 'App\Http\Controllers\UserController@search');
+Route::get('/users/getMyInfo', 'App\Http\Controllers\UserController@getMyInfo');
+
 
 Route::get('/bang-updatesnew', function (\Illuminate\Http\Request $request) {
     $appUrl = "https://bangapp.pro/BangAppBackend/";
