@@ -958,7 +958,7 @@ function saveNotification($user_id,$body,$type,$reference_id,$post_id){
 }
 
 Route::get('/getNotificationCount/{user_id}',function ($user_id){
-    $notificationCount = Notification::where('is_read',0)->where('user_id', $user_id)->count();
+    $notificationCount = Notification::where('is_read',0)->where('reference_id', $user_id)->count();
     return response()->json(['notification_count' => $notificationCount]);
 });
 
