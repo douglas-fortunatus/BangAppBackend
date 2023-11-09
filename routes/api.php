@@ -919,7 +919,7 @@ Route::get('/getBangBattle/{user_id}', function ($user_id) {
 
 Route::get('/getNotifications/{user_id}', function ($user_id) {
     // Fetch notifications for the user with user details (name and image)
-    $notifications = Notification::where('user_id', $user_id)
+    $notifications = Notification::where('reference_id', $user_id)
         ->with(['user' => function ($query) {
             $query->select('id', 'name', 'image'); // Select the desired user attributes
         }])
