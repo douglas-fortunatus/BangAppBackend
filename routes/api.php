@@ -820,7 +820,7 @@ Route::post('/setUserProfile',function(request $request)
     // Update the user's profile
     if ($request->hasFile('image')) {
         // Save the profile picture and get its path
-        $profilePicturePath = $request->file('image')->store('profile_pictures', 'public');
+        $profilePicturePath = $request->file('image')->store('profile_pictures');
         $user->image = $profilePicturePath;
     }
     if(json_decode($request->hobbies) > 0){
