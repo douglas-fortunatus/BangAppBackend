@@ -63,7 +63,7 @@ class UserController extends Controller
             $results[] = [
                 'id' => $user->id,
                 'name' => $user->name,
-                'profileUrl' => $appUrl.'storage/app/profile_pictures/'.$user->image,
+                'profileUrl' => $appUrl.'storage/app/'.$user->image,
                 'bio' => $user->body,
                 'followCount' => $user->followers->count(),
                 'followingCount' => $user->following->count(),
