@@ -12,7 +12,7 @@ use FFMpeg\Format\Video\X264;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 use App\BangBattle;
-
+use Illuminate\Support\Facades\Auth;
 
 
 class HomeController extends Controller
