@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class BattleComment extends Model
 {
     use HasFactory;
-    
+
     protected $appends = ['user_image_url'];
 
     protected $fillable = [
@@ -18,6 +18,10 @@ class BattleComment extends Model
     ];
     public function user() {
         return $this->belongsTo(User::class,'user_id');
+    }
+
+    public function getCreatedAtAttribute($value) {
+        return (new Carbon($value))->diffForHumans();
     }
 
     public function getUserImageUrlAttribute()
