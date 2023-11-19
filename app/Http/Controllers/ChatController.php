@@ -132,8 +132,8 @@ class ChatController extends Controller
     $sender = User::find($sender_id);
     $conversation->messages()->save($message);
     $pushNotificationService = new PushNotificationService();
-    $pushNotificationService->sendPushNotification($receiver->device_token, $receiver->name, "New Message:" .$messageText, $receiver->id, "message", userName: $sender->name,);
-    saveNotification($sender->id, likeMessage(), 'message', $receiver->id, $conversation->id);
+    $pushNotificationService->sendPushNotification($receiver->device_token, $sender->name, "New Message:" .$messageText, $sender->id, "message", userName: $sender->name,);
+    saveNotification($sender->id, likeMessage(), 'message', $sender->id, $conversation->id);
 
     // saveNotification($request->user_id, chatMessage($messageText), 'chat', $receiver->id, $conversation->id);
 
