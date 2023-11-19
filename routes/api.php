@@ -593,7 +593,7 @@ Route::post('/sendNotification', function(Request $request)
     $user = User::findOrFail($request->user_id);
     $deviceToken = $user->device_token;
     $pushNotificationService = new PushNotificationService();
-    $pushNotificationService->sendPushNotification($deviceToken, $request->heading, $request->body,$request->challengeId,$request->type);
+    $pushNotificationService->sendPushNotification($deviceToken,$request->heading,$request->body,$request->challengeId,$request->type);
     return response(['message' => 'success'], 200);
 });
 
