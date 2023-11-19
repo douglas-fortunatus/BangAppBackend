@@ -962,8 +962,12 @@ Route::get('/getNotificationCount/{user_id}',function ($user_id){
     return response()->json(['notification_count' => $notificationCount]);
 });
 
-
-
+Route::get('/getPostLikes/{post_id}', function($post_id){
+    $post = Post::findOrFail($post_id);
+    $likes = $post->likess()->with('user:id,name,image')->get();
+    $likedUsers = $likes->pluck('user');
+    return response()->json(['liked_users' => $likedUsers]);
+});
 
 
 Route::group(['prefix' => 'v1'], function () {
