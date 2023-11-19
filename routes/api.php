@@ -733,7 +733,7 @@ Route::get('/bangUpdateComment/{id}', function($id){
 
 Route::post('/postComment', function(request $request,Post $post){
     $request->validate([
-        'body' => 'string|min:3|max:6000',
+        'body' => 'string|max:6000',
     ]);
     $post = Post::find($request->post_id);
     $user = User::find($request->user_id);
@@ -757,7 +757,7 @@ Route::post('/postComment', function(request $request,Post $post){
 
 Route::post('/postUpdateComment', function(request $request,Post $post){
     $request->validate([
-        'body' => 'string|min:3|max:6000',
+        'body' => 'string|max:6000',
     ]);
     $comment = bangUpdateComment::create([
         'user_id' => $request->user_id,
