@@ -962,7 +962,7 @@ Route::get('/getNotificationCount/{user_id}',function ($user_id){
     return response()->json(['notification_count' => $notificationCount]);
 });
 
-Route::get('/getPostLikes/{post_id}' function($post_id){
+Route::get('/getPostLikes/{post_id}', function($post_id){
     $post = Post::findOrFail($post_id);
     $likes = $post->likes()->with('user:id,name,image')->get();
     $likedUsers = $likes->pluck('user');
