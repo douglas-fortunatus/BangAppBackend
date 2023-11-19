@@ -41,7 +41,7 @@ class AuthenticationController extends Controller
 
         $token = JWTAuth::attempt(['email' => $request->email, 'password' => $request->password]);
 
-        return response(['name'=>$user->name,'access_token'=>$token,'id'=>$user->id,'email'=>$user->email,'image'=>env('APP_URL').$user->image]);
+        return response(['name'=>$user->name,'access_token'=>$token,'id'=>$user->id,'email'=>$user->email,'image'=>env('APP_URL').'storage/app/'.$user->image]);
     }
 
     public function login(Request $request)
@@ -64,7 +64,7 @@ class AuthenticationController extends Controller
         return response()->json([
             'token' => $token,
             'user_id' => $user->id,
-            'user_image' => env('APP_URL').$user->image,
+            'user_image' => env('APP_URL').'storage/app/'.$user->image,
             'name' => $user->name,
             'role' => $user->role->name,
         ]);
