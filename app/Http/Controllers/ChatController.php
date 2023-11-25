@@ -131,9 +131,14 @@ class ChatController extends Controller
     $receiver = User::find($user2_id);
     $sender = User::find($sender_id);
     $conversation->messages()->save($message);
+    // $pushNotificationService = new PushNotificationService();
+    // $pushNotificationService->sendPushNotification($receiver->device_token, $receiver->name, "New Message:" .$messageText, $receiver->id, "message", userName: $sender->name,);
+    // saveNotification($sender->id, likeMessage(), 'message', $receiver->id, $conversation->id);
+
     $pushNotificationService = new PushNotificationService();
     $pushNotificationService->sendPushNotification($receiver->device_token, $sender->name, "New Message:" .$messageText, $sender->id, "message", userName: $sender->name,);
     saveNotification($sender->id, likeMessage(), 'message', $sender->id, $conversation->id);
+    Log::info("Helooooo");
 
     // saveNotification($request->user_id, chatMessage($messageText), 'chat', $receiver->id, $conversation->id);
 
@@ -174,8 +179,6 @@ Log::info($request->all());
         return response()->json(['message' => 'Conversation not found'], 404);
     }
     Log::info($conversation);
-
-
 
     $attachment = $request->file('attachment');
     $attachmentPath = $attachment->store('message_attachments', 'public');
@@ -266,7 +269,6 @@ public function markMessageAsRead(Request $request)
     {
         $user_id =  $request->user_id;
         $recipient_id = $request->recipient_id;
-
         $data['user_1'] = $user_id;
         $data['user_2'] = $recipient_id;
 
