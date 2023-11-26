@@ -125,7 +125,7 @@ Route::get('/user-bang-updates/', function (Request $request) {
     $numberOfPostsPerRequest = $request->query('_limit', 10);
 
     // Get the user's ID if available (you can adjust how you get the user's ID based on your authentication system)
-    $user_id = $request->input('user_id');
+    $userId = $request->input('user_id');
     // Get the bang updates and include like information for the given user
     $bangUpdates = BangUpdate::where('user_id',$userId)->orderBy('created_at', 'desc')
         ->with([
