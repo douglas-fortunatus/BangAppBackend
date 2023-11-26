@@ -118,8 +118,14 @@ Route::get('/bang-updates/{userId}', function ($userId) {
     return response()->json($formattedUpdates);
 });
 
-Route::get('/user-bang-updates/{userId}', function ($userId) {
+Route::get('/user-bang-updates/', function ($userId) {
     $appUrl = "https://bangapp.pro/BangAppBackend/";
+    // Get the _page and _limit parameters from the request query
+    $pageNumber = $request->query('_page', 1);
+    $numberOfPostsPerRequest = $request->query('_limit', 10);
+
+    // Get the user's ID if available (you can adjust how you get the user's ID based on your authentication system)
+    $user_id = $request->input('user_id');
     // Get the bang updates and include like information for the given user
     $bangUpdates = BangUpdate::where('user_id',$userId)->orderBy('created_at', 'desc')
         ->with([
@@ -134,8 +140,7 @@ Route::get('/user-bang-updates/{userId}', function ($userId) {
                 $query->select('post_id', DB::raw('count(*) as comment_count'))
                     ->groupBy('post_id');
             },
-        ])
-        ->get();
+        ])->paginate($numberOfPostsPerRequest, ['*'], '_page', $pageNumber);
 
     // Format the updates and add the isLiked variable
     $formattedUpdates = $bangUpdates->map(function ($update) use ($appUrl, $userId) {
