@@ -118,7 +118,7 @@ Route::get('/bang-updates/{userId}', function ($userId) {
     return response()->json($formattedUpdates);
 });
 
-Route::get('/user-bang-updates/', function ($userId) {
+Route::get('/user-bang-updates/', function (Request $request) {
     $appUrl = "https://bangapp.pro/BangAppBackend/";
     // Get the _page and _limit parameters from the request query
     $pageNumber = $request->query('_page', 1);
