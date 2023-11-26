@@ -118,6 +118,42 @@ Route::get('/bang-updates/{userId}', function ($userId) {
     return response()->json($formattedUpdates);
 });
 
+Route::get('/user-bang-updates/', function (Request $request) {
+    $appUrl = "https://bangapp.pro/BangAppBackend/";
+    // Get the _page and _limit parameters from the request query
+    $pageNumber = $request->query('_page', 1);
+    $numberOfPostsPerRequest = $request->query('_limit', 10);
+
+    // Get the user's ID if available (you can adjust how you get the user's ID based on your authentication system)
+    $userId = $request->input('user_id');
+    // Get the bang updates and include like information for the given user
+    $bangUpdates = BangUpdate::where('user_id',$userId)->orderBy('created_at', 'desc')
+        ->with([
+            'bang_update_likes' => function ($query) use ($userId) {
+                $query->select('post_id')->where('user_id', $userId); // Filter likes by user ID
+            },
+            'bang_update_like_count' => function($query) {
+                $query->select('post_id', DB::raw('count(*) as like_count'))
+                    ->groupBy('post_id');
+            },
+            'bang_update_comments' => function ($query) {
+                $query->select('post_id', DB::raw('count(*) as comment_count'))
+                    ->groupBy('post_id');
+            },
+        ])->paginate($numberOfPostsPerRequest, ['*'], '_page', $pageNumber);
+
+    // Format the updates and add the isLiked variable
+    $formattedUpdates = $bangUpdates->map(function ($update) use ($appUrl, $userId) {
+        $update->filename = $appUrl .'storage/app/bangUpdates/'. $update->filename;
+
+        $update->isLiked = $update->bang_update_likes->isNotEmpty(); // Check if there are likes
+
+
+        return $update;
+    });
+
+    return response()->json($formattedUpdates);
+});
 
 Route::get('/updateIsRead/{notificationId}',function ($notificationId){
     $update = Notification::updateIsRead($notificationId);
