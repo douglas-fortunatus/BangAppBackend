@@ -1002,9 +1002,12 @@ Route::post('/pinMessage',function (Request $request){
     }
 
      // Toggle the value of 'public_id', treating NULL as false
-        $user->update(['public' => !$user->public ?? false]);
+    $update = $user->update(['public' => !$user->public ?? false]);
+    
+        return response()->json(['message' => 'Public ID toggled successfully', 'variable'=> $update]);
 
-    return response()->json(['message' => 'Public ID toggled successfully']);
+
+    
 });
 
 Route::get('/getNotificationCount/{user_id}',function ($user_id){
