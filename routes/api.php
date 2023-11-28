@@ -1000,7 +1000,7 @@ Route::post('/pinMessage',function (Request $request){
     if (!$user) {
         return response()->json(['error' => 'User not found'], 404);
     }
-    if()
+    
     // Toggle the value of 'public_id', treating NULL as false
     $user->update(['public' => !$user->public ?? false]);
 
