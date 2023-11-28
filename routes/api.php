@@ -1002,7 +1002,7 @@ Route::post('/pinMessage',function (Request $request){
     }
 
      // Toggle the value of 'public_id', treating NULL as false
-        $user->update(['public_id' => !$user->public_id ?? false]);
+        $user->update(['public' => !$user->public ?? false]);
 
     return response()->json(['message' => 'Public ID toggled successfully']);
 });
