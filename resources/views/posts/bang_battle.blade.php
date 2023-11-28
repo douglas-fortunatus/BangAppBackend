@@ -6,6 +6,13 @@
 @section('content')
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+    <style>
+        .scrollable-table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+    </style>
+
 
     <!-- Centered card -->
 
@@ -18,7 +25,7 @@
 
         <div class="col-12">
             <div class="col-12">
-                <table class="table table-bordered">
+                <table class="table table-bordered scrollable-table-container">
                     <thead>
                         <tr>
                             <th scope="col">S/N</th>
