@@ -992,6 +992,20 @@ function saveNotification($user_id,$body,$type,$reference_id,$post_id){
     $notification->post_id = $post_id;
     $notification->save();
 }
+// run this query to change the table so as to use this function
+// ALTER TABLE `users` CHANGE `public_id` `public` BOOLEAN NULL DEFAULT FALSE;
+Route::post('/pinMessage',function (Request $request){
+    $user = User::find($request->user_id);
+
+    if (!$user) {
+        return response()->json(['error' => 'User not found'], 404);
+    }
+
+    // Toggle the value of 'public_id'
+    $user->update(['public' => !$user->public]);
+
+    return response()->json(['message' => 'Public ID toggled successfully']);
+});
 
 Route::get('/getNotificationCount/{user_id}',function ($user_id){
     $notificationCount = Notification::where('is_read',0)->where('reference_id', $user_id)->count();
