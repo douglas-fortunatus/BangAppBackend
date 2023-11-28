@@ -1000,13 +1000,10 @@ Route::post('/pinMessage',function (Request $request){
     if (!$user) {
         return response()->json(['error' => 'User not found'], 404);
     }
+    // Toggle the value of 'public_id', treating NULL as false
+    $user->update(['public_id' => !$user->public_id ?? false]);
 
-     // Toggle the value of 'public_id', treating NULL as false
-    $update = $user->update(['public' => !$user->public ?? false]);
-    
-        return response()->json(['message' => 'Public ID toggled successfully', 'variable'=> $update]);
-
-
+    return response()->json(['message' => 'Public ID toggled successfully', 'variable'=> $update]);
     
 });
 
