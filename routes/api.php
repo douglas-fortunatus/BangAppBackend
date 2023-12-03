@@ -405,7 +405,7 @@ Route::get('/getPost', function(Request $request) {
         foreach ($post->challenges as $challenge) {
             $challenge->challenge_img ? $challenge->challenge_img = $appUrl . 'storage/app/' . $challenge->challenge_img : $challenge->challenge_img = null;
         }
-        if($post->challenges){  
+        if(isset($post->challenges) ){  
             // Create a new Challenge object to add at the top of the challenges array
             $newChallenge = new Challenge([
                 'id' => $post->id, // replace with appropriate values
@@ -415,16 +415,15 @@ Route::get('/getPost', function(Request $request) {
                 'body' => $post->body, // replace with appropriate values
                 'type' => $post->type,
                 'confirmed' => 1,
+                'created_at' => $post->created_at,
+                'updated_at' => $post->updated_at,
                 // add other properties as needed
             ]);
-
-                   // Convert the challenges collection to an array, add the new challenge at the top, and reindex the array
+            // Convert the challenges collection to an array, add the new challenge at the top, and reindex the array
             $challengesArray = $post->challenges->prepend($newChallenge)->values()->toArray();
 
             // Set the challenges property with the modified array
             $post->challenges = $challengesArray;
-
-           
         } 
 
 
