@@ -11,6 +11,8 @@ class BangBattle extends Model
 {
     use HasFactory;
 
+    protected $fillable = ['pinned'];
+
     public function likes()
     {
         return $this->hasMany(BattleLike::class, 'battle_id');

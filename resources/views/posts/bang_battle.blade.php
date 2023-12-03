@@ -42,7 +42,10 @@
                             <td>{{$battle->type}}</td>
                             <td>
                                 <button  class="btn btn-primary">EDIT</button>
+
+                                <a href="{{ route('pin_bang_battle', ['id' => $battle->id]) }}" class="btn btn-light"  >@if($battle->pinned) Unpin @else Pin @endif</a>
                                 <a href="{{ route('delete_bang_battle', ['id' => $battle->id]) }}" class="btn btn-danger"  >DELETE</a>
+
                             </td>
                         </tr>
                         @endforeach

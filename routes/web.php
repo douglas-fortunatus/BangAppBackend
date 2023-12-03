@@ -35,6 +35,8 @@ Route::get('/bangInspirationWeb', [App\Http\Controllers\HomeController::class, '
 
 Route::get('/bangBattleWeb', [App\Http\Controllers\HomeController::class, 'bangBattleWeb'])->name('bangBattleWeb');
 
+Route::get('/pinBattle/{id}', [App\Http\Controllers\HomeController::class, 'bangBattlePin'])->name('pin_bang_battle');
+
 Route::get('/delete_bang_battle/{id}', [App\Http\Controllers\HomeController::class, 'deleteBangBattle'])->name('delete_bang_battle');
 
 

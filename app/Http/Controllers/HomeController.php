@@ -172,6 +172,17 @@ class HomeController extends Controller
         return redirect()->route('bangBattleWeb')->with('success', 'Bang Battle posted successfully!');
     }
 
+    function bangBattlePin($id)
+    {
+        $battle = BangBattle::find($id);
+
+        // Toggle the value of 'public_id', treating NULL as false
+        $battle->update(['pinned' => !$battle->pinned ?? false]);
+
+        return redirect()->route('bangBattleWeb')->with('success', 'Battle pinned successfully.');
+    }
+
+
     public function deleteBangBattle($id)
     {
         $battle = BangBattle::find($id);
