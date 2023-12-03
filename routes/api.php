@@ -394,7 +394,6 @@ Route::get('/getPost', function(Request $request) {
         ])->paginate($numberOfPostsPerRequest, ['*'], '_page', $pageNumber);
 
     $posts->getCollection()->transform(function($post) use ($appUrl, $user_id) {
-        $post->challenge = $post;
         $post->image ? $post->image = $appUrl.'storage/app/'.$post->image : $post->image = null;
         $post->challenge_img ? $post->challenge_img = $appUrl.'storage/app/'.$post->challenge_img : $post->challenge_img = null;
         $post->video ? $post->video = $appUrl.'storage/app/'.$post->video : $post->video = null;
@@ -406,8 +405,6 @@ Route::get('/getPost', function(Request $request) {
         foreach ($post->challenges as $challenge) {
             $challenge->challenge_img ? $challenge->challenge_img = $appUrl . 'storage/app/' . $challenge->challenge_img : $challenge->challenge_img = null;
         }
-
-
 
         $post->isLikedA = false;
         $post->isLikedB = false;
