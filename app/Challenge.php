@@ -17,7 +17,9 @@ class Challenge extends Model
 	        'challenge_img', 
 	        'body',
 	        'type',
-	        'confirmed'
+	        'confirmed',
+	        'created_at',
+	        'updated_at'
 	    ];
 
     public function post(){

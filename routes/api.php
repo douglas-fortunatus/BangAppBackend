@@ -405,7 +405,7 @@ Route::get('/getPost', function(Request $request) {
         foreach ($post->challenges as $challenge) {
             $challenge->challenge_img ? $challenge->challenge_img = $appUrl . 'storage/app/' . $challenge->challenge_img : $challenge->challenge_img = null;
         }
-        if(isset($post->challenges) ){  
+        if($post->challenges->isNotEmpty() ){  
             // Create a new Challenge object to add at the top of the challenges array
             $newChallenge = new Challenge([
                 'id' => $post->id, // replace with appropriate values
