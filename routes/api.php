@@ -417,8 +417,15 @@ Route::get('/getPost', function(Request $request) {
                 'confirmed' => 1,
                 // add other properties as needed
             ]);
-            // Add the new challenge object at the top of the challenges array
-            array_unshift($post->challenges, $newChallenge);
+
+            // Convert the challenges collection to an array and add the new challenge at the top
+            $challengesArray = $post->challenges->toArray();
+            array_unshift($challengesArray, $newChallenge);
+
+            // Set the challenges property with the modified array
+            $post->challenges = $challengesArray;
+
+           
         } 
 
 
