@@ -418,9 +418,8 @@ Route::get('/getPost', function(Request $request) {
                 // add other properties as needed
             ]);
 
-            // Convert the challenges collection to an array and add the new challenge at the top
-            $challengesArray = $post->challenges->toArray();
-            array_unshift($challengesArray, $newChallenge);
+                   // Convert the challenges collection to an array, add the new challenge at the top, and reindex the array
+            $challengesArray = $post->challenges->prepend($newChallenge)->values()->toArray();
 
             // Set the challenges property with the modified array
             $post->challenges = $challengesArray;
