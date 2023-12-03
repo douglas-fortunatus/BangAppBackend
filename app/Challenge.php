@@ -16,4 +16,10 @@ class Challenge extends Model
     public function user() {
         return $this->belongsTo(User::class,'user_id');
     }
+
+    public function postDetails()
+    {
+        return $this->belongsTo(Post::class, 'post_id', 'id');
+    }
+
 }

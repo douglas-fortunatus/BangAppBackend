@@ -53,6 +53,12 @@ class Post extends Model
         return $this->hasMany(Challenge::class, 'post_id');
     }
 
+    public function challengesWithDetails()
+    {
+        return $this->hasMany(Challenge::class, 'post_id')->with(['postDetails']);
+    }
+
+
     public static function getLikeTypeForUser($userId, $postId)
     {
         $like = Like::where('user_id', $userId)

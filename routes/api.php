@@ -391,6 +391,9 @@ Route::get('/getPost', function(Request $request) {
             'challenges' => function($query) {
                 $query->select('*')->where('confirmed', 1);
             }
+            'challengesWithDetails' => function($query) {
+                $query->select('*')->where('confirmed', 1);
+            }
         ])->paginate($numberOfPostsPerRequest, ['*'], '_page', $pageNumber);
 
     $posts->getCollection()->transform(function($post) use ($appUrl, $user_id) {
@@ -405,6 +408,8 @@ Route::get('/getPost', function(Request $request) {
         foreach ($post->challenges as $challenge) {
             $challenge->challenge_img ? $challenge->challenge_img = $appUrl . 'storage/app/' . $challenge->challenge_img : $challenge->challenge_img = null;
         }
+
+
 
         $post->isLikedA = false;
         $post->isLikedB = false;
@@ -811,10 +816,14 @@ Route::post('/postUpdateComment', function(request $request,Post $post){
 
 Route::post('/acceptChallenge', function(request $request){
     $challenge = Challenge::find($request->post_id);
-    $challenge->confirmed = 1;
-    if($challenge->save()){
-        return response(['data' => $challenge, 'message' => 'success'], 200);
+    if ($challenge) {
+        # code...
+        $challenge->confirmed = 1;
+        if($challenge->save()){
+            return response(['data' => $challenge, 'message' => 'success'], 200);
+        }
     }
+    
 
 });
 
@@ -1004,7 +1013,7 @@ Route::post('/pinMessage',function (Request $request){
     // Toggle the value of 'public_id', treating NULL as false
     $user->update(['public' => !$user->public ?? false]);
 
-    return response()->json(['message' => 'Public ID toggled successfully']);
+    return response()->json(['message' => 'Public ID toggled successfully', 'value'=>!$user->public]);
     
 });
 
