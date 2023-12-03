@@ -7,39 +7,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Bang App</title>
 
-    <!-- Global stylesheets -->
-    <link href="{{ asset('assets/css/inter.css') }}" rel="stylesheet" type="text/css">
-    <link href="{{ asset('assets/css/styles.min.css') }}" rel="stylesheet" type="text/css">
-    <link href="{{ asset('assets/css/all.min.css') }}" id="stylesheet" rel="stylesheet" type="text/css">
-    <!-- /global stylesheets -->
+   <!-- Global stylesheets -->
+    <link href="{{  asset('/assets/css/ltr/all.min.css')}}" id="stylesheet" rel="stylesheet" type="text/css">
+    <link href="{{ asset('/assets/fonts/inter/inter.css')}}" rel="stylesheet" type="text/css">
+    <link href="{{ asset('/assets/icons/phosphor/styles.min.css')}}" rel="stylesheet" type="text/css">
 
-    <!-- Core JS files -->
-    <script src="{{ asset('assets/js/demo_configurator.js') }}"></script>
-    <script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
+   <!-- Core JS files -->
+    <script src="{{ asset('/assets/demo/demo_configurator.js')}}"></script>
+    <script src="{{ asset('/assets/js/bootstrap/bootstrap.bundle.min.js')}}"></script>
     <!-- /core JS files -->
 
     <!-- Theme JS files -->
-    <script src="{{ asset('assets/js/app.js') }}"></script>
-    <!-- /theme JS files -->
-    <!-- /core JS files -->
+    <script src="{{ asset('/assets/js/vendor/visualization/d3/d3.min.js')}}"></script>
+    <script src="{{ asset('/assets/js/vendor/visualization/d3/d3_tooltip.js')}}"></script>
 
-    <!-- Theme JS files -->
-    <script src="../../../assets/js/vendor/visualization/d3/d3.min.js"></script>
-    <script src="../../../assets/js/vendor/visualization/d3/d3_tooltip.js"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-    <script src="assets/js/app.js"></script>
-    <script src="../../../assets/demo/pages/dashboard.js"></script>
-    <script src="../../../assets/demo/charts/pages/dashboard/streamgraph.js"></script>
-    <script src="../../../assets/demo/charts/pages/dashboard/sparklines.js"></script>
-    <script src="../../../assets/demo/charts/pages/dashboard/lines.js"></script>
-    <script src="../../../assets/demo/charts/pages/dashboard/areas.js"></script>
-    <script src="../../../assets/demo/charts/pages/dashboard/donuts.js"></script>
-    <script src="../../../assets/demo/charts/pages/dashboard/bars.js"></script>
-    <script src="../../../assets/demo/charts/pages/dashboard/progress.js"></script>
-    <script src="../../../assets/demo/charts/pages/dashboard/heatmaps.js"></script>
-    <script src="../../../assets/demo/charts/pages/dashboard/pies.js"></script>
-    <script src="../../../assets/demo/charts/pages/dashboard/bullets.js"></script>
-    <!-- /theme JS files -->
+    <script src="{{  asset('/assets/js/app.js')}}"></script>
+    <script src="{{ asset('/assets/demo/pages/dashboard.js')}}"></script>
+    <script src="{{ asset('/assets/demo/charts/pages/dashboard/streamgraph.js')}}"></script>
+    <script src="{{ asset('/assets/demo/charts/pages/dashboard/sparklines.js')}}"></script>
+    <script src="{{ asset('/assets/demo/charts/pages/dashboard/lines.js')}}"></script>
+    <script src="{{ asset('/assets/demo/charts/pages/dashboard/areas.js')}}"></script>
+    <script src="{{ asset('/assets/demo/charts/pages/dashboard/donuts.js')}}"></script>
+    <script src="{{ asset('/assets/demo/charts/pages/dashboard/bars.js')}}"></script>
+    <script src="{{ asset('/assets/demo/charts/pages/dashboard/progress.js')}}"></script>
+    <script src="{{ asset('/assets/demo/charts/pages/dashboard/heatmaps.js')}}"></script>
+    <script src="{{ asset('/assets/demo/charts/pages/dashboard/pies.js')}}"></script>
+    <script src="{{ asset('/assets/demo/charts/pages/dashboard/bullets.js')}}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+        <!-- Theme JS files -->
 
 </head>
 
