@@ -405,6 +405,23 @@ Route::get('/getPost', function(Request $request) {
         foreach ($post->challenges as $challenge) {
             $challenge->challenge_img ? $challenge->challenge_img = $appUrl . 'storage/app/' . $challenge->challenge_img : $challenge->challenge_img = null;
         }
+        if($post->challenges){  
+            // Create a new Challenge object to add at the top of the challenges array
+            $newChallenge = new Challenge([
+                'id' => $post->id, // replace with appropriate values
+                'post_id' => $post->id,
+                'user_id' => $post->user_id,
+                'challenge_img' => $post->image, // replace with appropriate values
+                'body' => $post->body, // replace with appropriate values
+                'type' => $post->type,
+                'confirmed' => 1,
+                // add other properties as needed
+            ]);
+            // Add the new challenge object at the top of the challenges array
+            array_unshift($post->challenges, $newChallenge);
+        } 
+
+
 
         $post->isLikedA = false;
         $post->isLikedB = false;
