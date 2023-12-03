@@ -9,6 +9,17 @@ class Challenge extends Model
 {
     use HasFactory;
 
+    protected $fillable = 
+    	[
+			'id'  // replace with appropriate values
+	        'post_id', 
+	        'user_id',
+	        'challenge_img',  // replace with appropriate values
+	        'body', // replace with appropriate values
+	        'type',
+	        'confirmed'
+	    ];
+
     public function post(){
         return $this->belongsTo(Post::class, 'post_id');
     }
@@ -17,5 +28,5 @@ class Challenge extends Model
         return $this->belongsTo(User::class,'user_id');
     }
 
-    
+
 }
