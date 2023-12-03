@@ -390,7 +390,7 @@ Route::get('/getPost', function(Request $request) {
             },
             'challenges' => function($query) {
                 $query->select('*')->where('confirmed', 1);
-            }
+            },
             'challengesWithDetails' => function($query) {
                 $query->select('*')->where('confirmed', 1);
             }
