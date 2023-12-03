@@ -390,13 +390,11 @@ Route::get('/getPost', function(Request $request) {
             },
             'challenges' => function($query) {
                 $query->select('*')->where('confirmed', 1);
-            },
-            'challengesWithDetails' => function($query) {
-                $query->select('*')->where('confirmed', 1);
             }
         ])->paginate($numberOfPostsPerRequest, ['*'], '_page', $pageNumber);
 
     $posts->getCollection()->transform(function($post) use ($appUrl, $user_id) {
+        $post->challenge = $post;
         $post->image ? $post->image = $appUrl.'storage/app/'.$post->image : $post->image = null;
         $post->challenge_img ? $post->challenge_img = $appUrl.'storage/app/'.$post->challenge_img : $post->challenge_img = null;
         $post->video ? $post->video = $appUrl.'storage/app/'.$post->video : $post->video = null;
