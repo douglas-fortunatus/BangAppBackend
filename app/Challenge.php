@@ -11,11 +11,11 @@ class Challenge extends Model
 
     protected $fillable = 
     	[
-			'id'  // replace with appropriate values
+			'id',  
 	        'post_id', 
 	        'user_id',
-	        'challenge_img',  // replace with appropriate values
-	        'body', // replace with appropriate values
+	        'challenge_img', 
+	        'body',
 	        'type',
 	        'confirmed'
 	    ];
