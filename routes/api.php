@@ -890,7 +890,7 @@ Route::post('/setUserProfile',function(request $request)
             UserHobby::create(['user_id'=>$user->id,'hobby_id'=>$value]);
         }
     }
-    if(isset($request->input('name')) && $request->input('name') !== ""){
+    if (!empty($request->input('name'))) {
         $user->name = $request->input('name');
     }
     $user->date_of_birth = $request->input('date_of_birth');
