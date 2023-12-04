@@ -34,6 +34,9 @@ use App\Http\Controllers\ChatController;
 global $appUrl;
 $appUrl = "https://bangapp.pro/BangAppBackend/";
 
+
+Route::middleware('auth:api')->group(function () {
+    
 Route::get('/users/search', 'App\Http\Controllers\UserController@search');
 Route::get('/users/getMyInfo', 'App\Http\Controllers\UserController@getMyInfo');
 
@@ -1047,6 +1050,10 @@ Route::get('/getPostLikes/{post_id}', function($post_id){
     $likes = $post->likess()->with('user:id,name,image')->get();
     $likedUsers = $likes->pluck('user');
     return response()->json(['liked_users' => $likedUsers]);
+});
+
+
+    
 });
 
 
