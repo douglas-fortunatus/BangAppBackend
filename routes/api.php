@@ -34,7 +34,7 @@ use App\Http\Controllers\ChatController;
 global $appUrl;
 $appUrl = "https://bangapp.pro/BangAppBackend/";
 
-Route::post('/sendNotification', function(Request $request)
+Route::post('/sendNotification1', function(Request $request)
 {
     $user = User::findOrFail($request->user_id);
     $deviceToken = $user->device_token;
