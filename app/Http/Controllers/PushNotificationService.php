@@ -33,7 +33,7 @@ class PushNotificationService extends Controller
             ->withData(['notification_id'=> $notificationId,'type'=>$type,'user_name'=>$userName])
             ->withAndroidConfig(AndroidConfig::fromArray(['ttl' => '3600s']))
             ->withNotification(FcmNotification::create($title, $body)); // Use withNotification() for Android-specific settings
-        return $messaging->send($message);
+        return $message;
     }
 
     public function sendUserPushNotification($deviceToken, $title, $body)
