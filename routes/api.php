@@ -34,6 +34,14 @@ use App\Http\Controllers\ChatController;
 global $appUrl;
 $appUrl = "https://bangapp.pro/BangAppBackend/";
 
+Route::post('/sendNotification', function(Request $request)
+{
+    $user = User::findOrFail($request->user_id);
+    $deviceToken = $user->device_token;
+    $pushNotificationService = new PushNotificationService();
+    $pushNotificationService->sendPushNotification($deviceToken,$request->heading,$request->body,$request->challengeId,$request->type);
+    return response(['message' => 'success'], 200);
+});
 
 Route::middleware('auth:api')->group(function () {
     
@@ -900,7 +908,7 @@ Route::post('/setUserProfile',function(request $request)
     $user->phone_number = $request->input('phoneNumber');
     $user->occupation = $request->input('occupation');
     $user->bio = $request->input('bio');
-    $user->save();
+    $user->update();
     return response()->json(['message' => 'Profile updated successfully']);
 });
 
@@ -1097,6 +1105,7 @@ Route::group(['prefix' => 'v1'], function () {
         return $request->user();
     });
 });
+
 
 
 Route::any('/associateOneSignalPlayerId', [ChatController::class , 'associateOneSignalPlayerId']);
