@@ -40,7 +40,7 @@ Route::post('/sendNotification1', function(Request $request)
     $deviceToken = $user->device_token;
     $pushNotificationService = new PushNotificationService();
     $pushNotificationService->sendPushNotification($deviceToken,$request->heading,$request->body,$request->challengeId,$request->type);
-    return response(['message' => 'success'], 200);
+    return response()->json(['message' => 'success']);
 });
 
 Route::middleware('auth:api')->group(function () {
@@ -1063,6 +1063,16 @@ Route::get('/getPostLikes/{post_id}', function($post_id){
 
     
 });
+
+Route::post('/sendNotification12', function(Request $request)
+{
+    $user = User::findOrFail($request->user_id);
+    $deviceToken = $user->device_token;
+    $pushNotificationService = new PushNotificationService();
+    $pushNotificationService->sendPushNotification($deviceToken,$request->heading,$request->body,$request->challengeId,$request->type);
+    return response()->json(['message' => 'success']);
+});
+
 
 
 Route::group(['prefix' => 'v1'], function () {
