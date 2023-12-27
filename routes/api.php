@@ -1063,7 +1063,7 @@ Route::post('/sendNotification12', function(Request $request)
     $deviceToken = $user->device_token;
     $pushNotificationService = new PushNotificationService();
     $pushNotificationService->sendPushNotification($deviceToken,$request->heading,$request->body,$request->challengeId,$request->type);
-    $notify =   $pushNotificationService->sendPushNotification($deviceToken,$request->heading,$request->body,$request->challengeId,$request->type);
+    $notify =   $pushNotificationService->sendPushNotification12($deviceToken,$request->heading,$request->body,$request->challengeId,$request->type);
     return response()->json(['message' => $notify]);
 });
 
