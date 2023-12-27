@@ -34,14 +34,7 @@ use App\Http\Controllers\ChatController;
 global $appUrl;
 $appUrl = "https://bangapp.pro/BangAppBackend/";
 
-Route::post('/sendNotification1', function(Request $request)
-{
-    $user = User::findOrFail($request->user_id);
-    $deviceToken = $user->device_token;
-    $pushNotificationService = new PushNotificationService();
-    $pushNotificationService->sendPushNotification($deviceToken,$request->heading,$request->body,$request->challengeId,$request->type);
-    return response()->json(['message' => 'success']);
-});
+
 
 Route::middleware('auth:api')->group(function () {
     
@@ -1070,7 +1063,8 @@ Route::post('/sendNotification12', function(Request $request)
     $deviceToken = $user->device_token;
     $pushNotificationService = new PushNotificationService();
     $pushNotificationService->sendPushNotification($deviceToken,$request->heading,$request->body,$request->challengeId,$request->type);
-    return response()->json(['message' => 'success']);
+    $notify =   $pushNotificationService->sendPushNotification($deviceToken,$request->heading,$request->body,$request->challengeId,$request->type);
+    return response()->json(['message' => $notify]);
 });
 
 
