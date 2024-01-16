@@ -36,8 +36,9 @@ $appUrl = "https://bangapp.pro/BangAppBackend/";
 
 
 
+
 Route::middleware('auth:api')->group(function () {
-    
+
 Route::get('/users/search', 'App\Http\Controllers\UserController@search');
 Route::get('/users/getMyInfo', 'App\Http\Controllers\UserController@getMyInfo');
 
@@ -191,15 +192,27 @@ Route::post('imageadd', function(Request $request){
     $image->pinned = $request->pinned;
     if($request->type) {
         $image->type = $request->type;
+        if($request->type == 'video'){
+            $videoPath = videoUploadService($request->file('video'));
+            // You can handle $videoPath as needed
+            echo json_encode($videoPath);
+
+        }
+        else{
+            if ($request->file('image')) {
+                $path = $request->file('image')->store('images');
+                $image->image = $path;
+                if($path){
+                    $image->save();
+                }
+            }
+        }
+
         // $image->video_height = $request->videoHeight;
+
+
     }
-    if ($request->file('image')) {
-        $path = $request->file('image')->store('images');
-        $image->image = $path;
-    }
-    if($path){
-        $image->save();
-    }
+
 
     return response()->json(['url' => asset($image->image)], 201);
 });
@@ -334,6 +347,41 @@ Route::get('/editPost', function(Request $request){
     }
 });
 
+function videoUploadService($file)
+{
+    $destinationServerURL = 'http://188.166.93.233/api/v1/upload-video';
+
+    // cURL setup
+    $ch = curl_init($destinationServerURL);
+    $fileData = file_get_contents($file);
+
+    // Set cURL options
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, ['video' => base64_encode($fileData), 'aspect_ratio' => "1.8", 'contentID' => '']);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+    // Execute cURL request
+    $response = curl_exec($ch);
+
+    // Get the HTTP response code
+    $httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+    // Check for cURL errors and HTTP status
+    if (curl_errno($ch)) {
+        return ['status' => 'error', 'message' => 'cURL error: ' . curl_error($ch)];
+    } elseif ($httpStatus >= 200 && $httpStatus < 300) {
+        // Successful cURL request
+        return ['status' => 'success', 'message' => 'File uploaded and redirected successfully', 'http_status' => $httpStatus, 'api_response' => $response];
+    } else {
+        // Unsuccessful cURL request
+        return ['status' => 'error', 'message' => 'Failed to redirect the file', 'http_status' => $httpStatus, 'api_response' => $response];
+    }
+
+    // Close cURL session
+    curl_close($ch);
+}
+
+
 
 Route::get('/getPosts', function(Request $request) {
     $appUrl = "https://bangapp.pro/BangAppBackend/";
@@ -409,7 +457,7 @@ Route::get('/getPost', function(Request $request) {
         foreach ($post->challenges as $challenge) {
             $challenge->challenge_img ? $challenge->challenge_img = $appUrl . 'storage/app/' . $challenge->challenge_img : $challenge->challenge_img = null;
         }
-        if($post->challenges->isNotEmpty() ){  
+        if($post->challenges->isNotEmpty() ){
             // Create a new Challenge object to add at the top of the challenges array
             $newChallenge = new Challenge([
                 'id' => $post->id, // replace with appropriate values
@@ -428,7 +476,7 @@ Route::get('/getPost', function(Request $request) {
 
             // Set the challenges property with the modified array
             $post->challenges = $challengesArray;
-        } 
+        }
 
 
 
@@ -540,7 +588,7 @@ Route::post('/likePost', function(Request $request)
             $pushNotificationService->sendPushNotification($post->user->device_token, $user->name, likeMessage(), $postId, 'like');
             saveNotification($userId, likeMessage(), 'like', $post->user->id, $postId);
         }
-        
+
         $message = 'Post liked successfully';
     }
     else{
@@ -729,7 +777,7 @@ Route::get('/getComments/{id}', function($id){
 });
 
 
-Route::get('/getPostInfo/{post_id}/{user_id}', function($post_id,$user_id) 
+Route::get('/getPostInfo/{post_id}/{user_id}', function($post_id,$user_id)
 {
     $appUrl = "https://bangapp.pro/BangAppBackend/";
 
@@ -844,7 +892,7 @@ Route::post('/acceptChallenge', function(request $request){
             return response(['data' => $challenge, 'message' => 'success'], 200);
         }
     }
-    
+
 
 });
 
@@ -1033,12 +1081,12 @@ Route::post('/pinMessage',function (Request $request){
     if (!$user) {
         return response()->json(['error' => 'User not found'], 404);
     }
-    
+
     // Toggle the value of 'public_id', treating NULL as false
     $user->update(['public' => !$user->public ?? false]);
 
     return response()->json(['message' => 'Public ID toggled successfully', 'value'=>!$user->public]);
-    
+
 });
 
 Route::get('/getNotificationCount/{user_id}',function ($user_id){
@@ -1054,7 +1102,7 @@ Route::get('/getPostLikes/{post_id}', function($post_id){
 });
 
 
-    
+
 });
 
 Route::post('/sendNotification12', function(Request $request)
