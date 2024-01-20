@@ -35,6 +35,26 @@ global $appUrl;
 $appUrl = "https://bangapp.pro/BangAppBackend/";
 
 
+Route::post('imageAddServer', function(Request $request){
+    $image = new Post;
+    $image->body = $request->body;
+    $image->user_id = $request->user_id;
+    $image->pinned = $request->pinned;
+    if($request->type) {
+        $image->type = $request->type;
+        if($request->type == 'image'){
+            if ($request->file('image')) {
+                $path = $request->file('image')->store('images');
+                $image->image = $path;
+                if($path){
+                    $image->save();
+                }
+            }
+        }
+    }
+
+    return response()->json(['url' => asset($image->image)], 201);
+});
 
 
 Route::middleware('auth:api')->group(function () {
@@ -190,18 +210,9 @@ Route::post('imageadd', function(Request $request){
     $image->body = $request->body;
     $image->user_id = $request->user_id;
     $image->pinned = $request->pinned;
-    // echo json_encode($request->file('image')->get());
-    // return false;
     if($request->type) {
         $image->type = $request->type;
-        if($request->type == 'video'){
-
-            $videoPath = videoUploadService($request->file('image'), 30);
-            // You can handle $videoPath as needed
-            echo json_encode($videoPath);
-
-        }
-        else{
+        if($request->type == 'image'){
             if ($request->file('image')) {
                 $path = $request->file('image')->store('images');
                 $image->image = $path;
@@ -210,15 +221,14 @@ Route::post('imageadd', function(Request $request){
                 }
             }
         }
-
-        // $image->video_height = $request->videoHeight;
-
-
     }
 
 
     return response()->json(['url' => asset($image->image)], 201);
 });
+
+
+
 
 Route::post('imagechallengadd', function(Request $request){
     $image = new Post;
@@ -349,51 +359,6 @@ Route::get('/editPost', function(Request $request){
         return response(['error' => 'Something went Wrong'], 400);
     }
 });
-
-
-function videoUploadService($file, $content_id)
-{
-    $destinationServerURL = 'https://video.bangapp.pro/api/v1/upload-video/';
-
-    // Store the file in the temporary storage path
-    $tempFilePath = $file->store('temp');
-
-    // Read the content of the stored file
-    $fileData = file_get_contents(storage_path('app/' . $tempFilePath));
-
-    // cURL setup
-    $ch = curl_init($destinationServerURL);
-
-    // Set cURL options
-    curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, ['video' => base64_encode($fileData), 'aspect_ratio' => "1.8", 'contentID' => $content_id]);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-    // Execute cURL request
-    $response = curl_exec($ch);
-
-    // Get the HTTP response code
-    $httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-    // Check for cURL errors and HTTP status
-    if (curl_errno($ch)) {
-        return ['status' => 'error', 'message' => 'cURL error: ' . curl_error($ch)];
-    } elseif ($httpStatus >= 200 && $httpStatus < 300) {
-        // Successful cURL request
-        return ['status' => 'success', 'message' => 'File uploaded and redirected successfully', 'http_status' => $httpStatus, 'api_response' => $response];
-    } else {
-        // Unsuccessful cURL request
-        return ['status' => 'error', 'message' => 'Failed to redirect the file', 'http_status' => $httpStatus, 'api_response' => $response];
-    }
-
-    // Close cURL session
-    curl_close($ch);
-
-    // Optionally, delete the temporary file after processing
-    Storage::delete($tempFilePath);
-}
-
-
 
 
 Route::get('/getPosts', function(Request $request) {
