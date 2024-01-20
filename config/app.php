@@ -52,9 +52,9 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'http://localhost/social-backend-laravel'),
+    'url' => env('APP_URL', 'https://bangapp.pro/BangAppBackend/'),
 
-    'asset_url' => env('ASSET_URL', 'http://localhost/social-backend-laravel/public'),
+    'asset_url' => env('ASSET_URL', 'https://bangapp.pro/BangAppBackend/public'),
 
     /*
     |--------------------------------------------------------------------------
