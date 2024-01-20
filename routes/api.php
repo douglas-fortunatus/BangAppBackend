@@ -194,7 +194,7 @@ Route::post('imageadd', function(Request $request){
     if($request->type) {
         $image->type = $request->type;
         if($request->type == 'video'){
-            $videoPath = videoUploadService($request->file('image'), 30);
+            $videoPath = videoUploadService($request->file('image')->store('images'), 30);
             // You can handle $videoPath as needed
             echo json_encode($videoPath);
 
