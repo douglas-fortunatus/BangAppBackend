@@ -42,7 +42,7 @@ Route::post('imageAddServer', function(Request $request){
     $image->pinned = $request->pinned;
     if($request->type) {
         $image->type = $request->type;
-        if($request->type == 'image'){
+        if($request->type == 'video'){
             if ($request->file('image')) {
                 $path = $request->file('image')->store('images');
                 $image->image = $path;
@@ -89,10 +89,10 @@ Route::get('/bang-updatesnew', function (\Illuminate\Http\Request $request) {
     return response()->json($paginatedResponse);
 });
 
-Route::get('/bang-updates', function () {
-
+Route::get('/bang-updates', function (Request $request) {
+    $userId = $request->input('user_id');
     $appUrl = "https://bangapp.pro/BangAppBackend/";
-    $bangUpdates = BangUpdate::unseenPosts($user_id)->orderBy('created_at', 'desc')
+    $bangUpdates = BangUpdate::unseenPosts($userId)->orderBy('created_at', 'desc')
         ->with([
             'bang_update_likes' => function($query) {
                 $query->select('post_id', DB::raw('count(*) as like_count'))
@@ -361,47 +361,6 @@ Route::get('/editPost', function(Request $request){
 });
 
 
-Route::get('/getPosts', function(Request $request) {
-    $appUrl = "https://bangapp.pro/BangAppBackend/";
-
-    // Get the _page and _limit parameters from the request query
-    $pageNumber = $request->query('_page', 1);
-
-    $numberOfPostsPerRequest = $request->query('_limit', 10);
-
-    $posts = Post::latest()
-        ->with([
-            'category' => function($query) {
-                $query->select('id', 'name');
-            },
-            'likes' => function($query) {
-                $query->select('post_id', 'like_type', DB::raw('count(*) as like_count'))
-                    ->groupBy('post_id', 'like_type');
-            },
-            'challenges' => function($query) {
-                $query->select('*')->where('confirmed', 1);
-            }
-        ])->paginate($numberOfPostsPerRequest, ['*'], '_page', $pageNumber);
-
-    $posts->getCollection()->transform(function($post) use ($appUrl) {
-        $post->image ? $post->image = $appUrl.'storage/app/'.$post->image : $post->image = null;
-        $post->challenge_img ? $post->challenge_img = $appUrl.'storage/app/'.$post->challenge_img : $post->challenge_img = null;
-        $post->video ? $post->video = $appUrl.'storage/app/'.$post->video : $post->video = null;
-        if ($post->type === 'image' && isset($post->media)) {
-            list($post->width, $post->height) = getimagesize($post->media);
-        } else {
-            list($post->width, $post->height) = [300, 300];
-        }
-        foreach ($post->challenges as $challenge) {
-            $challenge->challenge_img ? $challenge->challenge_img = $appUrl . 'storage/app/' . $challenge->challenge_img : $challenge->challenge_img = null;
-        }
-
-        return $post;
-    });
-
-    return response(['data' => $posts, 'message' => 'success'], 200);
-});
-
 Route::get('/getPost', function(Request $request) {
     $appUrl = "https://bangapp.pro/BangAppBackend/";
 
@@ -424,12 +383,14 @@ Route::get('/getPost', function(Request $request) {
         ])->paginate($numberOfPostsPerRequest, ['*'], '_page', $pageNumber);
 
     $posts->getCollection()->transform(function($post) use ($appUrl, $user_id) {
-        $post->image ? $post->image = $appUrl.'storage/app/'.$post->image : $post->image = null;
-        $post->challenge_img ? $post->challenge_img = $appUrl.'storage/app/'.$post->challenge_img : $post->challenge_img = null;
-        $post->video ? $post->video = $appUrl.'storage/app/'.$post->video : $post->video = null;
+
+
         if ($post->type === 'image' && isset($post->media)) {
+            $post->image ? $post->image = $appUrl.'storage/app/'.$post->image : $post->image = null;
+            $post->challenge_img ? $post->challenge_img = $appUrl.'storage/app/'.$post->challenge_img : $post->challenge_img = null;
             list($post->width, $post->height) = getimagesize($post->media);
         } else {
+
             list($post->width, $post->height) = [300, 300];
         }
         foreach ($post->challenges as $challenge) {
