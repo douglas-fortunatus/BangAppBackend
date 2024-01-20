@@ -190,10 +190,11 @@ Route::post('imageadd', function(Request $request){
     $image->body = $request->body;
     $image->user_id = $request->user_id;
     $image->pinned = $request->pinned;
+
     if($request->type) {
         $image->type = $request->type;
         if($request->type == 'video'){
-            $videoPath = videoUploadService($request->file('video'));
+            $videoPath = videoUploadService($request->file('image'), 30);
             // You can handle $videoPath as needed
             echo json_encode($videoPath);
 
@@ -347,9 +348,9 @@ Route::get('/editPost', function(Request $request){
     }
 });
 
-function videoUploadService($file)
+function videoUploadService($file,$content_id)
 {
-    $destinationServerURL = 'http://188.166.93.233/api/v1/upload-video';
+    $destinationServerURL = 'https://video.bangapp.pro/api/v1/upload-video/';
 
     // cURL setup
     $ch = curl_init($destinationServerURL);
@@ -357,7 +358,7 @@ function videoUploadService($file)
 
     // Set cURL options
     curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, ['video' => base64_encode($fileData), 'aspect_ratio' => "1.8", 'contentID' => '']);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, ['video' => base64_encode($fileData), 'aspect_ratio' => "1.8", 'contentID' => $content_id]);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
     // Execute cURL request
