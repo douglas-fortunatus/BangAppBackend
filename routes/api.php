@@ -388,7 +388,7 @@ Route::get('/getPost', function(Request $request) {
         if ($post->type === 'image' ) {
             $post->image ? $post->image = $appUrl.'storage/app/'.$post->image : $post->image = null;
             $post->challenge_img ? $post->challenge_img = $appUrl.'storage/app/'.$post->challenge_img : $post->challenge_img = null;
-            list($post->width, $post->height) = getimagesize($post->media);
+            list($post->width, $post->height) =  [300, 300];
         } else {
 
             list($post->width, $post->height) = [300, 300];
