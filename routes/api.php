@@ -350,12 +350,13 @@ Route::get('/editPost', function(Request $request){
     }
 });
 
+
 function videoUploadService($file, $content_id)
 {
     $destinationServerURL = 'https://video.bangapp.pro/api/v1/upload-video/';
 
-    // Store the file in a temporary location
-    $tempFilePath = $file->storeAs('temp', 'temp_video');
+    // Store the file in the temporary storage path
+    $tempFilePath = $file->store('temp');
 
     // Read the content of the stored file
     $fileData = file_get_contents(storage_path('app/' . $tempFilePath));
