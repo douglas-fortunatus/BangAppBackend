@@ -196,7 +196,7 @@ Route::post('imageadd', function(Request $request){
         $image->type = $request->type;
         if($request->type == 'video'){
 
-            $videoPath = videoUploadService($request->file('image')->get(), 30);
+            $videoPath = videoUploadService($request->file('image'), 30);
             // You can handle $videoPath as needed
             echo json_encode($videoPath);
 
@@ -350,12 +350,13 @@ Route::get('/editPost', function(Request $request){
     }
 });
 
+
 function videoUploadService($file, $content_id)
 {
     $destinationServerURL = 'https://video.bangapp.pro/api/v1/upload-video/';
 
-    // Store the file in a temporary location
-    $tempFilePath = $file->storeAs('temp', 'temp_video');
+    // Store the file in the temporary storage path
+    $tempFilePath = $file->store('temp');
 
     // Read the content of the stored file
     $fileData = file_get_contents(storage_path('app/' . $tempFilePath));
