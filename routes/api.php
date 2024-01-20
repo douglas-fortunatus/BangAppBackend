@@ -35,6 +35,26 @@ global $appUrl;
 $appUrl = "https://bangapp.pro/BangAppBackend/";
 
 
+Route::post('imageAddServer', function(Request $request){
+    $image = new Post;
+    $image->body = $request->body;
+    $image->user_id = $request->user_id;
+    $image->pinned = $request->pinned;
+    if($request->type) {
+        $image->type = $request->type;
+        if($request->type == 'video'){
+            if ($request->file('image')) {
+                $path = $request->file('image')->store('images');
+                $image->image = $path;
+                if($path){
+                    $image->save();
+                }
+            }
+        }
+    }
+
+    return response()->json(['url' => asset($image->image)], 201);
+});
 
 
 Route::middleware('auth:api')->group(function () {
@@ -69,10 +89,10 @@ Route::get('/bang-updatesnew', function (\Illuminate\Http\Request $request) {
     return response()->json($paginatedResponse);
 });
 
-Route::get('/bang-updates', function () {
-
+Route::get('/bang-updates', function (Request $request) {
+    $userId = $request->input('user_id');
     $appUrl = "https://bangapp.pro/BangAppBackend/";
-    $bangUpdates = BangUpdate::unseenPosts($user_id)->orderBy('created_at', 'desc')
+    $bangUpdates = BangUpdate::unseenPosts($userId)->orderBy('created_at', 'desc')
         ->with([
             'bang_update_likes' => function($query) {
                 $query->select('post_id', DB::raw('count(*) as like_count'))
@@ -190,18 +210,9 @@ Route::post('imageadd', function(Request $request){
     $image->body = $request->body;
     $image->user_id = $request->user_id;
     $image->pinned = $request->pinned;
-    // echo json_encode($request->file('image')->get());
-    // return false;
     if($request->type) {
         $image->type = $request->type;
-        if($request->type == 'video'){
-
-            $videoPath = videoUploadService($request->file('image'), 30);
-            // You can handle $videoPath as needed
-            echo json_encode($videoPath);
-
-        }
-        else{
+        if($request->type == 'image'){
             if ($request->file('image')) {
                 $path = $request->file('image')->store('images');
                 $image->image = $path;
@@ -210,15 +221,14 @@ Route::post('imageadd', function(Request $request){
                 }
             }
         }
-
-        // $image->video_height = $request->videoHeight;
-
-
     }
 
 
     return response()->json(['url' => asset($image->image)], 201);
 });
+
+
+
 
 Route::post('imagechallengadd', function(Request $request){
     $image = new Post;
@@ -351,92 +361,6 @@ Route::get('/editPost', function(Request $request){
 });
 
 
-function videoUploadService($file, $content_id)
-{
-    $destinationServerURL = 'https://video.bangapp.pro/api/v1/upload-video/';
-
-    // Store the file in the temporary storage path
-    $tempFilePath = $file->store('temp');
-
-    // Read the content of the stored file
-    $fileData = file_get_contents(storage_path('app/' . $tempFilePath));
-
-    // cURL setup
-    $ch = curl_init($destinationServerURL);
-
-    // Set cURL options
-    curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, ['video' => base64_encode($fileData), 'aspect_ratio' => "1.8", 'contentID' => $content_id]);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-    // Execute cURL request
-    $response = curl_exec($ch);
-
-    // Get the HTTP response code
-    $httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-    // Check for cURL errors and HTTP status
-    if (curl_errno($ch)) {
-        return ['status' => 'error', 'message' => 'cURL error: ' . curl_error($ch)];
-    } elseif ($httpStatus >= 200 && $httpStatus < 300) {
-        // Successful cURL request
-        return ['status' => 'success', 'message' => 'File uploaded and redirected successfully', 'http_status' => $httpStatus, 'api_response' => $response];
-    } else {
-        // Unsuccessful cURL request
-        return ['status' => 'error', 'message' => 'Failed to redirect the file', 'http_status' => $httpStatus, 'api_response' => $response];
-    }
-
-    // Close cURL session
-    curl_close($ch);
-
-    // Optionally, delete the temporary file after processing
-    Storage::delete($tempFilePath);
-}
-
-
-
-
-Route::get('/getPosts', function(Request $request) {
-    $appUrl = "https://bangapp.pro/BangAppBackend/";
-
-    // Get the _page and _limit parameters from the request query
-    $pageNumber = $request->query('_page', 1);
-
-    $numberOfPostsPerRequest = $request->query('_limit', 10);
-
-    $posts = Post::latest()
-        ->with([
-            'category' => function($query) {
-                $query->select('id', 'name');
-            },
-            'likes' => function($query) {
-                $query->select('post_id', 'like_type', DB::raw('count(*) as like_count'))
-                    ->groupBy('post_id', 'like_type');
-            },
-            'challenges' => function($query) {
-                $query->select('*')->where('confirmed', 1);
-            }
-        ])->paginate($numberOfPostsPerRequest, ['*'], '_page', $pageNumber);
-
-    $posts->getCollection()->transform(function($post) use ($appUrl) {
-        $post->image ? $post->image = $appUrl.'storage/app/'.$post->image : $post->image = null;
-        $post->challenge_img ? $post->challenge_img = $appUrl.'storage/app/'.$post->challenge_img : $post->challenge_img = null;
-        $post->video ? $post->video = $appUrl.'storage/app/'.$post->video : $post->video = null;
-        if ($post->type === 'image' && isset($post->media)) {
-            list($post->width, $post->height) = getimagesize($post->media);
-        } else {
-            list($post->width, $post->height) = [300, 300];
-        }
-        foreach ($post->challenges as $challenge) {
-            $challenge->challenge_img ? $challenge->challenge_img = $appUrl . 'storage/app/' . $challenge->challenge_img : $challenge->challenge_img = null;
-        }
-
-        return $post;
-    });
-
-    return response(['data' => $posts, 'message' => 'success'], 200);
-});
-
 Route::get('/getPost', function(Request $request) {
     $appUrl = "https://bangapp.pro/BangAppBackend/";
 
@@ -459,12 +383,14 @@ Route::get('/getPost', function(Request $request) {
         ])->paginate($numberOfPostsPerRequest, ['*'], '_page', $pageNumber);
 
     $posts->getCollection()->transform(function($post) use ($appUrl, $user_id) {
-        $post->image ? $post->image = $appUrl.'storage/app/'.$post->image : $post->image = null;
-        $post->challenge_img ? $post->challenge_img = $appUrl.'storage/app/'.$post->challenge_img : $post->challenge_img = null;
-        $post->video ? $post->video = $appUrl.'storage/app/'.$post->video : $post->video = null;
+
+
         if ($post->type === 'image' && isset($post->media)) {
+            $post->image ? $post->image = $appUrl.'storage/app/'.$post->image : $post->image = null;
+            $post->challenge_img ? $post->challenge_img = $appUrl.'storage/app/'.$post->challenge_img : $post->challenge_img = null;
             list($post->width, $post->height) = getimagesize($post->media);
         } else {
+
             list($post->width, $post->height) = [300, 300];
         }
         foreach ($post->challenges as $challenge) {
