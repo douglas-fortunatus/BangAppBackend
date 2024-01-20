@@ -190,11 +190,13 @@ Route::post('imageadd', function(Request $request){
     $image->body = $request->body;
     $image->user_id = $request->user_id;
     $image->pinned = $request->pinned;
-
+    // echo json_encode($request->file('image')->get());
+    // return false;
     if($request->type) {
         $image->type = $request->type;
         if($request->type == 'video'){
-            $videoPath = videoUploadService($request->file('image'), 30);
+
+            $videoPath = videoUploadService($request->file('image')->get(), 30);
             // You can handle $videoPath as needed
             echo json_encode($videoPath);
 
@@ -363,10 +365,8 @@ function videoUploadService($file,$content_id)
 
     // Execute cURL request
     $response = curl_exec($ch);
-
     // Get the HTTP response code
     $httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
     // Check for cURL errors and HTTP status
     if (curl_errno($ch)) {
         return ['status' => 'error', 'message' => 'cURL error: ' . curl_error($ch)];
@@ -377,7 +377,6 @@ function videoUploadService($file,$content_id)
         // Unsuccessful cURL request
         return ['status' => 'error', 'message' => 'Failed to redirect the file', 'http_status' => $httpStatus, 'api_response' => $response];
     }
-
     // Close cURL session
     curl_close($ch);
 }
