@@ -56,6 +56,19 @@ Route::post('imageAddServer', function(Request $request){
     return response()->json(['url' => asset($image->image)], 201);
 });
 
+Route::post('videoAddServer', function(Request $request){
+    $image = new Post;
+    $image->body = $request->body;
+    $image->user_id = $request->user_id;
+    $image->pinned = $request->pinned;
+    $image->image = $request->path;
+    if($$request->path){
+        $image->save();
+    }
+
+    return response()->json(['url' => $request->path], 201);
+});
+
 
 Route::middleware('auth:api')->group(function () {
 
@@ -390,7 +403,6 @@ Route::get('/getPost', function(Request $request) {
             $post->challenge_img ? $post->challenge_img = $appUrl.'storage/app/'.$post->challenge_img : $post->challenge_img = null;
             list($post->width, $post->height) =  [300, 300];
         } else {
-
             list($post->width, $post->height) = [300, 300];
         }
         foreach ($post->challenges as $challenge) {
