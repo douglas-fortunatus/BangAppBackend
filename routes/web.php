@@ -16,8 +16,7 @@ Route::get('/users/{user}', 'Api\ProfilesController@edit')->name('users.edit');
 Route::put('/users/{user}', 'Api\ProfilesController@update')->name('users.update');
 
 Route::get('/stream-video/{video}', function ($video) {
-    $videoPath = Storage::disk('public')->path('images/' . $video);
-
+    $videoPath = storage_path('app/images/' . $video);
     if (!file_exists($videoPath)) {
         abort(404);
     }
