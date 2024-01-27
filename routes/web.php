@@ -15,6 +15,28 @@ Route::get('/users', 'Api\ProfilesController@index');
 Route::get('/users/{user}', 'Api\ProfilesController@edit')->name('users.edit');
 Route::put('/users/{user}', 'Api\ProfilesController@update')->name('users.update');
 
+Route::get('/stream-video/{video}', function ($video) {
+    $videoPath = Storage::disk('public')->path('images/' . $video);
+
+    if (!file_exists($videoPath)) {
+        abort(404);
+    }
+
+    $headers = [
+        'Content-Type' => 'video/mp4',
+        'Content-Length' => filesize($videoPath),
+        'Accept-Ranges' => 'bytes',
+    ];
+
+    return response()->stream(
+        function () use ($videoPath) {
+            readfile($videoPath);
+        },
+        200,
+        $headers
+    );
+});
+
 Route::get('/', function () {
 
     return view('welcome');

@@ -402,9 +402,13 @@ Route::get('/getPost', function(Request $request) {
             $post->image ? $post->image = $appUrl.'storage/app/'.$post->image : $post->image = null;
             $post->challenge_img ? $post->challenge_img = $appUrl.'storage/app/'.$post->challenge_img : $post->challenge_img = null;
             list($post->width, $post->height) =  [300, 300];
-        } else {
+        } 
+        if ($post->type === 'video') {
+            $streamUrl =  "https://bangapp.pro/BangAppBackend/stream-video/";
+            $post->video_url = $streamUrl .str_replace("images/", "", $post->image); // Assuming the video URL is based on the 'video'
             list($post->width, $post->height) = [300, 300];
         }
+
         foreach ($post->challenges as $challenge) {
             $challenge->challenge_img ? $challenge->challenge_img = $appUrl . 'storage/app/' . $challenge->challenge_img : $challenge->challenge_img = null;
         }
