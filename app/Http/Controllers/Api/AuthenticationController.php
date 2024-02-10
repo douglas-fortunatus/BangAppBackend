@@ -25,7 +25,7 @@ class AuthenticationController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'string', 'regex:/^[A-Za-z][A-Za-z0-9]{4,31}$/', 'max:20', 'min:1', 'alpha_num', 'unique:users,name'],
-            'email_or_phone' => [
+            'email' => [
                 'required',
                 function ($attribute, $value, $fail) {
                     if (!filter_var($value, FILTER_VALIDATE_EMAIL) && !preg_match('/^\d{10,15}$/', $value)) {
