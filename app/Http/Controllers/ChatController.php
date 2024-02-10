@@ -120,6 +120,13 @@ class ChatController extends Controller
     })->first();
 
     if (!$conversation) {
+        $conversation = Conversation::create([
+            'user1_id' => $sender_id,
+            'user2_id' => $user2_id
+        ]);
+    }
+
+    if (!$conversation) {
         return response()->json(['message' => 'Conversation not found'], 404);
     }
 
