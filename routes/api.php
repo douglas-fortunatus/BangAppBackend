@@ -56,16 +56,16 @@ Route::post('imageAddServer', function(Request $request){
     return response()->json(['url' => asset($image->image)], 201);
 });
 
-Route::post('videoAddServer', function(Request $request){
+Route::post('/videoAddServer', function(Request $request){
     $image = new Post;
     $image->body = $request->body;
     $image->user_id = $request->user_id;
     $image->pinned = $request->pinned;
     $image->image = $request->path;
-    if($$request->path){
+    $image->type = $request->type;
+    if($request->path){
         $image->save();
     }
-
     return response()->json(['url' => $request->path], 201);
 });
 
@@ -402,8 +402,9 @@ Route::get('/getPost', function(Request $request) {
             list($post->width, $post->height) =  [300, 300];
         } 
         if ($post->type === 'video') {
-            $streamUrl =  "https://bangapp.pro/BangAppBackend/stream-video/";
-            $post->image = $streamUrl .str_replace("images/", "", $post->image); // Assuming the video URL is based on the 'video'
+            //$streamUrl =  "https://bangapp.pro/BangAppBackend/stream-video/";
+            //$post->image = $streamUrl .str_replace("images/", "", $post->image); // Assuming the video URL is based on the 'video'
+$post->image=$post->image;
             list($post->width, $post->height) = [300, 300];
         }
 

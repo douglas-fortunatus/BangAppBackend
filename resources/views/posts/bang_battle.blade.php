@@ -41,11 +41,9 @@
                             <td>{{$battle->body}}</td>
                             <td>{{$battle->type}}</td>
                             <td>
-                                <button  class="btn btn-primary">EDIT</button>
-
+                                <a href="{{ route('edit_bang_battle', ['id'=>$battle->id]) }}" class="btn btn-primary">EDIT</a>
                                 <a href="{{ route('pin_bang_battle', ['id' => $battle->id]) }}" class="btn btn-light"  >@if($battle->pinned) Unpin @else Pin @endif</a>
                                 <a href="{{ route('delete_bang_battle', ['id' => $battle->id]) }}" class="btn btn-danger"  >DELETE</a>
-
                             </td>
                         </tr>
                         @endforeach
@@ -77,6 +75,18 @@
                                 <label class="col-lg-4 col-form-label">Title:</label>
                                 <div class="col-lg-8">
                                     <input name="body" type="text" class="form-control" placeholder="Write Title">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-lg-4 col-form-label">Sub-Tittle:</label>
+                                <div class="col-lg-8">
+                                    <input name="subtitle" type="text" class="form-control" placeholder="Write Sub-Title">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-lg-4 col-form-label">Price:</label>
+                                <div class="col-lg-8">
+                                    <input name="price" type="number" class="form-control" placeholder="Set Price">
                                 </div>
                             </div>
                             <div class="row mb-3">

@@ -15,27 +15,6 @@ Route::get('/users', 'Api\ProfilesController@index');
 Route::get('/users/{user}', 'Api\ProfilesController@edit')->name('users.edit');
 Route::put('/users/{user}', 'Api\ProfilesController@update')->name('users.update');
 
-Route::get('/stream-video/{video}', function ($video) {
-    $videoPath = storage_path('app/images/' . $video);
-    if (!file_exists($videoPath)) {
-        abort(404);
-    }
-
-    $headers = [
-        'Content-Type' => 'video/mp4',
-        'Content-Length' => filesize($videoPath),
-        'Accept-Ranges' => 'bytes',
-    ];
-
-    return response()->stream(
-        function () use ($videoPath) {
-            readfile($videoPath);
-        },
-        200,
-        $headers
-    );
-});
-
 Route::get('/', function () {
 
     return view('welcome');
@@ -58,7 +37,10 @@ Route::get('/bangBattleWeb', [App\Http\Controllers\HomeController::class, 'bangB
 
 Route::get('/pinBattle/{id}', [App\Http\Controllers\HomeController::class, 'bangBattlePin'])->name('pin_bang_battle');
 
+Route::get('edit_bang_battle/{id}', [App\Http\Controllers\HomeController::class, 'bangBattleEdit'])->name('edit_bang_battle');
+
 Route::get('/delete_bang_battle/{id}', [App\Http\Controllers\HomeController::class, 'deleteBangBattle'])->name('delete_bang_battle');
 
+Route::post('/update_bang_battle',[App\Http\Controllers\HomeController::class, 'updateBangBattle'])->name('updateBangBattle');
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
