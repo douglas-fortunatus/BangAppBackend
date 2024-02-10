@@ -17,55 +17,49 @@ class AuthenticationController extends Controller
 {
     function baseUrl()
     {
-        return env('APP_URL');
+        return env('APP_URL') ;
     }
 
     public function register(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'string', 'regex:/^[A-Za-z][A-Za-z0-9]{4,31}$/', 'max:20', 'min:1', 'alpha_num', 'unique:users,name'],
             'email' => [
                 'required',
                 function ($attribute, $value, $fail) {
-                    if (!filter_var($value, FILTER_VALIDATE_EMAIL) && !preg_match('/^\d{10,15}$/', $value)) {
-                        $fail('The ' . $attribute . ' Must be a valid email address or phone number.');
-                    } else {
+                   
                         $exists = \App\User::where(function ($query) use ($value) {
                             $query->where('email', $value)
                                 ->orWhere('phone_number', $value);
                         })->exists();
-
                         if ($exists) {
                             $fail('The ' . $attribute . ' has already been taken.');
                         }
                     }
-                },
+            
             ],
             'password' => ['required', 'string', 'min:6', 'max:30'],
         ]);
 
-        // If validation fails, return the error response
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()->first()], 400);
+            return response(['errors' => $validator->errors()], 422);
         }
-
 
         $validatedData = $validator->validated();
 
         $validatedData['password'] = bcrypt($request->password);
 
         $user = User::create($validatedData);
-
+        
 
         $token = JWTAuth::attempt(['email' => $request->email, 'password' => $request->password]);
 
-        return response(['name' => $user->name, 'access_token' => $token, 'id' => $user->id, 'email' => $user->email, 'image' => env('APP_URL') . 'storage/app/' . $user->image]);
+        return response(['name'=>$user->name,'access_token'=>$token,'id'=>$user->id,'email'=>$user->email,'image'=>env('APP_URL').'storage/app/'.$user->image]);
     }
 
     public function login(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
+    {    
+       $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required',
         ]);
@@ -74,7 +68,7 @@ class AuthenticationController extends Controller
         }
         $credentials = $request->only('email', 'password');
 
-        if (!$token = JWTAuth::attempt($credentials)) {
+        if (! $token = JWTAuth::attempt($credentials)) {
             return response()->json(['error' => 'invalid_credentials'], 401);
         }
         // Get the authenticated user from the JWT token
@@ -83,7 +77,7 @@ class AuthenticationController extends Controller
         return response()->json([
             'token' => $token,
             'user_id' => $user->id,
-            'user_image' => env('APP_URL') . 'storage/app/' . $user->image,
+            'user_image' => env('APP_URL').'storage/app/'.$user->image,
             'name' => $user->name,
             'role' => $user->role->name,
         ]);
