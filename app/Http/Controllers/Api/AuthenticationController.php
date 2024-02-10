@@ -59,13 +59,13 @@ class AuthenticationController extends Controller
 
     public function login(Request $request)
     {    
-       $validator = Validator::make($request->all(), [
-            'email' => 'required',
-            'password' => 'required',
-        ]);
-        if ($validator->fails()) {
-            return response()->json(['error' => 'invalid_credentials'], 401);
-        }
+    //    $validator = Validator::make($request->all(), [
+    //         'email' => 'required|email',
+    //         'password' => 'required',
+    //     ]);
+    //     if ($validator->fails()) {
+    //         return response()->json(['error' => 'invalid_credentials'], 401);
+    //     }
         $credentials = $request->only('email', 'password');
 
         if (! $token = JWTAuth::attempt($credentials)) {
