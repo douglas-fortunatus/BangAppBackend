@@ -17,6 +17,10 @@ class BangUpdate extends Model
         return $this->belongsToMany(User::class, 'bang_update_likes', 'post_id', 'user_id');
     }
 
+    public function bang_update_user_likes() {
+        return $this->belongsToMany(User::class, 'bang_update_likes', 'post_id', 'user_id');
+    }
+
     public function bang_update_comments() {
         return $this->belongsToMany(User::class, 'bang_update_comments', 'post_id', 'user_id');
     }

@@ -131,7 +131,11 @@ Route::get('/bang-updates/{userId}', function ($userId) {
         ->with([
             'bang_update_likes' => function ($query) use ($userId) {
                 $query->select('post_id', DB::raw('count(*) as like_count'))
-                    ->groupBy('post_id', 'like_type'); // Filter likes by user ID
+                    ->groupBy('post_id'); // Filter likes by user ID
+            },
+            'bang_update_user_likes' => function ($query) use ($userId) {
+                $query->select('post_id', DB::raw('count(*) as like_count'))->where('user_id', $userId)
+                    ->groupBy('post_id'); // Filter likes by user ID
             },
             'bang_update_like_count' => function($query) {
                 $query->select('post_id', DB::raw('count(*) as like_count'))
@@ -148,7 +152,7 @@ Route::get('/bang-updates/{userId}', function ($userId) {
     $formattedUpdates = $bangUpdates->map(function ($update) use ($appUrl, $userId) {
         $update->filename = $appUrl .'storage/app/bangUpdates/'. $update->filename;
 
-        $update->isLiked = $update->bang_update_likes->isNotEmpty(); // Check if there are likes
+        $update->isLiked = $update->bang_update_user_likes->isNotEmpty(); // Check if there are likes
 
 
         return $update;
