@@ -48,6 +48,7 @@ class AuthenticationController extends Controller
         $validatedData = $validator->validated();
 
         $validatedData['password'] = bcrypt($request->password);
+        $validatedData['role_id'] = 3;
 
         $user = User::create($validatedData);
         

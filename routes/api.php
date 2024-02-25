@@ -148,8 +148,6 @@ Route::get('/bang-updates/{userId}', function ($userId) {
     $formattedUpdates = $bangUpdates->map(function ($update) use ($appUrl, $userId) {
         $update->filename = $appUrl .'storage/app/bangUpdates/'. $update->filename;
 
-        // $update->isLiked = BangUpdate::getLikeForUser($userId, $update->id);
-
          // Check if the user has liked the post
         $update->isLiked = DB::table('bang_update_likes')
             ->where('user_id', $userId)
@@ -679,8 +677,8 @@ Route::get('/getMyPosts', function(Request $request)
             $query->select('id', 'name', 'image');
         },
         'likes' => function($query) {
-            $query->select('post_id', DB::raw('count(*) as like_count'))
-                ->groupBy('post_id');
+            $query->select('post_id', 'like_type', DB::raw('count(*) as like_count'))
+                ->groupBy('post_id', 'like_type');
         },
     ])->paginate($numberOfPostsPerRequest, ['*'], '_page', $pageNumber);
 
