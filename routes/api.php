@@ -152,8 +152,8 @@ Route::get('/bang-updates/{userId}', function ($userId) {
 
          // Check if the user has liked the post
         $update->isLiked = DB::table('bang_update_likes')
-            ->where('user_id', $userId)
-            ->where('post_id', $update->id)
+            ->where('user_id', 6)
+            ->where('post_id', 16)
             ->exists();
 
         dd($update->isLiked);
