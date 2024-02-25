@@ -55,5 +55,17 @@ class BangUpdate extends Model
         return (new Carbon($value))->diffForHumans();
     }
 
+    public static function getLikeForUser($userId, $postId)
+    {
+        $like = BangUpdateLike::where('user_id', $userId)
+            ->where('post_id', $postId)
+            ->first();
+        if ($like) {
+            return true;
+        }
+
+        return false;
+    }
+
 
 }
