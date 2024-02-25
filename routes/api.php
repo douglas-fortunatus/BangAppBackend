@@ -63,6 +63,9 @@ Route::post('/videoAddServer', function(Request $request){
     $image->pinned = $request->pinned;
     $image->image = $request->path;
     $image->type = $request->type;
+    $image->thumbnail_url = $request->thumbnail_url;
+    $image->aspect_ratio = $request->aspect_ratio;
+    $image->cache_url = $request->cache_url;
     if($request->path){
         $image->save();
     }
