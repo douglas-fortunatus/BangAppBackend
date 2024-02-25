@@ -675,6 +675,7 @@ Route::get('/getMyPosts', function(Request $request)
     $pageNumber = $request->query('_page', 1);
     $numberOfPostsPerRequest = $request->query('_limit', 10);
     $user_id = $request->input('user_id');
+    $viewerId = $request->input('viewer_id');
     $posts = Post::latest()->where('user_id', $user_id)->with([
         'user' => function ($query) {
             $query->select('id', 'name', 'image');
@@ -685,7 +686,7 @@ Route::get('/getMyPosts', function(Request $request)
         },
     ])->paginate($numberOfPostsPerRequest, ['*'], '_page', $pageNumber);
 
-    $posts->getCollection()->transform(function($post) use ($appUrl,$user_id) {
+    $posts->getCollection()->transform(function($post) use ($appUrl,$user_id,$viewerId) {
         $post->image  ? $post->image = $appUrl.'storage/app/'.$post->image : $post->image = null;
         $post->challenge_img ? $post->challenge_img = $appUrl.'storage/app/'.$post->challenge_img : $post->challenge_img = null;
         $post->video ? $post->video = $appUrl.'storage/app/'.$post->video : $post->video = null;
@@ -699,7 +700,7 @@ Route::get('/getMyPosts', function(Request $request)
         $post->isLikedB = false;
         $post->isLiked = false;
         // Check if the user has liked the post and update isLikedA and isLikedB accordingly
-        $likeType = Post::getLikeTypeForUser($user_id, $post->id);
+        $likeType = Post::getLikeTypeForUser($viewerId, $post->id);
         if ($likeType == "A") {
             $post->isLikedA = true;
             $post->isLiked = true;
