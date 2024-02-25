@@ -155,7 +155,9 @@ Route::get('/bang-updates/{userId}', function ($userId) {
             ->where('user_id', $userId)
             ->where('post_id', $update->id)
             ->exists();
-            
+
+        dd($update->isLiked);
+
 
         return $update;
     });
