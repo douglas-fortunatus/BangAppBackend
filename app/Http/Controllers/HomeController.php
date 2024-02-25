@@ -127,7 +127,8 @@ class HomeController extends Controller
         $bangBattle = new BangBattle();
         $bangBattle->body = $request->body;
         $bangBattle->type = $request->type;
-
+        $bangBattle->price = $request->price;
+        $bangBattle->subtitle = $request->subtitle;
         // Save the model to get an ID
         $bangBattle->save();
 
@@ -180,6 +181,34 @@ class HomeController extends Controller
         $battle->update(['pinned' => !$battle->pinned ?? false]);
 
         return redirect()->route('bangBattleWeb')->with('success', 'Battle pinned successfully.');
+    }
+
+    function bangBattleEdit($id)
+    {
+        $battle = BangBattle::find($id);
+
+        return view('posts.bang_battle_edit', compact('battle'));
+    }
+
+    function updateBangBattle(Request $request)
+    {
+       
+        $battle = BangBattle::find($request->id);
+        
+        $battle->body = $request->body;
+        $battle->price = $request->price;
+        $battle->subtitle = $request->subtitle;
+        try {
+            if ($battle->save()) {
+                return redirect()->route('bangBattleWeb')->with('success', 'Battle edited successfully.');
+            } else {
+                return redirect()->route('bangBattleWeb')->with('error', 'Something Went Wrong.');
+            }
+        } catch (\Exception $e) {
+            dd($e);
+            // Handle the exception, you can log it or perform any other necessary actions.
+            return redirect()->route('bangBattleWeb')->with('error', 'An error occurred: ' . $e->getMessage());
+        }
     }
 
 

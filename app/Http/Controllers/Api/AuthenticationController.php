@@ -23,8 +23,21 @@ class AuthenticationController extends Controller
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => ['required', 'string', 'regex:/^[A-Za-z][A-Za-z0-9]{4,31}$/', 'max:20', 'min:5', 'alpha_num', 'unique:users,name'],
-            'email' => ['required', 'email', 'unique:users'],
+            'name' => ['required', 'string', 'regex:/^[A-Za-z][A-Za-z0-9]{4,31}$/', 'max:20', 'min:1', 'alpha_num', 'unique:users,name'],
+            'email' => [
+                'required',
+                function ($attribute, $value, $fail) {
+                   
+                        $exists = \App\User::where(function ($query) use ($value) {
+                            $query->where('email', $value)
+                                ->orWhere('phone_number', $value);
+                        })->exists();
+                        if ($exists) {
+                            $fail('The ' . $attribute . ' has already been taken.');
+                        }
+                    }
+            
+            ],
             'password' => ['required', 'string', 'min:6', 'max:30'],
         ]);
 
@@ -47,7 +60,7 @@ class AuthenticationController extends Controller
     public function login(Request $request)
     {    
        $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
+            'email' => 'required',
             'password' => 'required',
         ]);
         if ($validator->fails()) {

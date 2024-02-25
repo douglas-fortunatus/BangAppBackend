@@ -11,7 +11,7 @@ class BangBattle extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['pinned'];
+    protected $fillable = ['pinned','price','subtitle','body'];
 
     public function likes()
     {

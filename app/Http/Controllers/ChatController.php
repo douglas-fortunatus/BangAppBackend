@@ -120,6 +120,13 @@ class ChatController extends Controller
     })->first();
 
     if (!$conversation) {
+        $conversation = Conversation::create([
+            'user1_id' => $sender_id,
+            'user2_id' => $user2_id
+        ]);
+    }
+
+    if (!$conversation) {
         return response()->json(['message' => 'Conversation not found'], 404);
     }
 
@@ -272,6 +279,11 @@ public function markMessageAsRead(Request $request)
         $data['user_1'] = $user_id;
         $data['user_2'] = $recipient_id;
 
+        $con = Conversation::firstOrCreate([
+            'user1_id' => $user_id,
+            'user2_id' => $recipient_id
+        ]);
+        
         // Check if conversation already exists
         $conversation = Conversation::where(function ($query) use ($recipient_id, $user_id) {
             $query->where('user1_id', $user_id)
