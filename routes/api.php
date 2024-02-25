@@ -148,7 +148,7 @@ Route::get('/bang-updates/{userId}', function ($userId) {
     $formattedUpdates = $bangUpdates->map(function ($update) use ($appUrl, $userId) {
         $update->filename = $appUrl .'storage/app/bangUpdates/'. $update->filename;
 
-        $update->isLiked = BangUpdate::getLikeForUser($user_id, $post->id);// Check if there are likes
+        $update->isLiked = BangUpdate::getLikeForUser($userId, $update->id);// Check if there are likes
 
         return $update;
     });
