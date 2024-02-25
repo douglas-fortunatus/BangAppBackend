@@ -63,6 +63,9 @@ Route::post('/videoAddServer', function(Request $request){
     $image->pinned = $request->pinned;
     $image->image = $request->path;
     $image->type = $request->type;
+	$image->aspect_ratio = $request->aspect_ratio;
+$image->cache_url = $request->cache_url;
+$image->thumbnail_url = $request->thumbnail_url;
     if($request->path){
         $image->save();
     }
@@ -130,7 +133,8 @@ Route::get('/bang-updates/{userId}', function ($userId) {
     $bangUpdates = BangUpdate::unseenPosts($userId)->orderBy('created_at', 'desc')
         ->with([
             'bang_update_likes' => function ($query) use ($userId) {
-                $query->select('post_id')->where('user_id', $userId); // Filter likes by user ID
+                $query->select('post_id', DB::raw('count(*) as like_count'))
+                    ->groupBy('post_id'); // Filter likes by user ID
             },
             'bang_update_like_count' => function($query) {
                 $query->select('post_id', DB::raw('count(*) as like_count'))
@@ -334,9 +338,12 @@ Route::get('/comments', function(Post $post){
  * The urls are formatted with the app url and returned as a json response.
  *
  */
-Route::get('/get/bangInspirations',function(){
+Route::get('/get/bangInspirations',function(Request $request){
     $appUrl = "https://bangapp.pro/BangAppBackend/";
-    $bangInspirations = bangInspiration::all();
+    $searchQuery =  $request->input('search_string');
+    $bangInspirations = $searchQuery ?
+        bangInspiration::where('tittle', 'like', '%' . $searchQuery . '%')->get() :
+        bangInspiration::all();
     $formattedInspirations = $bangInspirations->map(function ($update) use ($appUrl) {
         $update->profile_url = $appUrl . 'storage/app/bangInspiration/' . $update->profile_url;
         $update->video_url = $appUrl .'storage/app/bangInspiration/'. $update->video_url;
@@ -470,11 +477,34 @@ $post->image=$post->image;
 });
 
 
+Route::delete('/deleteComment/{commentId}', function ($commentId) {
+    try {
+        $comment = Comment::findOrFail($commentId);
+        $comment->delete();
+        return response(['message' => 'Comment deleted successfully'], 200);
+    } catch (\Exception $e) {
+        return response(['error' => 'Failed to delete comment'], 500);
+    }
+});
+
+
+Route::delete('/deleteBattleComment/{commentId}', function ($commentId) {
+    try {
+        $comment = BattleComment::findOrFail($commentId);
+        $comment->delete();
+        return response(['message' => 'Comment deleted successfully'], 200);
+    } catch (\Exception $e) {
+        return response(['error' => 'Failed to delete comment'], 500);
+    }
+});
 
 
 Route::delete('/deletePost/{id}', function ($id) {
     // Find the post by ID
     $post = Post::findOrFail($id);
+// Delete associated records in the post_views table
+    PostView::where('post_id', $post->id)->delete();
+
     $deletedPostData = $post->toArray();
     unset($deletedPostData['id']);
     DeletedPost::create(['user_id'=>$deletedPostData['user_id'],'body'=>$deletedPostData['user_id'],'type'=>$deletedPostData['type'],'image'=>$deletedPostData['image'],'challenge_img'=>$deletedPostData['challenge_img'],'pinned'=>$deletedPostData['pinned']]);
@@ -664,21 +694,21 @@ Route::post('/sendNotification', function(Request $request)
 Route::get('/getMyPosts', function(Request $request)
 {
     $appUrl = "https://bangapp.pro/BangAppBackend/";
-    // Get the _page and _limit parameters from the request query
     $pageNumber = $request->query('_page', 1);
     $numberOfPostsPerRequest = $request->query('_limit', 10);
     $user_id = $request->input('user_id');
+    $viewer_id = $request->input('viewer_id');
     $posts = Post::latest()->where('user_id', $user_id)->with([
         'user' => function ($query) {
             $query->select('id', 'name', 'image');
         },
         'likes' => function($query) {
-            $query->select('post_id', DB::raw('count(*) as like_count'))
-                ->groupBy('post_id');
+            $query->select('post_id', 'like_type', DB::raw('count(*) as like_count'))
+                ->groupBy('post_id', 'like_type');
         },
     ])->paginate($numberOfPostsPerRequest, ['*'], '_page', $pageNumber);
 
-    $posts->getCollection()->transform(function($post) use ($appUrl,$user_id) {
+    $posts->getCollection()->transform(function($post) use ($appUrl,$viewer_id) {
         $post->image  ? $post->image = $appUrl.'storage/app/'.$post->image : $post->image = null;
         $post->challenge_img ? $post->challenge_img = $appUrl.'storage/app/'.$post->challenge_img : $post->challenge_img = null;
         $post->video ? $post->video = $appUrl.'storage/app/'.$post->video : $post->video = null;
@@ -692,7 +722,8 @@ Route::get('/getMyPosts', function(Request $request)
         $post->isLikedB = false;
         $post->isLiked = false;
         // Check if the user has liked the post and update isLikedA and isLikedB accordingly
-        $likeType = Post::getLikeTypeForUser($user_id, $post->id);
+        $likeType = Post::getLikeTypeForUser($viewer_id, $post->id);
+        
         if ($likeType == "A") {
             $post->isLikedA = true;
             $post->isLiked = true;
@@ -721,6 +752,7 @@ Route::get('/getMyPosts', function(Request $request)
     return response(['data' => $posts, 'message' => 'success'], 200);
 });
 
+
 Route::get('/getComments/{id}', function($id){
     $comments = Comment::where('post_id', $id)->with([
         'user' => function($query) {
@@ -738,6 +770,10 @@ Route::get('/getPostInfo/{post_id}/{user_id}', function($post_id,$user_id)
     $posts = Post::where('id', $post_id)->with([
         'user' => function($query) {
             $query->select('id', 'name', 'image');
+        },
+ 'likes' => function($query) {
+            $query->select('post_id', 'like_type', DB::raw('count(*) as like_count'))
+                ->groupBy('post_id', 'like_type');
         },
     ])->get(); // Corrected 'orderBy' here
 
