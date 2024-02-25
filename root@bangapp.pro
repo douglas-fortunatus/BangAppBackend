@@ -35,42 +35,6 @@ global $appUrl;
 $appUrl = "https://bangapp.pro/BangAppBackend/";
 
 
-Route::post('imageAddServer', function(Request $request){
-    $image = new Post;
-    $image->body = $request->body;
-    $image->user_id = $request->user_id;
-    $image->pinned = $request->pinned;
-    if($request->type) {
-        $image->type = $request->type;
-        if($request->type == 'video'){
-            if ($request->file('image')) {
-                $path = $request->file('image')->store('images');
-                $image->image = $path;
-                if($path){
-                    $image->save();
-                }
-            }
-        }
-    }
-
-    return response()->json(['url' => asset($image->image)], 201);
-});
-
-Route::post('/videoAddServer', function(Request $request){
-    $image = new Post;
-    $image->body = $request->body;
-    $image->user_id = $request->user_id;
-    $image->pinned = $request->pinned;
-    $image->image = $request->path;
-    $image->type = $request->type;
-	$image->aspect_ratio = $request->aspect_ratio;
-$image->cache_url = $request->cache_url;
-$image->thumbnail_url = $request->thumbnail_url;
-    if($request->path){
-        $image->save();
-    }
-    return response()->json(['url' => $request->path], 201);
-});
 
 
 Route::middleware('auth:api')->group(function () {
@@ -105,10 +69,10 @@ Route::get('/bang-updatesnew', function (\Illuminate\Http\Request $request) {
     return response()->json($paginatedResponse);
 });
 
-Route::get('/bang-updates', function (Request $request) {
-    $userId = $request->input('user_id');
+Route::get('/bang-updates', function () {
+
     $appUrl = "https://bangapp.pro/BangAppBackend/";
-    $bangUpdates = BangUpdate::unseenPosts($userId)->orderBy('created_at', 'desc')
+    $bangUpdates = BangUpdate::unseenPosts($user_id)->orderBy('created_at', 'desc')
         ->with([
             'bang_update_likes' => function($query) {
                 $query->select('post_id', DB::raw('count(*) as like_count'))
@@ -133,12 +97,7 @@ Route::get('/bang-updates/{userId}', function ($userId) {
     $bangUpdates = BangUpdate::unseenPosts($userId)->orderBy('created_at', 'desc')
         ->with([
             'bang_update_likes' => function ($query) use ($userId) {
-                $query->select('post_id', DB::raw('count(*) as like_count'))
-<<<<<<< HEAD
-                    ->groupBy('post_id'); // Filter likes by user ID
-=======
-                    ->groupBy('post_id', 'like_type'); // Filter likes by user ID
->>>>>>> eba57488bf621e22c9c10378c8b19bc447a8c873
+                $query->select('post_id')->where('user_id', $userId); // Filter likes by user ID
             },
             'bang_update_like_count' => function($query) {
                 $query->select('post_id', DB::raw('count(*) as like_count'))
@@ -233,6 +192,13 @@ Route::post('imageadd', function(Request $request){
     $image->pinned = $request->pinned;
     if($request->type) {
         $image->type = $request->type;
+        if($request->type == 'video'){
+            $videoPath = videoUploadService($request->file('video'));
+            // You can handle $videoPath as needed
+            echo json_encode($videoPath);
+
+        }
+        else{
             if ($request->file('image')) {
                 $path = $request->file('image')->store('images');
                 $image->image = $path;
@@ -240,14 +206,16 @@ Route::post('imageadd', function(Request $request){
                     $image->save();
                 }
             }
-        
+        }
+
+        // $image->video_height = $request->videoHeight;
+
+
     }
+
 
     return response()->json(['url' => asset($image->image)], 201);
 });
-
-
-
 
 Route::post('imagechallengadd', function(Request $request){
     $image = new Post;
@@ -342,12 +310,9 @@ Route::get('/comments', function(Post $post){
  * The urls are formatted with the app url and returned as a json response.
  *
  */
-Route::get('/get/bangInspirations',function(Request $request){
+Route::get('/get/bangInspirations',function(){
     $appUrl = "https://bangapp.pro/BangAppBackend/";
-    $searchQuery =  $request->input('search_string');
-    $bangInspirations = $searchQuery ?
-        bangInspiration::where('tittle', 'like', '%' . $searchQuery . '%')->get() :
-        bangInspiration::all();
+    $bangInspirations = bangInspiration::all();
     $formattedInspirations = $bangInspirations->map(function ($update) use ($appUrl) {
         $update->profile_url = $appUrl . 'storage/app/bangInspiration/' . $update->profile_url;
         $update->video_url = $appUrl .'storage/app/bangInspiration/'. $update->video_url;
@@ -382,6 +347,82 @@ Route::get('/editPost', function(Request $request){
     }
 });
 
+function videoUploadService($file)
+{
+    $destinationServerURL = 'http://188.166.93.233/api/v1/upload-video';
+
+    // cURL setup
+    $ch = curl_init($destinationServerURL);
+    $fileData = file_get_contents($file);
+
+    // Set cURL options
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, ['video' => base64_encode($fileData), 'aspect_ratio' => "1.8", 'contentID' => '']);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+    // Execute cURL request
+    $response = curl_exec($ch);
+
+    // Get the HTTP response code
+    $httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+    // Check for cURL errors and HTTP status
+    if (curl_errno($ch)) {
+        return ['status' => 'error', 'message' => 'cURL error: ' . curl_error($ch)];
+    } elseif ($httpStatus >= 200 && $httpStatus < 300) {
+        // Successful cURL request
+        return ['status' => 'success', 'message' => 'File uploaded and redirected successfully', 'http_status' => $httpStatus, 'api_response' => $response];
+    } else {
+        // Unsuccessful cURL request
+        return ['status' => 'error', 'message' => 'Failed to redirect the file', 'http_status' => $httpStatus, 'api_response' => $response];
+    }
+
+    // Close cURL session
+    curl_close($ch);
+}
+
+
+
+Route::get('/getPosts', function(Request $request) {
+    $appUrl = "https://bangapp.pro/BangAppBackend/";
+
+    // Get the _page and _limit parameters from the request query
+    $pageNumber = $request->query('_page', 1);
+
+    $numberOfPostsPerRequest = $request->query('_limit', 10);
+
+    $posts = Post::latest()
+        ->with([
+            'category' => function($query) {
+                $query->select('id', 'name');
+            },
+            'likes' => function($query) {
+                $query->select('post_id', 'like_type', DB::raw('count(*) as like_count'))
+                    ->groupBy('post_id', 'like_type');
+            },
+            'challenges' => function($query) {
+                $query->select('*')->where('confirmed', 1);
+            }
+        ])->paginate($numberOfPostsPerRequest, ['*'], '_page', $pageNumber);
+
+    $posts->getCollection()->transform(function($post) use ($appUrl) {
+        $post->image ? $post->image = $appUrl.'storage/app/'.$post->image : $post->image = null;
+        $post->challenge_img ? $post->challenge_img = $appUrl.'storage/app/'.$post->challenge_img : $post->challenge_img = null;
+        $post->video ? $post->video = $appUrl.'storage/app/'.$post->video : $post->video = null;
+        if ($post->type === 'image' && isset($post->media)) {
+            list($post->width, $post->height) = getimagesize($post->media);
+        } else {
+            list($post->width, $post->height) = [300, 300];
+        }
+        foreach ($post->challenges as $challenge) {
+            $challenge->challenge_img ? $challenge->challenge_img = $appUrl . 'storage/app/' . $challenge->challenge_img : $challenge->challenge_img = null;
+        }
+
+        return $post;
+    });
+
+    return response(['data' => $posts, 'message' => 'success'], 200);
+});
 
 Route::get('/getPost', function(Request $request) {
     $appUrl = "https://bangapp.pro/BangAppBackend/";
@@ -405,20 +446,14 @@ Route::get('/getPost', function(Request $request) {
         ])->paginate($numberOfPostsPerRequest, ['*'], '_page', $pageNumber);
 
     $posts->getCollection()->transform(function($post) use ($appUrl, $user_id) {
-
-
-        if ($post->type === 'image' ) {
-            $post->image ? $post->image = $appUrl.'storage/app/'.$post->image : $post->image = null;
-            $post->challenge_img ? $post->challenge_img = $appUrl.'storage/app/'.$post->challenge_img : $post->challenge_img = null;
-            list($post->width, $post->height) =  [300, 300];
-        } 
-        if ($post->type === 'video') {
-            //$streamUrl =  "https://bangapp.pro/BangAppBackend/stream-video/";
-            //$post->image = $streamUrl .str_replace("images/", "", $post->image); // Assuming the video URL is based on the 'video'
-$post->image=$post->image;
+        $post->image ? $post->image = $appUrl.'storage/app/'.$post->image : $post->image = null;
+        $post->challenge_img ? $post->challenge_img = $appUrl.'storage/app/'.$post->challenge_img : $post->challenge_img = null;
+        $post->video ? $post->video = $appUrl.'storage/app/'.$post->video : $post->video = null;
+        if ($post->type === 'image' && isset($post->media)) {
+            list($post->width, $post->height) = getimagesize($post->media);
+        } else {
             list($post->width, $post->height) = [300, 300];
         }
-
         foreach ($post->challenges as $challenge) {
             $challenge->challenge_img ? $challenge->challenge_img = $appUrl . 'storage/app/' . $challenge->challenge_img : $challenge->challenge_img = null;
         }
@@ -481,34 +516,11 @@ $post->image=$post->image;
 });
 
 
-Route::delete('/deleteComment/{commentId}', function ($commentId) {
-    try {
-        $comment = Comment::findOrFail($commentId);
-        $comment->delete();
-        return response(['message' => 'Comment deleted successfully'], 200);
-    } catch (\Exception $e) {
-        return response(['error' => 'Failed to delete comment'], 500);
-    }
-});
-
-
-Route::delete('/deleteBattleComment/{commentId}', function ($commentId) {
-    try {
-        $comment = BattleComment::findOrFail($commentId);
-        $comment->delete();
-        return response(['message' => 'Comment deleted successfully'], 200);
-    } catch (\Exception $e) {
-        return response(['error' => 'Failed to delete comment'], 500);
-    }
-});
 
 
 Route::delete('/deletePost/{id}', function ($id) {
     // Find the post by ID
     $post = Post::findOrFail($id);
-// Delete associated records in the post_views table
-    PostView::where('post_id', $post->id)->delete();
-
     $deletedPostData = $post->toArray();
     unset($deletedPostData['id']);
     DeletedPost::create(['user_id'=>$deletedPostData['user_id'],'body'=>$deletedPostData['user_id'],'type'=>$deletedPostData['type'],'image'=>$deletedPostData['image'],'challenge_img'=>$deletedPostData['challenge_img'],'pinned'=>$deletedPostData['pinned']]);
@@ -698,21 +710,21 @@ Route::post('/sendNotification', function(Request $request)
 Route::get('/getMyPosts', function(Request $request)
 {
     $appUrl = "https://bangapp.pro/BangAppBackend/";
+    // Get the _page and _limit parameters from the request query
     $pageNumber = $request->query('_page', 1);
     $numberOfPostsPerRequest = $request->query('_limit', 10);
     $user_id = $request->input('user_id');
-    $viewer_id = $request->input('viewer_id');
     $posts = Post::latest()->where('user_id', $user_id)->with([
         'user' => function ($query) {
             $query->select('id', 'name', 'image');
         },
         'likes' => function($query) {
-            $query->select('post_id', 'like_type', DB::raw('count(*) as like_count'))
-                ->groupBy('post_id', 'like_type');
+            $query->select('post_id', DB::raw('count(*) as like_count'))
+                ->groupBy('post_id');
         },
     ])->paginate($numberOfPostsPerRequest, ['*'], '_page', $pageNumber);
 
-    $posts->getCollection()->transform(function($post) use ($appUrl,$viewer_id) {
+    $posts->getCollection()->transform(function($post) use ($appUrl,$user_id) {
         $post->image  ? $post->image = $appUrl.'storage/app/'.$post->image : $post->image = null;
         $post->challenge_img ? $post->challenge_img = $appUrl.'storage/app/'.$post->challenge_img : $post->challenge_img = null;
         $post->video ? $post->video = $appUrl.'storage/app/'.$post->video : $post->video = null;
@@ -726,8 +738,7 @@ Route::get('/getMyPosts', function(Request $request)
         $post->isLikedB = false;
         $post->isLiked = false;
         // Check if the user has liked the post and update isLikedA and isLikedB accordingly
-        $likeType = Post::getLikeTypeForUser($viewer_id, $post->id);
-        
+        $likeType = Post::getLikeTypeForUser($user_id, $post->id);
         if ($likeType == "A") {
             $post->isLikedA = true;
             $post->isLiked = true;
@@ -756,7 +767,6 @@ Route::get('/getMyPosts', function(Request $request)
     return response(['data' => $posts, 'message' => 'success'], 200);
 });
 
-
 Route::get('/getComments/{id}', function($id){
     $comments = Comment::where('post_id', $id)->with([
         'user' => function($query) {
@@ -774,10 +784,6 @@ Route::get('/getPostInfo/{post_id}/{user_id}', function($post_id,$user_id)
     $posts = Post::where('id', $post_id)->with([
         'user' => function($query) {
             $query->select('id', 'name', 'image');
-        },
- 'likes' => function($query) {
-            $query->select('post_id', 'like_type', DB::raw('count(*) as like_count'))
-                ->groupBy('post_id', 'like_type');
         },
     ])->get(); // Corrected 'orderBy' here
 
