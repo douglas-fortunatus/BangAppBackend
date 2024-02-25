@@ -59,15 +59,11 @@ class BangUpdate extends Model
 
     public static function getLikeForUser($userId, $postId)
     {
-        $like = BangUpdateLike::where('user_id', $userId)
+        return BangUpdateLike::where('user_id', $userId)
             ->where('post_id', $postId)
-            ->first();
-        if ($like) {
-            return true;
-        }
-
-        return false;
+            ->exists();
     }
+
 
 
 }
