@@ -1010,7 +1010,7 @@ Route::get('/getNotifications/{user_id}', function ($user_id) {
 
             'post' => function ($query) {
                 $query->select('id', 'image');
-            })
+            }])
         ->orderByDesc('created_at')
         ->get();
     // Update notifications to set is_read to true
