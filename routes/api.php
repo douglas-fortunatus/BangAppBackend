@@ -747,6 +747,10 @@ Route::get('/getPostInfo/{post_id}/{user_id}', function($post_id,$user_id)
         'user' => function($query) {
             $query->select('id', 'name', 'image');
         },
+        'likes' => function($query) {
+            $query->select('post_id', 'like_type', DB::raw('count(*) as like_count'))
+                ->groupBy('post_id', 'like_type');
+        },
     ])->get(); // Corrected 'orderBy' here
 
     $posts->transform(function($post) use ($appUrl,$user_id) {
