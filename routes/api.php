@@ -1005,7 +1005,10 @@ Route::get('/getNotifications/{user_id}', function ($user_id) {
     $notifications = Notification::where('reference_id', $user_id)
         ->with(['user' => function ($query) {
             $query->select('id', 'name', 'image'); // Select the desired user attributes
-        }])
+        }],'post' => function ($query) {
+                // Select the desired post attributes
+                $query->select('id', 'image');
+            })
         ->orderByDesc('created_at')
         ->get();
     // Update notifications to set is_read to true

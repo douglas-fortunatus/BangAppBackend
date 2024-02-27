@@ -11,7 +11,7 @@ class Notification extends Model
         'is_read',
     ];
 
-    protected $appends = ['user_image_url'];
+    protected $appends = ['user_image_url','post_image_url'];
 
 
     public function user()
@@ -24,4 +24,16 @@ class Notification extends Model
         $appUrl = "https://bangapp.pro/BangAppBackend/";
         return $appUrl .'storage/app/'.$this->user->image;
     }
+
+    public function post()
+    {
+        return $this->belongsTo(Post::class, 'post_id');
+    }
+
+    public function getPostImageUrlAttribute()
+    {
+        return $this->post->image;
+    }
+
+
 }
