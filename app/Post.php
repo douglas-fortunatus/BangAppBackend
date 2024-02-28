@@ -100,17 +100,13 @@ class Post extends Model
     }
 
     public function getUserImageUrlAttribute()
-{
-    $appUrl = "https://bangapp.pro/BangAppBackend/";
-
-    // Check if the user relationship is not null before accessing the 'image' property
-    if ($this->user) {
-        return $appUrl . 'storage/app/' . $this->user->image;
+    {
+        $appUrl = "https://bangapp.pro/BangAppBackend/";
+        if ($this->user) {
+            return $appUrl . 'storage/app/' . $this->user->image;
+        }
+        return ''; // or return a default image URL if you have one
     }
-
-    // If user relationship is null, return a default image URL or an empty string
-    return ''; // or return a default image URL if you have one
-}
 
 
 
