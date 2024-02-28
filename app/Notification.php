@@ -33,7 +33,7 @@ class Notification extends Model
     public function getPostImageUrlAttribute()
     {
         $appUrl = "https://bangapp.pro/BangAppBackend/";
-        if($this->post->image)
+        if($this->post)
         {
             return $appUrl .'storage/app/'.$this->post->image;
         }
