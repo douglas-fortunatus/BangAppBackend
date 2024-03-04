@@ -952,7 +952,7 @@ Route::get('/bangBattleComment/{id}', function($id){
 Route::get('/getBangBattle/{user_id}', function ($user_id) {
 
     $appUrl = "https://bangapp.pro/BangAppBackend/";
-    $battles = BangBattle::with([
+    $battles = BangBattle::latest()->with([
             'likes' => function($query) {
                 $query->select('battle_id', 'like_type', DB::raw('count(*) as like_count'))
                     ->groupBy('battle_id', 'like_type');
