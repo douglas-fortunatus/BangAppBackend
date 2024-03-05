@@ -831,6 +831,30 @@ Route::post('/postComment', function(request $request,Post $post){
     return response(['data' => $comment, 'message' => 'success'], 200);
 });
 
+Route::post('/postCommentReply', function(request $request,Post $post){
+    $request->validate([
+        'body' => 'string|max:6000',
+    ]);
+    $post = Post::find($request->post_id);
+    $user = User::find($request->user_id);
+    $comment = CommentReplies::create([
+        'user_id' => $request->user_id,
+        'comment_id' => $request->comment_id,
+        'body' => $request->body,
+    ]);
+    $comment = Comment::with([
+        'user' => function($query) {
+            $query->select('id', 'name', 'image');
+        },
+    ])->findOrFail($comment->id);
+    if($post->user->id <> $request->user_id){
+        $pushNotificationService = new PushNotificationService();
+        $pushNotificationService->sendPushNotification($post->user->device_token, $user->name, commentReplyMessage(), $request->post_id,'commentReply');
+        saveNotification($request->user_id, commentReplyMessage(), 'commentReply', $post->user->id, $request->post_id);
+    }
+    return response(['data' => $comment, 'message' => 'success'], 200);
+});
+
 Route::post('/postUpdateComment', function(request $request,Post $post){
     $request->validate([
         'body' => 'string|max:6000',
@@ -1028,6 +1052,11 @@ function likeMessage(){
 
 function commentMessage(){
     return "Has Commented on Your Post";
+}
+
+function commentReplyMessage()
+{
+    return "Has Replied to Your Comment";
 }
 
 function chatMessage(){
