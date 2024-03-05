@@ -847,7 +847,7 @@ Route::post('/postCommentReply', function(request $request,Post $post){
         'user' => function($query) {
             $query->select('id', 'name', 'image');
         },
-    ])->findOrFail($comment->id);
+    ])->findOrFail($request->comment_id);
     if($post->user->id <> $request->user_id){
         $pushNotificationService = new PushNotificationService();
         $pushNotificationService->sendPushNotification($post->user->device_token, $user->name, commentReplyMessage(), $request->post_id,'commentReply');

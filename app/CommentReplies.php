@@ -7,11 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class CommentReplies extends Model
 {
-    use HasFactory;
+    use Favorable;
 
     protected $fillable = [
-    	"body","user_id","comment_id"
-
+        'user_id', 'comment_id','body',
     ];
+    protected $with = ['comment'];
+
+    public function comment()
+    {
+        return $this->belongsTo(Comment::class,'comment_id');
+    }
 
 }
