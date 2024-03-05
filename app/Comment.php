@@ -10,11 +10,16 @@ class Comment extends Model
     use Favorable;
 
     protected $guarded = [];
-    protected $appends = ['favoriteCount', 'isFavorited','user_image_url'];
+    protected $appends = ['favoriteCount', 'isFavorited','user_image_url','replies_count'];
     protected $with = ['post'];
 
     public function post() {
         return $this->belongsTo(Post::class);
+    }
+
+    public function replies()
+    {
+        return $this->hasMany(CommentReplies::class, 'comment_id');
     }
 
     public function user() {
@@ -29,6 +34,11 @@ class Comment extends Model
     {
         $appUrl = "https://bangapp.pro/BangAppBackend/";
         return $appUrl .'storage/app/'.$this->user->image;
+    }
+
+    public function getRepliesCountAttribute()
+    {
+        return $this->replies->count();
     }
 
 }
