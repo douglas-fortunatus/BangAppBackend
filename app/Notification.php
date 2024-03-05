@@ -50,10 +50,18 @@ class Notification extends Model
 
     public function getPostTypeAttribute()
     {
-        if($this->post)
-        {
-            return $this->post->type;
-        }
+        return $this->post->type;
+        // if($this->post)
+        // {
+        //     if(isset($this->post->thumbnail_url))
+        //     {
+        //         return 'video';
+        //     }
+        //     else{
+        //         return 'image';
+        //     }
+        
+        // }
     }
 
 
