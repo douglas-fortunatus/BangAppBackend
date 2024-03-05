@@ -11,7 +11,7 @@ class Notification extends Model
         'is_read',
     ];
 
-    protected $appends = ['user_image_url','post_image_url','post_thumbnail_url'];
+    protected $appends = ['user_image_url','post_image_url','post_thumbnail_url', 'post_type'];
 
 
     public function user()
@@ -45,6 +45,14 @@ class Notification extends Model
         if($this->post)
         {
             return $this->post->thumbnail_url;
+        }
+    }
+
+    public function getPostTypeAttribute()
+    {
+        if($this->post)
+        {
+            return $this->post->type;
         }
     }
 
