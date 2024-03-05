@@ -11,15 +11,10 @@ class Comment extends Model
 
     protected $guarded = [];
     protected $appends = ['favoriteCount', 'isFavorited','user_image_url','replies_count'];
-    protected $with = ['post'];
+    protected $with = ['post',];
 
     public function post() {
         return $this->belongsTo(Post::class);
-    }
-
-    public function replies()
-    {
-        return $this->hasMany(CommentReplies::class, 'comment_id');
     }
 
     public function user() {
@@ -38,7 +33,7 @@ class Comment extends Model
 
     public function getRepliesCountAttribute()
     {
-        return $this->replies->count();
+        return CommentReplies::where('comment_id', $this->id)->count();
     }
 
 }
