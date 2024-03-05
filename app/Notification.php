@@ -40,5 +40,13 @@ class Notification extends Model
         return '';
     }
 
+    public function getPostThumbnailUrlAttribute()
+    {
+        if($this->post)
+        {
+            return $this->post->thumbnail_url;
+        }
+    }
+
 
 }
