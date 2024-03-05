@@ -739,6 +739,15 @@ Route::get('/getComments/{id}', function($id){
     return response()->json(['comments' => $comments]);
 });
 
+Route::get('/getCommentsReplies/{id}', function($id){
+    $commentsReplies = CommentReplies::where('comment_id', $id)->with([
+        'user' => function($query) {
+            $query->select('id', 'name', 'image');
+        },
+    ])->orderBy('created_at', 'asc')->get(); // Corrected 'orderBy' here
+    return response()->json(['commentsReplies' => $commentsReplies]);
+});
+
 
 Route::get('/getPostInfo/{post_id}/{user_id}', function($post_id,$user_id)
 {
