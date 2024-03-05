@@ -16,6 +16,7 @@ use FFMpeg\Coordinate\Dimension;
 use App\BangUpdate;
 use App\bangInspiration;
 use App\Comment;
+use App\CommentReplies;
 use App\DeletedPost;
 use App\Hobby;
 use App\PostView;
