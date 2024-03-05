@@ -1007,9 +1007,8 @@ Route::get('/getNotifications/{user_id}', function ($user_id) {
             'user' => function ($query) {
             $query->select('id', 'name', 'image'); 
             },
-
             'post' => function ($query) {
-                $query->select('id', 'image');
+                $query->select('id', 'image','thumbnail_url');
             }])
         ->orderByDesc('created_at')
         ->get();
