@@ -11,7 +11,7 @@ class Notification extends Model
         'is_read',
     ];
 
-    protected $appends = ['user_image_url','post_image_url'];
+    protected $appends = ['user_image_url','post_image_url','post_humbnail_url'];
 
 
     public function user()
