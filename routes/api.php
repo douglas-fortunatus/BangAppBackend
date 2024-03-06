@@ -483,6 +483,8 @@ $post->image=$post->image;
 Route::delete('/deletePost/{id}', function ($id) {
     // Find the post by ID
     $post = Post::findOrFail($id);
+    // Delete associated post_views records
+    $post->postViews()->delete();
     $deletedPostData = $post->toArray();
     unset($deletedPostData['id']);
     DeletedPost::create(['user_id'=>$deletedPostData['user_id'],'body'=>$deletedPostData['user_id'],'type'=>$deletedPostData['type'],'image'=>$deletedPostData['image'],'challenge_img'=>$deletedPostData['challenge_img'],'pinned'=>$deletedPostData['pinned']]);

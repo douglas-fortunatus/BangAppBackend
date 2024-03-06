@@ -11,7 +11,7 @@ class Comment extends Model
 
     protected $guarded = [];
     protected $appends = ['favoriteCount', 'isFavorited','user_image_url','replies_count'];
-    protected $with = ['post',];
+    // protected $with = ['post'];
 
     public function post() {
         return $this->belongsTo(Post::class);
