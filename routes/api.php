@@ -486,7 +486,7 @@ Route::delete('/deletePost/{id}', function ($id) {
     // Delete associated post_views records
     $post->postViews()->delete();
     $post->comments()->delete();
-    $post->likes()->delete();
+    $post->likess()->delete();
     $deletedPostData = $post->toArray();
     unset($deletedPostData['id']);
     DeletedPost::create(['user_id'=>$deletedPostData['user_id'],'body'=>$deletedPostData['user_id'],'type'=>$deletedPostData['type'],'image'=>$deletedPostData['image'],'challenge_img'=>$deletedPostData['challenge_img'],'pinned'=>$deletedPostData['pinned']]);
