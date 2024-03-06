@@ -1036,24 +1036,21 @@ Route::get('/getBangBattle/{user_id}', function ($user_id) {
 });
 
 
-Route::get('/getNotifications/{user_id}', function ($user_id) {
-    // Fetch notifications for the user with user details (name and image)
+Route::get('/getNotifications/{user_id}/{page?}/{perPage?}', function ($user_id, $page = 1, $perPage = 10) {
     $notifications = Notification::where('reference_id', $user_id)
         ->with([
             'user' => function ($query) {
-            $query->select('id', 'name', 'image'); 
+                $query->select('id', 'name', 'image'); 
             },
             'post' => function ($query) {
-                $query->select('id', 'image','thumbnail_url');
-            }])
+                $query->select('id', 'image', 'thumbnail_url');
+            }
+        ])
         ->orderByDesc('created_at')
-        ->get();
-    // Update notifications to set is_read to true
+        ->paginate($perPage, ['*'], 'page', $page);
     foreach ($notifications as $notification) {
-        // Notification::updateIsRead($notification->id);
         $notification->update(['is_read' => 1]);
     }
-
     return response()->json(['notifications' => $notifications]);
 });
 
