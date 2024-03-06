@@ -485,6 +485,8 @@ Route::delete('/deletePost/{id}', function ($id) {
     $post = Post::findOrFail($id);
     // Delete associated post_views records
     $post->postViews()->delete();
+    $post->comments()->delete();
+    $post->likes()->delete();
     $deletedPostData = $post->toArray();
     unset($deletedPostData['id']);
     DeletedPost::create(['user_id'=>$deletedPostData['user_id'],'body'=>$deletedPostData['user_id'],'type'=>$deletedPostData['type'],'image'=>$deletedPostData['image'],'challenge_img'=>$deletedPostData['challenge_img'],'pinned'=>$deletedPostData['pinned']]);
@@ -1036,7 +1038,8 @@ Route::get('/getBangBattle/{user_id}', function ($user_id) {
 });
 
 
-Route::get('/getNotifications/{user_id}/{page?}/{perPage?}', function ($user_id, $page = 1, $perPage = 10) {
+Route::get('/getNotifications/{user_id}/{page?}/{perPage?}', function ($user_id, $page = 1, $perPage = 10) 
+{
     $notifications = Notification::where('reference_id', $user_id)
         ->with([
             'user' => function ($query) {
