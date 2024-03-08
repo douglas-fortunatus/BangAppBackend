@@ -5,6 +5,8 @@ namespace App;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use Carbon\Carbon;
+
 class CommentReplies extends Model
 {
     use Favorable;
@@ -19,6 +21,10 @@ class CommentReplies extends Model
     public function comment()
     {
         return $this->belongsTo(Comment::class,'comment_id');
+    }
+
+    public function getCreatedAtAttribute($value) {
+        return (new Carbon($value))->diffForHumans();
     }
 
     public function user() {
