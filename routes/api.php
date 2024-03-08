@@ -16,7 +16,7 @@ use FFMpeg\Coordinate\Dimension;
 use App\BangUpdate;
 use App\bangInspiration;
 use App\Comment;
-use App\Azampay;
+use App\azampay;
 use App\CommentReplies;
 use App\DeletedPost;
 use App\Hobby;
