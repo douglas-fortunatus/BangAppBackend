@@ -16,6 +16,7 @@ use FFMpeg\Coordinate\Dimension;
 use App\BangUpdate;
 use App\bangInspiration;
 use App\Comment;
+use App\Azampay;
 use App\CommentReplies;
 use App\DeletedPost;
 use App\Hobby;
@@ -72,6 +73,12 @@ Route::post('/videoAddServer', function(Request $request){
     }
     return response()->json(['url' => $request->path], 201);
 });
+
+Route::any('/azampay', function(Request $request){
+    $create = Azampay::create(["response" => json_encode($request->all())]);
+    return response()->json(['id' => $create->id], 201);
+});
+
 
 
 Route::middleware('auth:api')->group(function () {
@@ -890,7 +897,6 @@ Route::post('/postUpdateComment', function(request $request,Post $post){
 Route::post('/acceptChallenge', function(request $request){
     $challenge = Challenge::find($request->post_id);
     if ($challenge) {
-        # code...
         $challenge->confirmed = 1;
         if($challenge->save()){
             return response(['data' => $challenge, 'message' => 'success'], 200);
