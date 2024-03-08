@@ -1,17 +1,23 @@
 import express from 'express';
 import fetch from 'node-fetch';
+// import https from 'https';
 import PhoneNumberChecker from '../azampay//PhoneNumberChecker.js'; // Assuming you have this class
 import TokenFetcher from '../azampay/TokenFetcher.js'; // Import the TokenFetcher class
 
 const app = express();
-const port = 3000;
+const port = 3001;
 
 app.use(express.json());
 
+
+
 app.post('/azampay/checkout', async (req, res) => {
+  console.log(req.body.phone_number);
+  console.log('martin')
+  console.log(req)
   try {
-    const phoneNumber = req.query.phone_number;
-    const amount = req.query.amount;
+    const phoneNumber = req.body.phone_number;
+    const amount = req.body.amount;
 
     // Fetch the token using the TokenFetcher class
     const token = await TokenFetcher.fetchToken();
@@ -23,8 +29,8 @@ app.post('/azampay/checkout', async (req, res) => {
       externalId: '123',
       provider: PhoneNumberChecker.checkProvider(phoneNumber),
       additionalProperties: {
-        postId: req.query.post_id,
-        userId: req.query.user_id,
+        postId: req.body.post_id,
+        userId: req.body.user_id,
       },
     };
 
