@@ -9,8 +9,6 @@ const port = 3001;
 
 app.use(express.json());
 
-
-
 app.post('/azampay/checkout', async (req, res) => {
   console.log(req.body.phone_number);
   console.log('martin')
@@ -57,6 +55,9 @@ app.post('/azampay/checkout', async (req, res) => {
     console.error('Error:', error.message);
     res.status(500).json({ error: error.message });
   }
+
+
+
 });
 
 app.listen(port, () => {

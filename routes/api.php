@@ -75,8 +75,43 @@ Route::post('/videoAddServer', function(Request $request){
 });
 
 Route::any('/azampay', function(Request $request){
-    $create = Azampay::create(["response" => json_encode($request->all())]);
-    return response()->json(['id' => $create->id], 201);
+    $data = $request->all();
+
+    $additionalProperties = $data['additionalProperties'] ?? [];
+    $user_id = $additionalProperties['user_id'] ?? null;
+    $post_id = $additionalProperties['post_id'] ?? null;
+    $azampay = Azampay::create([
+        'response' => json_encode($data),
+        'message' => $data['message'] ?? null,
+        'user' => $data['user'] ?? null,
+        'password' => $data['password'] ?? null,
+        'clientId' => $data['clientId'] ?? null,
+        'transactionstatus' => $data['transactionstatus'] ?? null,
+        'operator' => $data['operator'] ?? null,
+        'reference' => $data['reference'] ?? null,
+        'externalreference' => $data['externalreference'] ?? null,
+        'utilityref' => $data['utilityref'] ?? null,
+        'amount' => $data['amount'] ?? null,
+        'transid' => $data['transid'] ?? null,
+        'msisdn' => $data['msisdn'] ?? null,
+        'mnoreference' => $data['mnoreference'] ?? null,
+        'submerchantAcc' => $data['submerchantAcc'] ?? null,
+        'user_id' => $user_id,
+        'post_id' => $post_id,
+    ]);
+
+    return response()->json(['id' => $azampay->id], 201);
+});
+
+Route::get('/getPaymentStatus/{transactionId}', function($transactionId){
+
+    $payment = Azampay::where('transid', $transactionId)->where('transactionstatus', 'success')->get();
+    if ($payment){
+        return response()->json(['status' => true], 201);
+    }
+    else{
+        return response()->json(['status' => false], 201);
+    }
 });
 
 
