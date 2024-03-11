@@ -104,13 +104,12 @@ Route::any('/azampay', function(Request $request){
 });
 
 Route::get('/getPaymentStatus/{transactionId}', function($transactionId){
-
     $payment = Azampay::where('transid', $transactionId)->where('transactionstatus', 'success')->get();
     if ($payment){
-        return response()->json(['status' => true], 201);
+        return response()->json(['status' => true], 200);
     }
     else{
-        return response()->json(['status' => false], 201);
+        return response()->json(['status' => false], 200);
     }
 });
 
@@ -272,7 +271,10 @@ Route::post('imageadd', function(Request $request){
     $image = new Post;
     $image->body = $request->body;
     $image->user_id = $request->user_id;
-    $image->pinned = $request->pinned;
+    if($request->pinned){
+        $image->pinned = $request->pinned;
+        $image->price = $request->price;
+    }
     if($request->type) {
         $image->type = $request->type;
             if ($request->file('image')) {
@@ -287,7 +289,6 @@ Route::post('imageadd', function(Request $request){
 
     return response()->json(['url' => asset($image->image)], 201);
 });
-
 
 
 
