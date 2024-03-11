@@ -78,8 +78,8 @@ Route::any('/azampay', function(Request $request){
     $data = $request->all();
 
     $additionalProperties = $data['additionalProperties'] ?? [];
-    $user_id = $additionalProperties['user_id'] ?? null;
-    $post_id = $additionalProperties['post_id'] ?? null;
+    $postId = $additionalProperties['postId'] ?? null;
+    $userId = $additionalProperties['userId'] ?? null;
     $azampay = Azampay::create([
         'response' => json_encode($data),
         'message' => $data['message'] ?? null,
@@ -96,17 +96,17 @@ Route::any('/azampay', function(Request $request){
         'msisdn' => $data['msisdn'] ?? null,
         'mnoreference' => $data['mnoreference'] ?? null,
         'submerchantAcc' => $data['submerchantAcc'] ?? null,
-        'user_id' => $user_id,
-        'post_id' => $post_id,
+        'user_id' => $userId,
+        'post_id' => $postId,
     ]);
 
     return response()->json(['id' => $azampay->id], 201);
 });
 
 Route::get('/getPaymentStatus/{transactionId}', function($transactionId){
-    $payment = Azampay::where('transid', $transactionId)->where('transactionstatus', 'success')->get();
+    $payment = Azampay::where('transid', $transactionId)->where('transactionstatus', 'success')->first();
     if ($payment){
-        return response()->json(['status' => true], 200);
+        return response()->json(['status' => true, 'post_id'=>$payment->post_id], 200);
     }
     else{
         return response()->json(['status' => false], 200);
