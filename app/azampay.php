@@ -10,7 +10,7 @@ class azampay extends Model
     use HasFactory;
 
     protected $fillable = [
-	    'response'
+	    'response',
 	    'message',
 	    'user',
 	    'password',
@@ -26,6 +26,6 @@ class azampay extends Model
 	    'mnoreference',
 	    'submerchantAcc',
 	    'user_id',
-	    'post_id'
+	    'post_id',
 	];
 }
