@@ -58,6 +58,7 @@ class ChatController extends Controller
                 'time' => $lastMessage ? $lastMessage->created_at->diffForHumans() : '',
                 'unreadCount' => $unreadCount, // Include count of unread messages
                 'isActive' => false,
+                'public'=> $receiver->public,
             ];
         }
         usort($chats, function ($a, $b) {
