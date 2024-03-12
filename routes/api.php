@@ -1130,15 +1130,11 @@ function saveNotification($user_id,$body,$type,$reference_id,$post_id){
 // ALTER TABLE `users` CHANGE `public_id` `public` BOOLEAN NULL DEFAULT FALSE;
 Route::post('/pinMessage',function (Request $request){
     $user = User::find($request->user_id);
-
     if (!$user) {
         return response()->json(['error' => 'User not found'], 404);
     }
-
-    // Toggle the value of 'public_id', treating NULL as false
     $user->update(['public' => !$user->public ?? false]);
-
-    return response()->json(['message' => 'Public ID toggled successfully', 'value'=>!$user->public]);
+    return response()->json(['message' => 'Public ID toggled successfully', 'value'=>$user->public]);
 
 });
 
