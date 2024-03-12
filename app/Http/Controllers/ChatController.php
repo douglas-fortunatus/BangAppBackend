@@ -59,6 +59,7 @@ class ChatController extends Controller
                 'unreadCount' => $unreadCount, // Include count of unread messages
                 'isActive' => false,
                 'public'=> $receiver->public,
+                'price' => $receiver->price ?? 0,
             ];
         }
         usort($chats, function ($a, $b) {
