@@ -22,6 +22,7 @@ class CreateUsersTable extends Migration
             $table->string('public_id')->nullable();
             $table->string('password');
             $table->string('device_token');
+            $table->decimal('price')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

@@ -1138,6 +1138,16 @@ Route::post('/pinMessage',function (Request $request){
 
 });
 
+Route::post('/setUserPinPrice',function (Request $request){
+    $user = User::find($request->user_id);
+    if (!$user) {
+        return response()->json(['error' => 'User not found'], 404);
+    }
+    $user->update(['price' => $request->price]);
+    return response()->json(['message' => 'Price set successfully', 'price'=>$user->price]);
+
+});
+
 Route::get('/getNotificationCount/{user_id}',function ($user_id){
     $notificationCount = Notification::where('is_read',0)->where('reference_id', $user_id)->count();
     return response()->json(['notification_count' => $notificationCount]);
